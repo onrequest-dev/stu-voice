@@ -4,7 +4,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { signupUser } from '@/client_helpers/signup';
 import { getClientFingerprint } from '@/client_helpers/getfingerprint';
-import { redirect } from 'next/navigation';
 
 const SignUpHero = () => {
   const [formData, setFormData] = useState({
@@ -13,10 +12,11 @@ const SignUpHero = () => {
     confirmPassword: ''
   });
   const [passwordStrength, setPasswordStrength] = useState(0);
-
+  const [showPasswordError, setShowPasswordError] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
 
   // حساب قوة كلمة المرور
-    const calculatePasswordStrength = (password: string) => {
+  const calculatePasswordStrength = (password: string) => {
     let strength = 0;
     if (password.length > 5) strength += 1;
     if (password.length > 8) strength += 1;
@@ -24,8 +24,7 @@ const SignUpHero = () => {
     if (/[0-9]/.test(password)) strength += 1;
     if (/[^A-Za-z0-9]/.test(password)) strength += 1;
     return strength; 
-    };
-
+  };
 
   useEffect(() => {
     setPasswordStrength(calculatePasswordStrength(formData.password));
@@ -40,10 +39,17 @@ const SignUpHero = () => {
     e.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
-      // setMessage({ text: 'كلمتا المرور غير متطابقتين', type: 'error' });
+      setAlertMessage('كلمتا المرور غير متطابقتين');
       return;
     }
 
+    if (passwordStrength < 3) {
+      setShowPasswordError(true);
+      setAlertMessage('كلمة المرور ضعيفة. يجب أن تحتوي على الأقل 8 أحرف وتشمل حروفًا كبيرة وأرقامًا');
+      return;
+    }
+
+    // هنا يمكن تمرير بيانات البصمة الرقمية إذا متوفرة، حاليًا نرسل بدونها
     const fingerprint  = await getClientFingerprint();
     console.log('Fingerprint data:', fingerprint);
     const result = await signupUser(formData.username, formData.password, fingerprint);
@@ -52,18 +58,19 @@ const SignUpHero = () => {
       // setMessage({ text: result.message, type: 'success' });
       setFormData({ username: '', password: '', confirmPassword: '' }); // مسح النموذج بعد النجاح
       setPasswordStrength(0);
-      let redirectUrl = new URLSearchParams(window.location.search).get('redirect');
-      if (redirectUrl) {
-        window.open(redirectUrl, '_blank', 'noopener,noreferrer');
-      } else {
-        window.location.href = '/';
-      }
     } else {
       // setMessage({ text: result.message, type: 'error' });
     }
   };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-white relative overflow-hidden p-4">
+      {/* عرض رسالة التنبيه إذا كانت موجودة */}
+      <MicrophoneAlert 
+        message={alertMessage} 
+        onDismiss={() => setAlertMessage('')} 
+      />
+
       {/* الزخارف الدائرية الكبيرة */}
       <div className="absolute -top-32 -left-32 w-80 h-80 bg-blue-100 rounded-full opacity-20 -z-10"></div>
       <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-blue-200 rounded-full opacity-15 -z-10"></div>
@@ -87,10 +94,10 @@ const SignUpHero = () => {
             <Image
               src="/stu-voice.png"
               alt="StuVoice Logo"
-              width={400}  // زيادة حجم الصورة
+              width={400}
               height={250}
-              className="object-contain drop-shadow-xl" // ظل أكثر وضوحًا
-              quality={100} // أعلى جودة للصورة
+              className="object-contain drop-shadow-xl"
+              quality={100}
               priority
             />
           </div>
@@ -119,7 +126,6 @@ const SignUpHero = () => {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
                 required
               />
-              
             </div>
 
             {/* حقل كلمة المرور */}
@@ -137,18 +143,23 @@ const SignUpHero = () => {
                 required
               />
               {/* شريط قوة كلمة المرور */}
-              <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
-                <div 
-                  className={`h-2.5 rounded-full ${
-                    passwordStrength < 2 ? 'bg-red-500' :
-                    passwordStrength < 4 ? 'bg-yellow-500' : 'bg-green-500'
-                  }`}
-                  style={{ width: `${(passwordStrength / 5) * 100}%` }}
-                />
-              </div>
+                <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2 overflow-hidden">
+                  <div 
+                    className={`h-2.5 rounded-full transition-all duration-300 ease-out ${
+                      passwordStrength < 2 ? 'bg-red-500' :
+                      passwordStrength < 4 ? 'bg-yellow-500' : 'bg-green-500'
+                    }`}
+                    style={{ width: `${(passwordStrength / 5) * 100}%` }}
+                  />
+                </div>
               <p className="text-xs text-gray-500 mt-1">
-                قوة كلمة المرور: {['ضعيفة جداً', 'ضعيفة', 'متوسطة', 'قوية', 'قوية جداً','رائعة القوة' ][passwordStrength]}
+                قوة كلمة المرور: {['ضعيفة جداً', 'ضعيفة', 'متوسطة', 'قوية', 'قوية جداً','رائعة القوة'][passwordStrength]}
+              </p>
+              {showPasswordError && passwordStrength < 3 && (
+                <p className="text-sm text-red-600 mt-1">
+                  كلمة المرور ضعيفة. يجب أن تحتوي على الأقل 8 أحرف وتشمل حروفًا كبيرة وأرقامًا
                 </p>
+              )}
             </div>
 
             {/* تأكيد كلمة المرور */}
@@ -173,17 +184,16 @@ const SignUpHero = () => {
             {/* زر التسجيل */}
             <button
               type="submit"
-              disabled={passwordStrength < 3 || formData.password !== formData.confirmPassword}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg disabled:bg-gray-400 disabled:cursor-not-allowed transition duration-300 transform hover:-translate-y-0.5 hover:shadow-md"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition duration-300 transform hover:-translate-y-0.5 hover:shadow-md"
             >
               تسجيل
             </button>
           </form>
-
+          
           {/* رابط تسجيل الدخول */}
           <p className="text-center text-sm text-gray-600">
             لديك حساب بالفعل؟{' '}
-            <Link href="/log-in"  className="text-blue-600 hover:text-blue-800 font-medium">
+            <Link href="/log-in" className="text-blue-600 hover:text-blue-800 font-medium">
               سجل الدخول
             </Link>
           </p>
