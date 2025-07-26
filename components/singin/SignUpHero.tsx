@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { signupUser } from '@/client_helpers/signup';
 import { getClientFingerprint } from '@/client_helpers/getfingerprint';
+import { redirect } from 'next/navigation';
 
 const SignUpHero = () => {
   const [formData, setFormData] = useState({
@@ -43,7 +44,6 @@ const SignUpHero = () => {
       return;
     }
 
-    // هنا يمكن تمرير بيانات البصمة الرقمية إذا متوفرة، حاليًا نرسل بدونها
     const fingerprint  = await getClientFingerprint();
     console.log('Fingerprint data:', fingerprint);
     const result = await signupUser(formData.username, formData.password, fingerprint);
@@ -52,6 +52,12 @@ const SignUpHero = () => {
       // setMessage({ text: result.message, type: 'success' });
       setFormData({ username: '', password: '', confirmPassword: '' }); // مسح النموذج بعد النجاح
       setPasswordStrength(0);
+      let redirectUrl = new URLSearchParams(window.location.search).get('redirect');
+      if (redirectUrl) {
+        window.open(redirectUrl, '_blank', 'noopener,noreferrer');
+      } else {
+        window.location.href = '/';
+      }
     } else {
       // setMessage({ text: result.message, type: 'error' });
     }

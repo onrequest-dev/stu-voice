@@ -63,8 +63,7 @@ export async function POST(request: NextRequest) {
         .insert([{ "user_name": username, "hashed_password": hashedPassword , "fingerprint_hash": hash, "fingerprint_metadata": metadata, "trust_score": trustScore }])
         .select()
         .single();
-    console.log("User creation result:", user, dbError);
-if (dbError) {
+      if (dbError) {
      if (dbError.code === "23505" || dbError.message.includes("duplicate key")) {
           // رمز الخطأ 23505 هو تعارض مفتاح فريد (اسم مستخدم موجود)
           return NextResponse.json({ error: user_already_exists }, { status: 409 });

@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { getClientFingerprint } from '@/client_helpers/getfingerprint';
+import { loginUser } from '@/client_helpers/login';
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
@@ -18,11 +19,19 @@ const LoginPage = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit =  async(e: React.FormEvent) => {
     e.preventDefault();
-    getClientFingerprint().then(fingerprint => {
-      console.log('Fingerprint:', fingerprint);
-    });
+    const result = await loginUser(formData.username, formData.password);
+    if (result.success) {
+      // setMessage({ text: result.message, type: 'success' });
+      setFormData({ username: '', password: '' }); // مسح النموذج بعد النجاح
+      let redirectUrl = new URLSearchParams(window.location.search).get('redirect');
+      if (redirectUrl) {
+        window.open(redirectUrl, '_blank', 'noopener,noreferrer');
+      } else {
+        window.location.href = '/';
+      }
+    }
     // إرسال بيانات الدخول إلى الخادم
   };
 
