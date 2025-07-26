@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { signupUser } from '@/client_helpers/signup';
 import { getClientFingerprint } from '@/client_helpers/getfingerprint';
 import Alert from '../Alert';
-import Alert from '../Alert';
 
 const SignUpHero = () => {
   const [formData, setFormData] = useState({
@@ -15,11 +14,9 @@ const SignUpHero = () => {
   });
   const [passwordStrength, setPasswordStrength] = useState(0);
   const [showPasswordError, setShowPasswordError] = useState(false);
-  const [alertMessage, setAlertMessage] = useState('');  const [showPasswordError, setShowPasswordError] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
 
   // حساب قوة كلمة المرور
-  const calculatePasswordStrength = (password: string) => {
   const calculatePasswordStrength = (password: string) => {
     let strength = 0;
     if (password.length > 5) strength += 1;
@@ -28,7 +25,6 @@ const SignUpHero = () => {
     if (/[0-9]/.test(password)) strength += 1;
     if (/[^A-Za-z0-9]/.test(password)) strength += 1;
     return strength; 
-  };
   };
 
   useEffect(() => {
@@ -51,13 +47,6 @@ const SignUpHero = () => {
     if (passwordStrength < 3) {
       setShowPasswordError(true);
       setAlertMessage('كلمة المرور ضعيفة. يجب أن تحتوي على الأقل 8 أحرف وتشمل حروفًا كبيرة وأرقامًا');
-      setAlertMessage('كلمتا المرور غير متطابقتين');
-      return;
-    }
-
-    if (passwordStrength < 3) {
-      setShowPasswordError(true);
-      setAlertMessage('كلمة المرور ضعيفة. يجب أن تحتوي على الأقل 8 أحرف وتشمل حروفًا كبيرة وأرقامًا');
       return;
     }
 
@@ -70,7 +59,12 @@ const SignUpHero = () => {
       if (result.success) {
         setFormData({ username: '', password: '', confirmPassword: '' });
         setPasswordStrength(0);
-        setAlertMessage('تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول');
+        let redirectUrl = new URLSearchParams(window.location.search).get('redirect');
+      if (redirectUrl) {
+        window.open(redirectUrl, '_blank', 'noopener,noreferrer');
+      } else {
+        window.location.href = '/';
+      }
       } else {
         setAlertMessage(result.message || 'حدث خطأ أثناء التسجيل. يرجى المحاولة مرة أخرى');
       }
@@ -80,15 +74,8 @@ const SignUpHero = () => {
     }
   };
 
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-white relative overflow-hidden p-4">
-      {/* عرض رسالة التنبيه إذا كانت موجودة */}
-      <Alert 
-        message={alertMessage} 
-        onDismiss={() => setAlertMessage('')} 
-      />
-
       {/* عرض رسالة التنبيه إذا كانت موجودة */}
       <Alert 
         message={alertMessage} 
@@ -119,10 +106,7 @@ const SignUpHero = () => {
               src="/stu-voice.png"
               alt="StuVoice Logo"
               width={400}
-              width={400}
               height={250}
-              className="object-contain drop-shadow-xl"
-              quality={100}
               className="object-contain drop-shadow-xl"
               quality={100}
               priority
@@ -170,28 +154,22 @@ const SignUpHero = () => {
                 required
               />
               {/* شريط قوة كلمة المرور */}
-                  <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2 overflow-hidden overflow-hidden">
-                    <div 
-                      className={`h-2.5 rounded-full transition-all duration-300 ease-out transition-all duration-300 ease-out ${
-                        passwordStrength < 2 ? 'bg-red-500' :
-                        passwordStrength < 4 ? 'bg-yellow-500' : 'bg-green-500'
-                      }`}
-                      style={{ width: `${(passwordStrength / 5) * 100}%` }}
-                    />
-                  </div>
+                <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2 overflow-hidden">
+                  <div 
+                    className={`h-2.5 rounded-full transition-all duration-300 ease-out ${
+                      passwordStrength < 2 ? 'bg-red-500' :
+                      passwordStrength < 4 ? 'bg-yellow-500' : 'bg-green-500'
+                    }`}
+                    style={{ width: `${(passwordStrength / 5) * 100}%` }}
+                  />
+                </div>
               <p className="text-xs text-gray-500 mt-1">
                 قوة كلمة المرور: {['ضعيفة جداً', 'ضعيفة', 'متوسطة', 'قوية', 'قوية جداً','رائعة القوة'][passwordStrength]}
               </p>
               {showPasswordError && passwordStrength < 3 && (
                 <p className="text-sm text-red-600 mt-1">
                   كلمة المرور ضعيفة. يجب أن تحتوي على الأقل 8 أحرف وتشمل حروفًا كبيرة وأرقامًا
-                قوة كلمة المرور: {['ضعيفة جداً', 'ضعيفة', 'متوسطة', 'قوية', 'قوية جداً','رائعة القوة'][passwordStrength]}
-              </p>
-              {showPasswordError && passwordStrength < 3 && (
-                <p className="text-sm text-red-600 mt-1">
-                  كلمة المرور ضعيفة. يجب أن تحتوي على الأقل 8 أحرف وتشمل حروفًا كبيرة وأرقامًا
                 </p>
-              )}
               )}
             </div>
 
@@ -218,12 +196,11 @@ const SignUpHero = () => {
             <button
               type="submit"
               className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition duration-300 transform hover:-translate-y-0.5 hover:shadow-md"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition duration-300 transform hover:-translate-y-0.5 hover:shadow-md"
             >
               تسجيل
             </button>
           </form>
-                    
+          
           {/* رابط تسجيل الدخول */}
           <p className="text-center text-sm text-gray-600">
             لديك حساب بالفعل؟{' '}
