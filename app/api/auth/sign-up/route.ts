@@ -1,15 +1,17 @@
 // app/api/signup/route.ts
 import { z } from "zod";
-import { password_should_be_at_least_6_characters, user_creation_failed, user_already_exists, user_name_shouldbe_at_least_3_characters, username_and_password_required } from "@/static/keywords";
+import { password_should_be_at_least_n_characters, user_creation_failed, user_already_exists, user_name_shouldbe_at_least_n_characters, username_and_password_required, user_created_successfully } from "@/static/keywords";
 import { NextRequest, NextResponse } from "next/server";
 import { sanitizeAndValidateInput } from "@/lib/sanitize";
 import { supabase } from "@/lib/supabase";
 import { rateLimiterMiddleware } from "@/lib/rateLimiterMiddleware";
+import createJwt from "@/lib/create_jwt";
+import { getUserIp } from "@/lib/get_userip";
 
 // 1. تعريف شكل البيانات المتوقعة
 const userSchema = z.object({
-  username: z.string().min(3, user_name_shouldbe_at_least_3_characters),
-  password: z.string().min(6, password_should_be_at_least_6_characters),
+  username: z.string().min(4, user_name_shouldbe_at_least_n_characters),
+  password: z.string().min(6, password_should_be_at_least_n_characters),
 });
 export type jwt_user = {
     user_name: string;
@@ -44,9 +46,14 @@ if (dbError) {
      return NextResponse.json({ error: user_creation_failed }, { status: 500 });
 }
 
+  const user_ip = getUserIp(request);
+  const jwt = createJwt({
+      user_name: user.user_name,
+      ip: user_ip || "unknown", //
+      });
 
-  return new Response(JSON.stringify({ message: "User created successfully" }), {
-    status: 201,
-    headers: { "Content-Type": "application/json" },
-  });
+  
+  const response = NextResponse.json({ status: 200, message:user_created_successfully});
+  response.cookies.set("jwt", jwt || "", { path: "/", maxAge: 60 * 60 * 24 * 365 * 20, httpOnly: true });
+  return response;
 }
