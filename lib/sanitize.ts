@@ -9,7 +9,10 @@ function sanitizeInput(input: any): any {
       .replace(/<script.*?>.*?<\/script>/gi, "")
       .replace(/[<>]/g, "")
       .replace(/['";]/g, "")
-      .replace(/--/g, "");
+      .replace(/--/g, "")
+      .replace("=", "")
+      ;
+      
   } else if (typeof input === "object" && input !== null) {
     const sanitizedObj: any = {};
     for (const key in input) {

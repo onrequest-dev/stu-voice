@@ -2,6 +2,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { signupUser } from '@/client_helpers/signup';
+import { getClientFingerprint } from '@/client_helpers/getfingerprint';
 
 const SignUpHero = () => {
   const [formData, setFormData] = useState({
@@ -10,8 +12,7 @@ const SignUpHero = () => {
     confirmPassword: ''
   });
   const [passwordStrength, setPasswordStrength] = useState(0);
-  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
-  const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(null);
+
 
   // حساب قوة كلمة المرور
     const calculatePasswordStrength = (password: string) => {
@@ -24,29 +25,6 @@ const SignUpHero = () => {
     return strength; 
     };
 
-  // التحقق من اسم المستخدم (مع debounce)
-  const checkUsernameAvailability = useCallback(async (username: string) => {
-    if (username.length < 3) {
-      setUsernameAvailable(null);
-      return;
-    }
-
-    if (debounceTimer) clearTimeout(debounceTimer);
-    
-    const timer = setTimeout(async () => {
-      const mockAvailable = !['admin', 'user', 'test'].includes(username.toLowerCase());
-      setUsernameAvailable(mockAvailable);
-    }, 500);
-
-    setDebounceTimer(timer);
-  }, [debounceTimer]);
-
-  useEffect(() => {
-    checkUsernameAvailability(formData.username);
-    return () => {
-      if (debounceTimer) clearTimeout(debounceTimer);
-    };
-  }, [formData.username, checkUsernameAvailability]);
 
   useEffect(() => {
     setPasswordStrength(calculatePasswordStrength(formData.password));
@@ -57,11 +35,27 @@ const SignUpHero = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // إرسال البيانات إلى الخادم
-  };
 
+    if (formData.password !== formData.confirmPassword) {
+      // setMessage({ text: 'كلمتا المرور غير متطابقتين', type: 'error' });
+      return;
+    }
+
+    // هنا يمكن تمرير بيانات البصمة الرقمية إذا متوفرة، حاليًا نرسل بدونها
+    const fingerprint  = await getClientFingerprint();
+    console.log('Fingerprint data:', fingerprint);
+    const result = await signupUser(formData.username, formData.password, fingerprint);
+    console.log(result);
+    if (result.success) {
+      // setMessage({ text: result.message, type: 'success' });
+      setFormData({ username: '', password: '', confirmPassword: '' }); // مسح النموذج بعد النجاح
+      setPasswordStrength(0);
+    } else {
+      // setMessage({ text: result.message, type: 'error' });
+    }
+  };
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-white relative overflow-hidden p-4">
       {/* الزخارف الدائرية الكبيرة */}
@@ -119,11 +113,7 @@ const SignUpHero = () => {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
                 required
               />
-              {usernameAvailable !== null && (
-                <p className={`text-sm mt-1 ${usernameAvailable ? 'text-green-600' : 'text-red-600'}`}>
-                  {usernameAvailable ? '✓ اسم المستخدم متاح' : '✗ اسم المستخدم محجوز'}
-                </p>
-              )}
+              
             </div>
 
             {/* حقل كلمة المرور */}
@@ -177,7 +167,7 @@ const SignUpHero = () => {
             {/* زر التسجيل */}
             <button
               type="submit"
-              disabled={!usernameAvailable || passwordStrength < 3 || formData.password !== formData.confirmPassword}
+              disabled={passwordStrength < 3 || formData.password !== formData.confirmPassword}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg disabled:bg-gray-400 disabled:cursor-not-allowed transition duration-300 transform hover:-translate-y-0.5 hover:shadow-md"
             >
               تسجيل
