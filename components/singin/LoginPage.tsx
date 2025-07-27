@@ -9,9 +9,6 @@ const LoginPage = () => {
     username: '',
     password: ''
   });
-  const [showForgotPassword, setShowForgotPassword] = useState(false);
-  const [customerServiceNumber] = useState('920001234');
-
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -102,18 +99,9 @@ const LoginPage = () => {
 
             {/* حقل كلمة المرور */}
             <div>
-              <div className="flex justify-between items-center mb-1">
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                  كلمة المرور
-                </label>
-                <button 
-                  type="button"
-                  onClick={() => setShowForgotPassword(!showForgotPassword)}
-                  className="text-xs text-blue-600 hover:text-blue-800"
-                >
-                  نسيت كلمة المرور؟
-                </button>
-              </div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                كلمة المرور
+              </label>
               <input
                 type="password"
                 id="password"
@@ -124,27 +112,6 @@ const LoginPage = () => {
                 required
               />
             </div>
-
-            {/* قسم استعادة كلمة المرور */}
-            {showForgotPassword && (
-              <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
-                <p className="text-sm text-gray-700 mb-2">
-                  للاستعلام عن كلمة المرور، يرجى الاتصال على رقم خدمة العملاء:
-                </p>
-                <div className="flex items-center justify-center bg-white p-3 rounded border border-blue-200">
-                  <span className="font-bold text-blue-600">{customerServiceNumber}</span>
-                  <button 
-                    onClick={() => navigator.clipboard.writeText(customerServiceNumber)}
-                    className="mr-2 text-blue-500 hover:text-blue-700"
-                    title="نسخ الرقم"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            )}
 
             {/* زر الدخول */}
             <button
