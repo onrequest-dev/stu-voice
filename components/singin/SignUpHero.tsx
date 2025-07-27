@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { signupUser } from '@/client_helpers/signup';
 import { getClientFingerprint } from '@/client_helpers/getfingerprint';
-import MicrophoneAlert from '../Alert';
+import Alert from '../Alert';
 
 const SignUpHero = () => {
   const [formData, setFormData] = useState({
@@ -72,7 +72,7 @@ const SignUpHero = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-white relative overflow-hidden p-4">
       {/* عرض رسالة التنبيه إذا كانت موجودة */}
-      <MicrophoneAlert 
+      <Alert 
         message={alertMessage} 
         onDismiss={() => setAlertMessage('')} 
       />
