@@ -60,7 +60,7 @@ const WelcomeHeader = () => {
             </p>
             
             <Link 
-                  href="/sing-in" // المسار النسبي الصحيح
+                  href="/main" // المسار النسبي الصحيح
                   passHref
                   className="relative inline-block group"
                   onMouseEnter={() => setIsHovered(true)}
