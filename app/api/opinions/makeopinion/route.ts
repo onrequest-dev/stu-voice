@@ -1,10 +1,11 @@
 import { decodeJWT } from "@/lib/decodejwt";
 import { rateLimiterMiddleware } from "@/lib/rateLimiterMiddleware";
-import { you_need_account_to_post } from "@/static/keywords";
+import { Failed_to_create_post, Post_created_successfully, you_need_account_to_post } from "@/static/keywords";
 import { JwtPayload } from "jsonwebtoken";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import sanitizeHtml from "sanitize-html";
+import { supabase } from "@/lib/supabase";
 
 export async function POST(request: NextRequest){
     const rateLimitResponse = await rateLimiterMiddleware(request);
@@ -25,11 +26,24 @@ export async function POST(request: NextRequest){
       { status: 400 }
     );
   }
-    const { post, topics, poll_id } = validatedData;
-    
+  const { post, topics, poll } = validatedData;
+    const user_name = jwt_user.user_name;
+    // التحقق من النشاط to do
+    const {data: db, error:dbError} = await supabase
+    .from('posts')
+    .insert({
+      post,
+      topics,
+      user_name,
+      poll: poll ? JSON.stringify(poll) : null, // تحويل الاستطلاع إلى نص إذا كان موجودًا
+    })
 
-} 
+    if (dbError) {
+      return NextResponse.json({ error: Failed_to_create_post }, { status: 500 });
+    }
 
+    return NextResponse.json({ message: Post_created_successfully, post: db }, { status: 201 });
+}
 
 
 
@@ -40,18 +54,23 @@ async function validateAndSanitizeRequestBody(request: NextRequest) {
   const body = await request.json();
 
   const schema = z.object({
-    post: z.string(),
-    topics: z.string(),
-    poll_id: z.string().optional(),
+    post: z.string().optional().default(''),     // قد يكون فارغاً
+    topics: z.string().optional().default(''),   // قد يكون فارغاً
+    poll: z
+      .object({
+        title: z.string().optional().default(''),
+        options: z.array(z.string().min(1)).min(2).max(5),
+      })
+      .optional(),
   });
 
   const parseResult = schema.safeParse(body);
 
   if (!parseResult.success) {
-      return {
-    error: "Invalid request body",
-    details: parseResult.error.format(), // بدلاً من .errors
-  };
+    return {
+      error: "Invalid request body",
+      details: parseResult.error.format(),
+    };
   }
 
   const data = parseResult.data;
@@ -68,15 +87,31 @@ async function validateAndSanitizeRequestBody(request: NextRequest) {
     allowedAttributes: {},
   });
 
-  // تنظيف poll_id اذا موجود
-  const cleanPollId = data.poll_id ? sanitizeHtml(data.poll_id, {
-    allowedTags: [],
-    allowedAttributes: {},
-  }) : undefined;
+  // تنظيف الاستطلاع اذا موجود
+  let cleanPoll;
+  if (data.poll) {
+    const cleanTitle = sanitizeHtml(data.poll.title, {
+      allowedTags: [],
+      allowedAttributes: {},
+    });
+
+    // نظف كل خيار في المصفوفة
+    const cleanOptions = data.poll.options.map(option =>
+      sanitizeHtml(option, {
+        allowedTags: [],
+        allowedAttributes: {},
+      })
+    );
+
+    cleanPoll = {
+      title: cleanTitle,
+      options: cleanOptions,
+    };
+  }
 
   return {
     post: cleanPost,
     topics: cleanTopics,
-    poll_id: cleanPollId,
+    poll: cleanPoll,
   };
 }
