@@ -5,7 +5,6 @@ import { JwtPayload } from "jsonwebtoken";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import sanitizeHtml from "sanitize-html";
-import { supabase } from "@/lib/supabase";
 
 export async function POST(request: NextRequest){
     const rateLimitResponse = await rateLimiterMiddleware(request);
@@ -15,7 +14,7 @@ export async function POST(request: NextRequest){
     if(!jwt) return NextResponse.json({ error: you_need_account_to_post }, { status: 401 });
 
       const jwt_user = decodeJWT(jwt) as JwtPayload | null;
-      if (!jwt_user || typeof jwt_user === 'string' || !jwt_user.id) {
+      if (!jwt_user || typeof jwt_user === 'string' || !jwt_user.user_name) {
     return NextResponse.json({ error: you_need_account_to_post }, { status: 500 });
   }
   const validatedData = await validateAndSanitizeRequestBody(request);

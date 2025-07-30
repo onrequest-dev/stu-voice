@@ -6,7 +6,7 @@ const ProfileContent = () => {
     console.log('بيانات المستخدم:', userData);
     // هنا يمكنك إرسال البيانات إلى الخادم
     // مثال باستخدام fetch:
-    fetch('/api/users', {
+    fetch('/api/auth/editinfo', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
