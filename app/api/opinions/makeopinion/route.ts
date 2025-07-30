@@ -28,19 +28,38 @@ export async function POST(request: NextRequest){
   }
   const { post, topics, poll } = validatedData;
     const user_name = jwt_user.user_name;
-    // التحقق من النشاط to do
+    
     const {data: db, error:dbError} = await supabase
     .from('posts')
     .insert({
       post,
       topics,
-      user_name,
-      poll: poll ? JSON.stringify(poll) : null, // تحويل الاستطلاع إلى نص إذا كان موجودًا
-    })
+      publisher_username: user_name,
+      poll: poll  // تحويل الاستطلاع إلى نص إذا كان موجودًا
+    }).select("id")
+
+    
 
     if (dbError) {
       return NextResponse.json({ error: Failed_to_create_post }, { status: 500 });
     }
+
+    const postId = db[0].id;
+
+// 👇 إضافة خيارات التصويت إذا كانت موجودة
+if (poll) {
+  const optionsToInsert = poll.options.map(option => ({
+    vote_id: postId,
+    title: option,
+  }));
+
+  const { error: pollError } = await supabase
+    .from('polls_options')
+    .insert(optionsToInsert);
+    if (pollError) {
+      return NextResponse.json({ error: Failed_to_create_post }, { status: 500 });
+    }
+}
 
     return NextResponse.json({ message: Post_created_successfully, post: db }, { status: 201 });
 }
@@ -60,6 +79,7 @@ async function validateAndSanitizeRequestBody(request: NextRequest) {
       .object({
         title: z.string().optional().default(''),
         options: z.array(z.string().min(1)).min(2).max(5),
+        durationInDays: z.number().min(1).max(30).optional(),
       })
       .optional(),
   });
