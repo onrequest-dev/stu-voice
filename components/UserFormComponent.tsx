@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { FaUser, FaVenus, FaMars, FaGraduationCap, FaSchool, FaUniversity, FaCheck } from 'react-icons/fa';
-import { Gender, EducationLevel, UserEducation, UserInfo } from '../types/types';
+import {  FaVenus, FaMars,  FaSchool, FaUniversity, FaCheck } from 'react-icons/fa';
+import {   UserEducation, UserInfo } from '../types/types';
 import IconPicker from './IconPicker';
 const UserFormComponent: React.FC<{
   onSubmit: (data: UserInfo) => void;
@@ -14,6 +14,21 @@ const UserFormComponent: React.FC<{
       level: 'middle'
     }
   });
+
+  useEffect(() => {
+  if (!initialData) {
+    const storedData = localStorage.getItem('userInfo');
+    if (storedData) {
+      try {
+        const parsed: UserInfo = JSON.parse(storedData);
+        setFormData(parsed);
+      } catch (err) {
+        console.error('فشل في قراءة بيانات localStorage:', err);
+      }
+    }
+  }
+}, [initialData]);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 

@@ -54,6 +54,7 @@ export async function POST(request: NextRequest) {
 
       const jwt_user = decodeJWT(jwt) as JwtPayload | null;
       console.log('Decoded JWT:', jwt_user);
+      console.log(!jwt_user)
       if (!jwt_user || typeof jwt_user === 'string' || !jwt_user.user_name) {
     return NextResponse.json({ error: you_need_account_to_edit }, { status: 500 });
       }
@@ -68,7 +69,7 @@ export async function POST(request: NextRequest) {
     .select("last_time_updated")
     .eq("user_name",username)
     .single();
-    if(fetchError||!userRecord) return NextResponse.json({you_need_account_to_edit},{status:400});
+    if(fetchError) return NextResponse.json({you_need_account_to_edit},{status:400});
 
     const now = new Date();
     if (

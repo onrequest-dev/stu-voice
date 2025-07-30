@@ -14,7 +14,14 @@ const ProfileContent = () => {
       body: JSON.stringify(userData),
     })
     .then(response => response.json())
-    .then(data => console.log('Success:', data))
+    .then(data => {
+       try {
+    localStorage.setItem('userInfo', JSON.stringify(userData));
+  } catch (error) {
+    console.error('فشل حفظ بيانات المستخدم في localStorage', error);
+  }
+      console.log('Success:', data)}
+    )
     .catch(error => console.error('Error:', error));
   };
 
