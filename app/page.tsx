@@ -4,7 +4,6 @@ import Link from 'next/link';
 import WelcomeHeader from '../components/WelcomeHeader';
 import FeaturesSection from '../components/FeaturesSection';
 import ContributionSection from '../components/ContributionSection';
-
 const page = () => {
    return (
     <div className="flex flex-col min-h-screen">

@@ -1,114 +1,158 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
-import { FaExclamation, FaTimes } from 'react-icons/fa';
+import { FiAlertCircle, FiX, FiCheckCircle, FiInfo, FiBell } from 'react-icons/fi';
+
+type AlertType = 'error' | 'success' | 'info' | 'warning';
 
 interface AlertProps {
   message: string;
+  type?: AlertType;
+  autoDismiss?: number;
   onDismiss?: () => void;
 }
 
-const Alert: React.FC<AlertProps> = ({ message, onDismiss }) => {
+const Alert: React.FC<AlertProps> = ({ 
+  message, 
+  type = 'info', 
+  autoDismiss = 3000, 
+  onDismiss 
+}) => {
   const [isVisible, setIsVisible] = useState(false);
-  const [isAnimating, setIsAnimating] = useState(false);
-  const [isAlerting, setIsAlerting] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   const alertRef = useRef<HTMLDivElement>(null);
-  const animationRef = useRef<NodeJS.Timeout>();
+  const timerRef = useRef<NodeJS.Timeout>();
+
+  // ألوان وأنماط لكل نوع
+  const alertStyles = {
+    error: {
+      bg: 'bg-red-50',
+      border: 'border-red-200',
+      text: 'text-red-800',
+      icon: <FiAlertCircle className="text-red-500" size={24} />,
+    },
+    success: {
+      bg: 'bg-green-50',
+      border: 'border-green-200',
+      text: 'text-green-800',
+      icon: <FiCheckCircle className="text-green-500" size={24} />,
+    },
+    info: {
+      bg: 'bg-blue-50',
+      border: 'border-blue-200',
+      text: 'text-blue-800',
+      icon: <FiInfo className="text-blue-500" size={24} />,
+    },
+    warning: {
+      bg: 'bg-amber-50',
+      border: 'border-amber-200',
+      text: 'text-amber-800',
+      icon: <FiBell className="text-amber-500" size={24} />,
+    },
+  };
 
   useEffect(() => {
     if (message) {
       showAlert();
-    } else {
-      hideAlert();
     }
-
     return () => {
-      if (animationRef.current) clearTimeout(animationRef.current);
+      clearTimers();
     };
   }, [message]);
 
   const showAlert = () => {
+    clearTimers();
     setIsVisible(true);
-    setIsAnimating(true);
-    startAlertAnimation();
-    document.addEventListener('click', handleOutsideClick);
-  };
-
-  const hideAlert = () => {
-    stopAlertAnimation();
-    setIsAnimating(false);
-    animationRef.current = setTimeout(() => {
-      setIsVisible(false);
-      if (onDismiss) onDismiss();
-      document.removeEventListener('click', handleOutsideClick);
-    }, 300);
-  };
-
-  const handleOutsideClick = (e: MouseEvent) => {
-    if (alertRef.current && !alertRef.current.contains(e.target as Node)) {
-      hideAlert();
+    setIsClosing(false);
+    
+    if (autoDismiss > 0) {
+      timerRef.current = setTimeout(() => {
+        hideAlert();
+      }, autoDismiss);
     }
   };
 
-  const handleClose = () => {
+  const hideAlert = () => {
+    setIsClosing(true);
+    timerRef.current = setTimeout(() => {
+      setIsVisible(false);
+      if (onDismiss) onDismiss();
+    }, 300);
+  };
+
+  const clearTimers = () => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
+  };
+
+  const handleClose = (e: React.MouseEvent) => {
+    e.stopPropagation();
     hideAlert();
-  };
-
-  const startAlertAnimation = () => {
-    setIsAlerting(true);
-  };
-
-  const stopAlertAnimation = () => {
-    setIsAlerting(false);
   };
 
   if (!isVisible) return null;
 
   return (
-    <div className="fixed top-8 left-4 right-4 flex justify-center z-50">
+    <div className="fixed inset-0 flex items-start justify-center pt-4 px-4 pointer-events-none z-50">
       <div
         ref={alertRef}
-        className={`relative flex items-start bg-red-50 rounded-lg shadow-xl border-2 border-red-300 w-full max-w-xs transform transition-all duration-300 ${
-          isAnimating ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0'
+        className={`relative w-full max-w-md pointer-events-auto transform transition-all duration-300 ${
+          isClosing ? 'translate-y-0 opacity-0' : 'translate-y-0 opacity-100'
         }`}
       >
-        {/* Exclamation Icon with pulsating effect */}
-        <div className={`absolute -left-4 -top-4 p-3 rounded-full text-white shadow-lg ${
-          isAlerting ? 'bg-red-600 animate-pulse' : 'bg-red-500'
-        }`}>
-          <FaExclamation size={20} />
-        </div>
-
-        {/* Pulsing waves effect (modified for alert) */}
-        {isAlerting && (
-          <>
-            <div className="absolute -left-5 -top-5 w-14 h-14 border-2 border-red-400 rounded-full animate-ping opacity-75"></div>
-            <div className="absolute -left-6 -top-6 w-16 h-16 border-2 border-red-300 rounded-full animate-ping opacity-50"></div>
-          </>
-        )}
-
-        {/* Alert Content */}
-        <div className="flex-1 p-4 pl-8">
-          <div className="flex justify-between items-start">
-            <div className="flex-1">
-              <h3 className="text-red-800 font-bold text-sm mb-1">تنبيه هام !</h3>
-              <p className="text-red-700 text-sm md:text-base">{message}</p>
-            </div>
-            <button
-              onClick={handleClose}
-              className="ml-2 text-red-400 hover:text-red-600 transition-colors"
-              aria-label="إغلاق التنبيه"
-            >
-              <FaTimes size={16} />
-            </button>
+        <div 
+          className={`flex items-start p-4 rounded-xl shadow-lg ${alertStyles[type].bg} ${alertStyles[type].border} border`}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* أيقونة التنبيه */}
+          <div className="flex-shrink-0 mt-0.5">
+            {alertStyles[type].icon}
           </div>
+
+          {/* محتوى التنبيه */}
+          <div className="ml-3 flex-1">
+            <div className="flex justify-between items-start">
+              <h3 className={`font-medium ${alertStyles[type].text}`}>
+                {type === 'error' && 'خطأ'}
+                {type === 'success' && 'نجاح'}
+                {type === 'info' && 'معلومة'}
+                {type === 'warning' && 'تحذير'}
+              </h3>
+              <button
+                onClick={handleClose}
+                className={`ml-2 p-1 rounded-full hover:bg-opacity-20 hover:bg-gray-500 transition-colors ${alertStyles[type].text}`}
+                aria-label="إغلاق"
+              >
+                <FiX size={18} />
+              </button>
+            </div>
+            <p className={`mt-1 text-sm ${alertStyles[type].text}`}>{message}</p>
+          </div>
+
+          {/* شريط التقدم للتنبيه التلقائي */}
+          {autoDismiss > 0 && (
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-200 rounded-b-xl overflow-hidden">
+              <div 
+                className={`h-full ${type === 'error' ? 'bg-red-500' : ''} 
+                            ${type === 'success' ? 'bg-green-500' : ''} 
+                            ${type === 'info' ? 'bg-blue-500' : ''} 
+                            ${type === 'warning' ? 'bg-amber-500' : ''}`}
+                style={{
+                  animation: `progress ${autoDismiss}ms linear forwards`,
+                }}
+              />
+            </div>
+          )}
         </div>
-
-        {/* Alert bubble tail */}
-        <div className="absolute -left-3 top-6 w-0 h-0 border-t-8 border-t-transparent border-r-8 border-r-red-300 border-b-8 border-b-transparent"></div>
-
-        {/* Red accent line at bottom */}
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-red-400 to-red-600 rounded-b-lg"></div>
       </div>
+
+      {/* أنيميشن شريط التقدم */}
+      <style jsx>{`
+        @keyframes progress {
+          from { width: 100%; }
+          to { width: 0%; }
+        }
+      `}</style>
     </div>
   );
 };
