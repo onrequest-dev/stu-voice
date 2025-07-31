@@ -14,3 +14,5 @@ export const you_need_account_to_edit = "تحتاج إلى حساب لتعديل
 export const you_can_update_info_once_a_week = "يمكنك تحديث معلوماتك مرة واحدة في الأسبوع فقط";
 export const Failed_to_update = "فشل في التحديث";
 export const User_information_updated_successfully = "تم تحديث معلومات المستخدم بنجاح";
+export const Failed_to_create_post = "فشل في إنشاء المنشور";
+export const Post_created_successfully = "تم إنشاء المنشور بنجاح";
