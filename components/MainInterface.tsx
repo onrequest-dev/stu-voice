@@ -10,7 +10,8 @@ import {
   FaExternalLinkAlt,
   FaBars, 
   FaTimes, 
-  FaGlobeAmericas
+  FaGlobeAmericas,
+  FaPlusSquare
 } from 'react-icons/fa';
 import { useRouter, usePathname } from 'next/navigation';
 import HomeContent from './tabs/HomeContent';
@@ -20,6 +21,7 @@ import ProfileContent from './tabs/ProfileContent';
 import SettingsContent from './tabs/SettingsContent';
 import SupportedSitesContent from './tabs/SupportedSitesContent';
 import VotesContent from './tabs/VotesContent';
+import NewPostContent from './tabs/NewPostContent';
 
 interface Tab {
   id: string;
@@ -48,6 +50,13 @@ const MainInterface = ({ children }: { children?: React.ReactNode }) => {
       title: 'الرئيسية', 
       href: '/taps/HomeContent',
       component: HomeContent
+    },
+    { 
+      id: 'new-post', 
+      icon: <FaPlusSquare size={20} />, 
+      title: 'منشور جديد', 
+      href: '/taps/NewPostContent',
+      component: NewPostContent
     },
     { 
       id: 'opinions', 
@@ -90,13 +99,6 @@ const MainInterface = ({ children }: { children?: React.ReactNode }) => {
       title: 'المواقع التي ندعمها', 
       href: '/taps/SupportedSitesContent',
       component: SupportedSitesContent
-    },
-    { 
-      id: 'dev-site', 
-      icon: <FaExternalLinkAlt size={20} />, 
-      title: 'موقع المطورين', 
-      isExternal: true, 
-      href: 'https://hadiiik.github.io/onrequest/'
     },
   ];
 
@@ -209,11 +211,9 @@ const MainInterface = ({ children }: { children?: React.ReactNode }) => {
                 <button 
                   onClick={() => handleTabClick(tab.href, tab.isExternal)}
                   className={`w-12 h-12 rounded-full flex items-center justify-center shadow-sm hover:scale-110 transition-all ${
-                    tab.isExternal 
-                      ? 'bg-purple-100 text-purple-600 hover:bg-purple-200' 
-                      : pathname === tab.href
-                        ? 'bg-blue-600 text-white hover:bg-blue-700'
-                        : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
+                    pathname === tab.href
+                      ? 'bg-blue-600 text-white hover:bg-blue-700'
+                      : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
                   }`}
                   aria-label={tab.title}
                 >
@@ -222,6 +222,19 @@ const MainInterface = ({ children }: { children?: React.ReactNode }) => {
                 <span className="mt-2 text-xs text-gray-700 text-center">{tab.title}</span>
               </div>
             ))}
+            {/* رابط موقع المطورين في نهاية القائمة */}
+            <div className="flex flex-col items-center px-2 mt-auto">
+              <a 
+                href="https://hadiiik.github.io/onrequest/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="w-12 h-12 rounded-full flex items-center justify-center shadow-sm hover:scale-110 transition-all bg-purple-100 text-purple-600 hover:bg-purple-200"
+                aria-label="موقع المطورين"
+              >
+                <FaExternalLinkAlt size={20} />
+              </a>
+              <span className="mt-2 text-xs text-gray-700 text-center">موقع المطورين</span>
+            </div>
           </div>
         </div>
       ) : (
@@ -246,11 +259,9 @@ const MainInterface = ({ children }: { children?: React.ReactNode }) => {
                   <button 
                     onClick={() => handleTabClick(tab.href, tab.isExternal)}
                     className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-all ${
-                      tab.isExternal 
-                        ? 'bg-purple-100 text-purple-600 hover:bg-purple-200' 
-                        : pathname === tab.href
-                          ? 'bg-blue-600 text-white hover:bg-blue-700'
-                          : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
+                      pathname === tab.href
+                        ? 'bg-blue-600 text-white hover:bg-blue-700'
+                        : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
                     }`}
                     aria-label={tab.title}
                   >
@@ -261,6 +272,21 @@ const MainInterface = ({ children }: { children?: React.ReactNode }) => {
                   </span>
                 </div>
               ))}
+              {/* رابط موقع المطورين في نهاية القائمة */}
+              <div className="flex flex-col items-center px-2 mt-auto">
+                <a 
+                  href="https://hadiiik.github.io/onrequest/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-all bg-purple-100 text-purple-600 hover:bg-purple-200"
+                  aria-label="موقع المطورين"
+                >
+                  <FaExternalLinkAlt size={20} />
+                </a>
+                <span className="mt-2 text-xs text-gray-700 text-center font-medium">
+                  موقع المطورين
+                </span>
+              </div>
             </div>
           </div>
 

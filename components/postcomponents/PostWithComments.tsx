@@ -1,12 +1,13 @@
 'use client';
-import { useState } from 'react';
-import { FaArrowRight } from 'react-icons/fa';
+import { useState, useEffect } from 'react';
+import { FaArrowRight, FaExclamationTriangle } from 'react-icons/fa';
 import UserInfoComponent from './UserInfoComponent';
 import OpinionComponent from './OpinionComponent';
 import PollComponent from './PollComponent';
 import Comment from './Comment';
 import { UserInfo, Opinion, Poll } from './types';
 import Link from 'next/link';
+import CommentRulesAlert from './CommentRulesAlert';
 
 interface CommentType {
   id: string;
@@ -33,10 +34,22 @@ const PostWithComments = ({ postData, commentsData }: PostWithCommentsProps) => 
   const [comments, setComments] = useState(commentsData.comments);
   const [users] = useState(commentsData.users);
   const [newComment, setNewComment] = useState('');
+  const [showAlert, setShowAlert] = useState(false);
+  const [isManualTrigger, setIsManualTrigger] = useState(false);
+  const [alertClosedPermanently, setAlertClosedPermanently] = useState(false);
+
+  useEffect(() => {
+    const closedPermanently = localStorage.getItem('commentAlertClosed') === 'true';
+    setAlertClosedPermanently(closedPermanently);
+    
+    if (!closedPermanently) {
+      setShowAlert(true);
+    }
+  }, []);
 
   const handleAddComment = () => {
     if (newComment.trim()) {
-      const currentUser = { // يمكن استبدالها بمعلومات المستخدم الحالي
+      const currentUser = {
         id: 'currentUser',
         iconName: 'user',
         iconColor: '#ffffff',
@@ -75,17 +88,37 @@ const PostWithComments = ({ postData, commentsData }: PostWithCommentsProps) => 
     ));
   };
 
+  const handleAlertClose = (permanent = false) => {
+    if (permanent) {
+      localStorage.setItem('commentAlertClosed', 'true');
+      setAlertClosedPermanently(true);
+    }
+    setShowAlert(false);
+    setIsManualTrigger(false);
+  };
+
+  const handleShowAlert = () => {
+    setShowAlert(true);
+    setIsManualTrigger(true);
+  };
+
   return (
-    <div className="max-w-2xl mx-auto bg-white rounded-lg shadow">
-      {/* زر العودة */}
-      <div className="p-4 border-b flex items-center">
+    <div className="max-w-2xl mx-auto bg-white rounded-lg shadow relative">
+      <div className="p-4 border-b flex items-center justify-between">
         <Link href="/taps/HomeContent" className="flex items-center text-blue-600 hover:text-blue-800">
           <FaArrowRight className="ml-1 transform rotate-180" />
           <span>العودة للمنشورات</span>
         </Link>
+        
+        <button
+          onClick={handleShowAlert}
+          className="flex items-center text-red-600 hover:text-red-800"
+        >
+          <FaExclamationTriangle className="ml-1" />
+          <span>شروط التعليق</span>
+        </button>
       </div>
 
-      {/* محتوى المنشور */}
       <div className="p-4 border-b">
         <UserInfoComponent userInfo={postData.userInfo} />
         
@@ -93,13 +126,11 @@ const PostWithComments = ({ postData, commentsData }: PostWithCommentsProps) => 
         {postData.poll && <PollComponent poll={postData.poll} />}
       </div>
 
-      {/* قسم التعليقات */}
       <div className="p-4">
         <h2 className="text-lg font-semibold mb-4 text-gray-800">
           التعليقات ({comments.length})
         </h2>
         
-        {/* نموذج إضافة تعليق جديد */}
         <div className="mb-6">
           <textarea
             value={newComment}
@@ -116,7 +147,6 @@ const PostWithComments = ({ postData, commentsData }: PostWithCommentsProps) => 
           </button>
         </div>
         
-        {/* قائمة التعليقات */}
         <div className="space-y-4">
           {comments.map(comment => {
             const user = users[comment.userId];
@@ -132,6 +162,13 @@ const PostWithComments = ({ postData, commentsData }: PostWithCommentsProps) => 
           })}
         </div>
       </div>
+
+      {showAlert && (
+        <CommentRulesAlert 
+          isManualTrigger={isManualTrigger} 
+          onClose={handleAlertClose} 
+        />
+      )}
     </div>
   );
 };
