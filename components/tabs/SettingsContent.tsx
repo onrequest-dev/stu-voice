@@ -16,7 +16,7 @@ const SettingsContent = () => {
       })
       .then(response => response.json())
       .then(data => {
-         try {
+        try {
       localStorage.setItem('userInfo', JSON.stringify(userData));
     } catch (error) {
       console.error('فشل حفظ بيانات المستخدم في localStorage', error);
