@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PostComponent from '../postcomponents/PostComponent';
 
 const HomeContent = () => {
@@ -48,6 +48,21 @@ const samplePosts = [
   // ... باقي المنشورات
 ];
 
+useEffect(()=>{
+  const get_posts = async () =>{
+    const response = await fetch('/api/opinions/get_foryou_opinions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+       body: JSON.stringify({ page:0, pageSize: 10, user_preferences: [] }),
+    });
+    console.log(await response.json());
+  }
+  console.log("HomeContent mounted");
+  get_posts();
+
+})
   return (
     <div className="pb-12">
       <div className="max-w-2xl mx-auto space-y-6">
