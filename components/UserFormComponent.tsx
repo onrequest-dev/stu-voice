@@ -1,3 +1,4 @@
+'use client';
 import React, { useState, useEffect } from 'react';
 import {  FaVenus, FaMars,  FaSchool, FaUniversity, FaCheck } from 'react-icons/fa';
 import {   UserEducation, UserInfo } from '../types/types';
