@@ -1,14 +1,69 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Poll } from './types';
 
 const PollComponent: React.FC<{ poll: Poll }> = ({ poll }) => {
   const [selectedPollOption, setSelectedPollOption] = useState<number | null>(null);
   const [votes, setVotes] = useState<number[]>(poll.votes || Array(poll.options.length).fill(0));
   const [hasVoted, setHasVoted] = useState(false);
+  const [timeRemaining, setTimeRemaining] = useState<string>('');
+  const [isExpired, setIsExpired] = useState(false);
   const totalVotes = votes.reduce((sum, vote) => sum + vote, 0);
 
+  // دالة لتحويل المدة إلى تاريخ انتهاء
+  const getExpiryDate = (duration: string) => {
+    const now = new Date();
+    switch (duration) {
+      case '3days':
+        now.setDate(now.getDate() + 3);
+        break;
+      case '1week':
+        now.setDate(now.getDate() + 7);
+        break;
+      case '10days':
+        now.setDate(now.getDate() + 10);
+        break;
+      case '15days':
+        now.setDate(now.getDate() + 15);
+        break;
+      case '1month':
+        now.setMonth(now.getMonth() + 1);
+        break;
+      default:
+        now.setDate(now.getDate() + 3); // افتراضي 3 أيام
+    }
+    return now;
+  };
+
+  // دالة لحساب الوقت المتبقي
+  const calculateTimeRemaining = () => {
+    if (!poll.durationInDays) return;
+
+    const expiryDate = new Date();
+    expiryDate.setDate(expiryDate.getDate() + poll.durationInDays);
+    const now = new Date();
+    const diff = expiryDate.getTime() - now.getTime();
+
+    if (diff <= 0) {
+      setIsExpired(true);
+      setTimeRemaining('منتهي');
+      return;
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    
+    setTimeRemaining(`${days} يوم و ${hours} ساعة`);
+  };
+
+  // تحديث الوقت المتبقي كل دقيقة
+  useEffect(() => {
+    calculateTimeRemaining();
+    const interval = setInterval(calculateTimeRemaining, 60000);
+    return () => clearInterval(interval);
+  }, [poll.durationInDays]);
+
   const handlePollSelect = (index: number) => {
-    if (hasVoted) return;
+    if (hasVoted || isExpired) return;
     
     const newVotes = [...votes];
     newVotes[index] += 1;
@@ -22,30 +77,50 @@ const PollComponent: React.FC<{ poll: Poll }> = ({ poll }) => {
     return Math.round((votes / total) * 100);
   };
 
+  // دالة لعرض حالة الاستطلاع
+ const renderPollStatus = () => {
+    if (!poll.durationInDays) return null;
+    
+    return (
+      <div className={`text-xs mb-2 ${isExpired ? 'text-red-500' : 'text-gray-500'}`}>
+        {isExpired ? (
+          <span>انتهى الاستطلاع</span>
+        ) : (
+          <span>متبقي: {timeRemaining}</span>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="px-4 pt-1 pb-1">
       <h4 className="font-medium text-gray-900 mb-3 text-right">{poll.question}</h4>
+      
+      {renderPollStatus()}
+      
       <div className="space-y-2">
         {poll.options.map((option, index) => (
           <div 
             key={index}
             onClick={() => handlePollSelect(index)}
-            className={`py-2 px-3 border rounded-lg cursor-pointer text-right transition-all relative overflow-hidden ${
+            className={`py-2 px-3 border rounded-lg text-right transition-all relative overflow-hidden ${
               selectedPollOption === index 
                 ? 'border-blue-300 bg-blue-50 text-blue-700' 
-                : 'border-gray-200 hover:bg-gray-50 text-gray-700'
+                : isExpired || hasVoted
+                  ? 'border-gray-200 text-gray-500 cursor-default'
+                  : 'border-gray-200 hover:bg-gray-50 text-gray-700 cursor-pointer'
             }`}
           >
             <div 
               className="absolute left-0 top-0 h-full bg-blue-100 opacity-20"
               style={{
-                width: hasVoted ? `${calculatePercentage(votes[index], totalVotes)}%` : '0%',
+                width: (hasVoted || isExpired) ? `${calculatePercentage(votes[index], totalVotes)}%` : '0%',
                 transition: 'width 0.3s ease'
               }}
             />
             <div className="relative z-10 flex justify-between items-center">
               <span>{option}</span>
-              {hasVoted && (
+              {(hasVoted || isExpired) && (
                 <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
                   {calculatePercentage(votes[index], totalVotes)}%
                 </span>
@@ -55,7 +130,7 @@ const PollComponent: React.FC<{ poll: Poll }> = ({ poll }) => {
         ))}
       </div>
       
-      {hasVoted && (
+      {(hasVoted || isExpired) && (
         <div className="text-xs text-gray-500 mt-2">
           مجموع المصوتين: {totalVotes}
         </div>

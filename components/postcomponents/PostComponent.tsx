@@ -43,17 +43,10 @@ const PostComponent: React.FC<PostProps> = ({ id, userInfo, opinion, poll }) => 
         newCounts.disagree += 1;
         setAgreed(false);
       }
-      
       return newCounts;
     });
   };
 
-  const handleShare = () => {
-    const shareUrl = `${window.location.origin}/posts/${id}`;
-    navigator.clipboard.writeText(shareUrl).then(() => {
-      alert('تم نسخ رابط المنشور إلى الحافظة');
-    });
-  };
 
   return (
     <div id={`post-${id}`} className="w-full max-w-2xl mx-auto bg-white">
@@ -66,7 +59,6 @@ const PostComponent: React.FC<PostProps> = ({ id, userInfo, opinion, poll }) => 
           postId={id}
           onAgree={handleAgree}
           onDisagree={handleDisagree}
-          onShare={handleShare}
           agreeCount={localCounts.agree}
           disagreeCount={localCounts.disagree}
           readersCount={localCounts.readers}

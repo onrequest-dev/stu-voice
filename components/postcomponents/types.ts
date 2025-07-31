@@ -19,6 +19,7 @@ export interface Poll {
   question: string;
   options: string[];
   votes?: number[];
+ durationInDays: number;
 }
 
 export interface PostProps {
