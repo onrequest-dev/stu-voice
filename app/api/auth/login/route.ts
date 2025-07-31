@@ -1,10 +1,12 @@
 import { rateLimiterMiddleware } from "@/lib/rateLimiterMiddleware";
 import { sanitizeAndValidateInput } from "@/lib/sanitize";
 import { supabase } from "@/lib/supabase";
-import { username_and_password_required } from "@/static/keywords";
+import {  user_loged_in_successfully, username_and_password_required } from "@/static/keywords";
 import bcrypt from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
 import { userSchema } from "../sign-up/route";
+import createJwt from "@/lib/create_jwt";
+import { getUserIp } from "@/lib/get_userip";
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
@@ -43,5 +45,14 @@ export async function POST(request: NextRequest) {
   }
 
   // 3. تسجيل الدخول ناجح — يمكنك الآن توليد JWT أو جلسة (Session)
-  return NextResponse.json({ message: "Login successful" }, { status: 200 });
+  const user_ip = getUserIp(request);
+    const jwt = createJwt({
+        user_name:username,
+        ip: user_ip || "unknown", //
+        });
+  
+    
+    const response = NextResponse.json({ status: 200, message:user_loged_in_successfully});
+    response.cookies.set("jwt", jwt || "", { path: "/", maxAge: 60 * 60 * 24 * 365 * 20, httpOnly: true });
+    return response;
 }
