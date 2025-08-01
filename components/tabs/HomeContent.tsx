@@ -55,7 +55,7 @@ useEffect(()=>{
       headers: {
         'Content-Type': 'application/json',
       },
-       body: JSON.stringify({ page:0, pageSize: 10, user_preferences: [] }),
+       body: JSON.stringify({ page:1, pageSize: 10, user_preferences: [] }),
     });
     console.log(await response.json());
   }

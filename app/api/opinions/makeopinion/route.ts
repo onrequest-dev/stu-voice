@@ -33,7 +33,7 @@ export async function POST(request: NextRequest){
     .from('posts')
     .insert({
       post,
-      topics,
+      // topics,
       publisher_username: user_name,
       poll: poll  // تحويل الاستطلاع إلى نص إذا كان موجودًا
     }).select("id")
@@ -41,6 +41,7 @@ export async function POST(request: NextRequest){
     
 
     if (dbError) {
+      console.log(dbError)
       return NextResponse.json({ error: Failed_to_create_post }, { status: 500 });
     }
 
