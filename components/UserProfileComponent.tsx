@@ -27,12 +27,11 @@ const UserProfileComponent: React.FC<{ userData: UserInfo }> = ({ userData }) =>
   const theme = genderThemes[userData.gender];
 
   // تأثيرات التصميم المعدلة
-  const cardStyle = 'rounded-xl shadow-md overflow-visible mx-4 my-6';
+  const cardStyle = 'rounded-none sm:rounded-xl shadow-md overflow-visible w-full';
   const sectionStyle = 'rounded-lg bg-white border border-gray-100';
 
   // دالة لمعالجة تسجيل الخروج
   const handleLogout = () => {
-    // هنا يمكنك إضافة منطق تسجيل الخروج
     console.log('تم تسجيل الخروج');
   };
 
@@ -45,65 +44,64 @@ const UserProfileComponent: React.FC<{ userData: UserInfo }> = ({ userData }) =>
 
     return (
       <div 
-        className="w-20 h-20 rounded-full flex items-center justify-center absolute -top-10 left-1/2 transform -translate-x-1/2 border-4 border-white shadow-lg z-10"
+        className="w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center absolute -top-8 md:-top-10 left-1/2 transform -translate-x-1/2 border-4 border-white shadow-lg z-10"
         style={{ 
           backgroundColor: customBg,
-          top: '-2.5rem'
         }}
       >
         <CustomIcon 
           icon={iconName} 
           iconColor={customColor} 
           bgColor={customBg}
-          size={24}
+          size={20}
         />
       </div>
     );
   };
 
   return (
-    <div className="relative max-w-md mx-auto pt-12">
+    <div className="relative w-full px-0 sm:px-4 md:px-6 pt-0 md:pt-12 max-w-md mx-auto">
       {/* بطاقة المستخدم المعدلة */}
       <div className={`${theme.secondary} ${cardStyle}`}>
         {/* شريط العنوان المتدرج */}
-        <div className={`${theme.primary} h-4 w-full`}></div>
+        <div className={`${theme.primary} h-3 md:h-4 w-full`}></div>
         
-        <div className="p-4 relative">
+        <div className="p-3 md:p-4 relative">
           {/* أزرار التحكم في الزاوية العلوية اليمنى */}
-          <div className="absolute top-2 right-2 flex space-x-2">
+          <div className="absolute top-1 right-1 md:top-2 md:right-2 flex space-x-1 md:space-x-2">
             <Link 
               href='/complete-profile'
-              className={`p-2 rounded-full ${theme.accent} hover:opacity-80 transition-opacity`}
+              className={`p-1.5 md:p-2 rounded-full ${theme.accent} hover:opacity-80 transition-opacity`}
               title="تعديل الملف الشخصي"
             >
-              <FaEdit className={theme.iconColor} />
+              <FaEdit className={`${theme.iconColor} text-sm md:text-base`} />
             </Link>
             <button 
               onClick={handleLogout}
-              className={`p-2 rounded-full ${theme.accent} hover:opacity-80 transition-opacity`}
+              className={`p-1.5 md:p-2 rounded-full ${theme.accent} hover:opacity-80 transition-opacity`}
               title="تسجيل الخروج"
             >
-              <FaSignOutAlt className={theme.iconColor} />
+              <FaSignOutAlt className={`${theme.iconColor} text-sm md:text-base`} />
             </button>
           </div>
           
           {/* رأس البطاقة المعدل */}
-          <div className="flex flex-col items-center pt-8 pb-3">
+          <div className="flex flex-col items-center pt-6 md:pt-8 pb-2 md:pb-3">
             {renderProfileIcon()}
             
-            <h1 className="mt-8 text-xl font-bold text-gray-900 text-center px-2">
+            <h1 className="mt-6 md:mt-8 text-lg md:text-xl font-bold text-gray-900 text-center px-1 md:px-2">
               {userData.fullName}
             </h1>
             
-            <div className={`flex items-center mt-2 px-2 py-1 rounded-full ${theme.accent} ${theme.text} text-xs font-medium`}>
+            <div className={`flex items-center mt-1 md:mt-2 px-1.5 py-0.5 md:px-2 md:py-1 rounded-full ${theme.accent} ${theme.text} text-xs md:text-sm font-medium`}>
               {userData.gender === 'male' ? (
                 <>
-                  <FaMars className="mr-1" />
+                  <FaMars className="mr-0.5 md:mr-1 text-xs md:text-sm" />
                   <span>ذكر</span>
                 </>
               ) : (
                 <>
-                  <FaVenus className="mr-1" />
+                  <FaVenus className="mr-0.5 md:mr-1 text-xs md:text-sm" />
                   <span>أنثى</span>
                 </>
               )}
@@ -111,22 +109,22 @@ const UserProfileComponent: React.FC<{ userData: UserInfo }> = ({ userData }) =>
           </div>
 
           {/* قسم المعلومات التعليمية المعدل */}
-          <div className={`${sectionStyle} p-3 mb-4`}>
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3">
-              <h2 className={`text-base font-semibold ${theme.text} flex items-center mb-1 sm:mb-0`}>
+          <div className={`${sectionStyle} p-2 md:p-3 mb-0 md:mb-4`}>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 md:mb-3">
+              <h2 className={`text-sm md:text-base font-semibold ${theme.text} flex items-center mb-0.5 sm:mb-0`}>
                 {userData.education.level === 'university' ? (
                   <>
-                    <FaUniversity className={`mr-1 ${theme.iconColor}`} />
+                    <FaUniversity className={`mr-1 ${theme.iconColor} text-sm md:text-base`} />
                     <span>المعلومات الأكاديمية</span>
                   </>
                 ) : (
                   <>
-                    <FaSchool className={`mr-1 ${theme.iconColor}`} />
+                    <FaSchool className={`mr-1 ${theme.iconColor} text-sm md:text-base`} />
                     <span>المعلومات الدراسية</span>
                   </>
                 )}
               </h2>
-              <span className={`px-2 py-1 rounded-full text-xs font-semibold ${theme.primary} text-white self-start sm:self-auto`}>
+              <span className={`px-1.5 py-0.5 md:px-2 md:py-1 rounded-full text-xs md:text-sm font-semibold ${theme.primary} text-white self-start sm:self-auto`}>
                 {userData.education.level === 'middle' && 'إعدادي'}
                 {userData.education.level === 'high' && 'ثانوي'}
                 {userData.education.level === 'university' && 'جامعي'}
@@ -134,7 +132,7 @@ const UserProfileComponent: React.FC<{ userData: UserInfo }> = ({ userData }) =>
             </div>
 
             {/* محتوى حسب المرحلة التعليمية */}
-            <div className="space-y-2">
+            <div className="space-y-1.5 md:space-y-2">
               {userData.education.level === 'middle' && (
                 <MiddleSchoolView education={userData.education} theme={theme} />
               )}
@@ -154,7 +152,7 @@ const UserProfileComponent: React.FC<{ userData: UserInfo }> = ({ userData }) =>
   );
 };
 
-// مكونات العرض المعدلة (تبقى كما هي بدون تغيير)
+// مكونات العرض المعدلة
 const MiddleSchoolView = ({ education, theme }: any) => {
   const gradeMap: Record<string, string> = {
     first: 'الصف السابع',
@@ -164,9 +162,9 @@ const MiddleSchoolView = ({ education, theme }: any) => {
 
   return (
     <>
-      <div className="flex justify-between items-center p-2 rounded bg-gray-50 text-sm">
+      <div className="flex justify-between items-center p-1.5 md:p-2 rounded bg-gray-50 text-xs md:text-sm">
         <span className={`font-medium ${theme.text} flex items-center`}>
-          <FaBook className={`mr-1 ${theme.iconColor}`} />
+          <FaBook className={`mr-0.5 md:mr-1 ${theme.iconColor} text-xs md:text-sm`} />
           <span>الصف الدراسي</span>
         </span>
         <span className="font-semibold text-gray-700 truncate max-w-[50%]">
@@ -175,8 +173,8 @@ const MiddleSchoolView = ({ education, theme }: any) => {
       </div>
 
       {education.degreeSeeking && (
-        <div className={`p-2 rounded ${theme.accent} flex items-center text-xs mt-1`}>
-          <FaGraduationCap className={`mr-1 ${theme.iconColor}`} />
+        <div className={`p-1.5 md:p-2 rounded ${theme.accent} flex items-center text-2xs md:text-xs mt-0.5 md:mt-1`}>
+          <FaGraduationCap className={`mr-0.5 md:mr-1 ${theme.iconColor} text-xs md:text-sm`} />
           <span className={`${theme.text} font-medium`}>في مرحلة استخراج شهادة الإعدادية</span>
         </div>
       )}
@@ -199,9 +197,9 @@ const HighSchoolView = ({ education, theme }: any) => {
 
   return (
     <>
-      <div className="flex justify-between items-center p-2 rounded bg-gray-50 text-sm">
+      <div className="flex justify-between items-center p-1.5 md:p-2 rounded bg-gray-50 text-xs md:text-sm">
         <span className={`font-medium ${theme.text} flex items-center`}>
-          <FaBook className={`mr-1 ${theme.iconColor}`} />
+          <FaBook className={`mr-0.5 md:mr-1 ${theme.iconColor} text-xs md:text-sm`} />
           <span>الصف الدراسي</span>
         </span>
         <span className="font-semibold text-gray-700 truncate max-w-[50%]">
@@ -209,9 +207,9 @@ const HighSchoolView = ({ education, theme }: any) => {
         </span>
       </div>
 
-      <div className="flex justify-between items-center p-2 rounded bg-gray-50 text-sm mt-1">
+      <div className="flex justify-between items-center p-1.5 md:p-2 rounded bg-gray-50 text-xs md:text-sm mt-0.5 md:mt-1">
         <span className={`font-medium ${theme.text} flex items-center`}>
-          <FaUserGraduate className={`mr-1 ${theme.iconColor}`} />
+          <FaUserGraduate className={`mr-0.5 md:mr-1 ${theme.iconColor} text-xs md:text-sm`} />
           <span>التخصص</span>
         </span>
         <span className="font-semibold text-gray-700 truncate max-w-[50%]">
@@ -220,8 +218,8 @@ const HighSchoolView = ({ education, theme }: any) => {
       </div>
 
       {education.degreeSeeking && (
-        <div className={`p-2 rounded ${theme.accent} flex items-center text-xs mt-1`}>
-          <FaGraduationCap className={`mr-1 ${theme.iconColor}`} />
+        <div className={`p-1.5 md:p-2 rounded ${theme.accent} flex items-center text-2xs md:text-xs mt-0.5 md:mt-1`}>
+          <FaGraduationCap className={`mr-0.5 md:mr-1 ${theme.iconColor} text-xs md:text-sm`} />
           <span className={`${theme.text} font-medium`}>في مرحلة استخراج شهادة الثانوية</span>
         </div>
       )}
@@ -240,10 +238,10 @@ const UniversityView = ({ education, theme }: any) => {
   };
 
   return (
-    <div className="grid grid-cols-1 gap-1">
-      <div className="flex justify-between items-center p-2 rounded bg-gray-50 text-sm">
+    <div className="grid grid-cols-1 gap-1 md:gap-1.5">
+      <div className="flex justify-between items-center p-1.5 md:p-2 rounded bg-gray-50 text-xs md:text-sm">
         <span className={`font-medium ${theme.text} flex items-center`}>
-          <FaUniversity className={`mr-1 ${theme.iconColor}`} />
+          <FaUniversity className={`mr-0.5 md:mr-1 ${theme.iconColor} text-xs md:text-sm`} />
           <span>الجامعة</span>
         </span>
         <span className="font-semibold text-gray-700 truncate max-w-[50%]">
@@ -251,9 +249,9 @@ const UniversityView = ({ education, theme }: any) => {
         </span>
       </div>
 
-      <div className="flex justify-between items-center p-2 rounded bg-gray-50 text-sm">
+      <div className="flex justify-between items-center p-1.5 md:p-2 rounded bg-gray-50 text-xs md:text-sm">
         <span className={`font-medium ${theme.text} flex items-center`}>
-          <FaBook className={`mr-1 ${theme.iconColor}`} />
+          <FaBook className={`mr-0.5 md:mr-1 ${theme.iconColor} text-xs md:text-sm`} />
           <span>الكلية</span>
         </span>
         <span className="font-semibold text-gray-700 truncate max-w-[50%]">
@@ -261,9 +259,9 @@ const UniversityView = ({ education, theme }: any) => {
         </span>
       </div>
 
-      <div className="flex justify-between items-center p-2 rounded bg-gray-50 text-sm">
+      <div className="flex justify-between items-center p-1.5 md:p-2 rounded bg-gray-50 text-xs md:text-sm">
         <span className={`font-medium ${theme.text} flex items-center`}>
-          <FaUserGraduate className={`mr-1 ${theme.iconColor}`} />
+          <FaUserGraduate className={`mr-0.5 md:mr-1 ${theme.iconColor} text-xs md:text-sm`} />
           <span>التخصص</span>
         </span>
         <span className="font-semibold text-gray-700 truncate max-w-[50%]">
@@ -271,9 +269,9 @@ const UniversityView = ({ education, theme }: any) => {
         </span>
       </div>
 
-      <div className="flex justify-between items-center p-2 rounded bg-gray-50 text-sm">
+      <div className="flex justify-between items-center p-1.5 md:p-2 rounded bg-gray-50 text-xs md:text-sm">
         <span className={`font-medium ${theme.text} flex items-center`}>
-          <FaGraduationCap className={`mr-1 ${theme.iconColor}`} />
+          <FaGraduationCap className={`mr-0.5 md:mr-1 ${theme.iconColor} text-xs md:text-sm`} />
           <span>السنة</span>
         </span>
         <span className="font-semibold text-gray-700 truncate max-w-[50%]">
@@ -281,9 +279,9 @@ const UniversityView = ({ education, theme }: any) => {
         </span>
       </div>
 
-      <div className="flex justify-between items-center p-2 rounded bg-gray-50 text-sm">
+      <div className="flex justify-between items-center p-1.5 md:p-2 rounded bg-gray-50 text-xs md:text-sm">
         <span className={`font-medium ${theme.text} flex items-center`}>
-          <FaIdCard className={`mr-1 ${theme.iconColor}`} />
+          <FaIdCard className={`mr-0.5 md:mr-1 ${theme.iconColor} text-xs md:text-sm`} />
           <span>الرقم الجامعي</span>
         </span>
         <span className="font-mono font-semibold text-gray-700 truncate max-w-[50%]">

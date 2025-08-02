@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { 
-  FaArrowUp, FaArrowDown, FaEye, FaComment, FaShare 
+  FaArrowUp, FaArrowDown, FaEye, FaComment, FaShare, FaFlag 
 } from 'react-icons/fa';
 import Alert from '../Alert';
 
@@ -9,7 +9,8 @@ interface InteractionButtonsProps {
   postId: string;
   onAgree: () => void;
   onDisagree: () => void;
-  onShare?: () => void; // جعلناها اختيارية
+  onShare?: () => void;
+  onReport?: () => void; // أضفنا دالة الإبلاغ
   agreeCount: number;
   disagreeCount: number;
   readersCount: number;
@@ -22,6 +23,7 @@ const InteractionButtons: React.FC<InteractionButtonsProps> = ({
   onAgree,
   onDisagree,
   onShare,
+  onReport,
   agreeCount,
   disagreeCount,
   readersCount,
@@ -41,7 +43,6 @@ const InteractionButtons: React.FC<InteractionButtonsProps> = ({
         setAlertType('success');
         setShowAlert(true);
         
-        // استدعاء onShare إذا كانت موجودة
         if (onShare) onShare();
       })
       .catch(() => {
@@ -51,10 +52,21 @@ const InteractionButtons: React.FC<InteractionButtonsProps> = ({
       });
   };
 
+  const handleReport = () => {
+    if (onReport) {
+      onReport();
+      setAlertMessage('تم الإبلاغ عن المنشور بنجاح');
+      } else {
+      setAlertMessage("شكرا  🌹, سيتم مراجعة الابلاغ من قبل الإدارة واتخاذ الاجراء المناسب , شكرا لحفاظك على سلامة المنصة 😊");
+      }
+    setAlertType('info');
+    setShowAlert(true);
+  };
+
   return (
     <>
-      <div className="flex justify-between items-center px-4 py-3">
-        <div className="flex items-center space-x-4">
+      <div className="flex justify-between items-center px-4 py-6">
+        <div className="flex items-center space-x-6"> 
           <div className="flex items-center text-gray-500 text-sm">
             <FaEye className="ml-1" size={14} />
             <span>{readersCount}</span>
@@ -69,7 +81,15 @@ const InteractionButtons: React.FC<InteractionButtonsProps> = ({
           </Link>
         </div>
         
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-4"> {/* زدنا المسافة هنا من space-x-3 إلى space-x-4 */}
+          <button 
+            onClick={handleReport}
+            className="p-1.5 rounded-full text-gray-500 hover:bg-gray-100 transition-colors"
+            title="إبلاغ"
+          >
+            <FaFlag size={14} />
+          </button>
+          
           <button 
             onClick={handleShare}
             className="p-1.5 rounded-full text-gray-500 hover:bg-gray-100 transition-colors"

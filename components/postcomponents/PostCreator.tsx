@@ -36,9 +36,22 @@ const PostCreator: React.FC<PostCreatorProps> = ({ onSubmit, userInfo }) => {
   const [alertType, setAlertType] = useState<'error' | 'success'>('error');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitProgress, setSubmitProgress] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
 
   // خيارات مدة الاستطلاع بالأيام
   const durationOptions = [1, 2, 3, 5, 7, 10, 14, 21, 30];
+
+  // الكشف عن حجم الشاشة
+  useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkIfMobile();
+    window.addEventListener('resize', checkIfMobile);
+    
+    return () => window.removeEventListener('resize', checkIfMobile);
+  }, []);
 
   // معالجة إضافة خيار استطلاع
   const handleAddOption = () => {
@@ -206,7 +219,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ onSubmit, userInfo }) => {
       disabled={isSubmitting}
       className={`relative px-6 py-3 bg-blue-600 text-white rounded-lg overflow-hidden transition-all ${
         isSubmitting ? 'cursor-wait' : 'hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
-      }`}
+      } w-full md:w-auto`}
     >
       <div 
         className="absolute top-0 left-0 h-full bg-blue-700 transition-all duration-300"
@@ -226,7 +239,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ onSubmit, userInfo }) => {
   );
 
   return (
-    <div className="w-full max-w-2xl mx-auto bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
+    <div className={`w-full ${isMobile ? 'px-0' : 'max-w-2xl mx-auto px-4'} bg-white ${!isMobile && 'rounded-xl shadow-sm border border-gray-100'}`}>
       {showAlert && (
         <Alert 
           message={alertMessage}
@@ -236,29 +249,33 @@ const PostCreator: React.FC<PostCreatorProps> = ({ onSubmit, userInfo }) => {
         />
       )}
       
-      <div className="p-4 border-b border-gray-100">
+      <div className={`p-4 ${!isMobile && 'border-b border-gray-100'}`}>
         <h2 className="text-xl font-semibold text-gray-900 text-center">إنشاء منشور جديد</h2>
       </div>
       
       <div className="p-4">
         {renderUserInfo()}
         
-        <div className="flex border-b border-gray-200 mb-6">
+        <div className="flex border-b border-gray-200 mb-6 overflow-x-auto">
           <button
             onClick={() => setActiveTab('opinion')}
-            className={`flex-1 py-3 font-medium text-sm flex items-center justify-center gap-2 ${activeTab === 'opinion' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
+            className={`flex-1 min-w-[120px] py-3 font-medium text-sm flex items-center justify-center gap-2 ${activeTab === 'opinion' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
           >
             <FaPenAlt /> رأي
           </button>
           <button
             onClick={() => setActiveTab('both')}
-            className={`flex-1 py-3 font-medium text-sm flex items-center justify-center gap-2 ${activeTab === 'both' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
+            className={`flex-1 min-w-[120px] py-3 font-medium text-sm flex items-center justify-center gap-2 ${activeTab === 'both' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
           >
-            <><FaPenAlt /><FaPoll /> الاثنين معاً</>
+            <div className="flex items-center gap-1">
+              <FaPenAlt size={12} />
+              <FaPoll size={12} />
+              <span> معاً</span>
+            </div>
           </button>
           <button
             onClick={() => setActiveTab('poll')}
-            className={`flex-1 py-3 font-medium text-sm flex items-center justify-center gap-2 ${activeTab === 'poll' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
+            className={`flex-1 min-w-[120px] py-3 font-medium text-sm flex items-center justify-center gap-2 ${activeTab === 'poll' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
           >
             <FaPoll /> استطلاع
           </button>

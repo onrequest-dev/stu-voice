@@ -26,9 +26,11 @@ const UserInfoComponent: React.FC<UserInfoProps> = ({ userInfo }) => {
               <span className="text-xs text-gray-500">@{userInfo.id}</span>
             </div>
           </div>
-          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-            {userInfo.study}
-          </span>
+          {userInfo.study && (
+            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+              {userInfo.study}
+            </span>
+          )}
         </div>
       </div>
     </div>
