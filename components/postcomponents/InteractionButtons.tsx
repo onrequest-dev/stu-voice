@@ -10,7 +10,7 @@ interface InteractionButtonsProps {
   onAgree: () => void;
   onDisagree: () => void;
   onShare?: () => void;
-  onReport?: () => void; // أضفنا دالة الإبلاغ
+  onReport?: () => void;
   agreeCount: number;
   disagreeCount: number;
   readersCount: number;
@@ -65,62 +65,61 @@ const InteractionButtons: React.FC<InteractionButtonsProps> = ({
 
   return (
     <>
-      <div className="flex justify-between items-center px-4 py-6">
-        <div className="flex items-center space-x-6"> 
-          <div className="flex items-center text-gray-500 text-sm">
-            <FaEye className="ml-1" size={14} />
+      <div className="flex justify-between items-center px-3 py-4 md:px-4 md:py-6">
+        <div className="flex items-center space-x-4 md:space-x-6">
+          <div className="flex items-center text-gray-500 text-xs md:text-sm">
+            <FaEye className="ml-1" size={12} />
             <span>{readersCount}</span>
           </div>
           
           <Link 
             href={`/posts/${postId}`} 
-            className="flex items-center text-blue-500 text-sm hover:underline"
+            className="flex items-center text-blue-500 text-xs md:text-sm hover:underline"
           >
-            <FaComment className="ml-1" size={14} />
+            <FaComment className="ml-1" size={12} />
             <span>{commentsCount}</span>
           </Link>
         </div>
         
-        <div className="flex items-center space-x-4"> {/* زدنا المسافة هنا من space-x-3 إلى space-x-4 */}
+        <div className="flex items-center space-x-3 md:space-x-4">
           <button 
             onClick={handleReport}
-            className="p-1.5 rounded-full text-gray-500 hover:bg-gray-100 transition-colors"
+            className="p-1 rounded-full text-gray-500 hover:bg-gray-100 transition-colors"
             title="إبلاغ"
           >
-            <FaFlag size={14} />
+            <FaFlag size={12} />
           </button>
           
           <button 
             onClick={handleShare}
-            className="p-1.5 rounded-full text-gray-500 hover:bg-gray-100 transition-colors"
+            className="p-1 rounded-full text-gray-500 hover:bg-gray-100 transition-colors"
             title="مشاركة"
           >
-            <FaShare size={14} />
+            <FaShare size={12} />
           </button>
           
           <div className="flex items-center">
             <button 
               onClick={onAgree}
-              className={`p-1.5 rounded-full ${agreed === true ? 'bg-green-50 text-green-600' : 'text-gray-500'} hover:bg-green-50 transition-colors`}
+              className={`p-1 rounded-full ${agreed === true ? 'bg-green-50 text-green-600' : 'text-gray-500'} hover:bg-green-50 transition-colors`}
             >
-              <FaArrowUp size={14} />
+              <FaArrowUp size={12} />
             </button>
-            <span className="mx-1.5 text-sm text-gray-600">{agreeCount}</span>
+            <span className="mx-1 text-xs md:text-sm text-gray-600">{agreeCount}</span>
           </div>
           
           <div className="flex items-center">
             <button 
               onClick={onDisagree}
-              className={`p-1.5 rounded-full ${agreed === false ? 'bg-red-50 text-red-600' : 'text-gray-500'} hover:bg-red-50 transition-colors`}
+              className={`p-1 rounded-full ${agreed === false ? 'bg-red-50 text-red-600' : 'text-gray-500'} hover:bg-red-50 transition-colors`}
             >
-              <FaArrowDown size={14} />
+              <FaArrowDown size={12} />
             </button>
-            <span className="mx-1.5 text-sm text-gray-600">{disagreeCount}</span>
+            <span className="mx-1 text-xs md:text-sm text-gray-600">{disagreeCount}</span>
           </div>
         </div>
       </div>
 
-      {/* عرض التنبيه */}
       {showAlert && (
         <Alert 
           message={alertMessage}

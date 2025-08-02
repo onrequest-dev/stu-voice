@@ -8,7 +8,9 @@ interface OpinionProps {
 const OpinionComponent: React.FC<OpinionProps> = ({ opinion }) => {
   return (
     <div className="px-4 pt-2 pb-1">
-      <p className="text-gray-800 mb-2 text-right">{opinion.text}</p>
+      <p className="text-gray-800 mb-2 text-right text-sm md:text-base">
+        {opinion.text}
+      </p>
     </div>
   );
 };

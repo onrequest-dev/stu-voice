@@ -1,13 +1,12 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { FaUserSecret, FaPlus, FaMinus, FaPenAlt, FaPoll, FaSpinner } from 'react-icons/fa';
-import CustomIcon from './CustomIcon';
+import { FaPlus, FaMinus, FaPenAlt, FaPoll, FaSpinner } from 'react-icons/fa';
 import Alert from '../Alert';
 import { UserInfo } from './types';
+import UserInfoComponent from './UserInfoComponent';
 
 interface PostCreatorProps {
   onSubmit: (postData: {
-    isAnonymous: boolean;
     content: {
       opinion?: string;
       poll?: {
@@ -22,7 +21,6 @@ interface PostCreatorProps {
 
 const PostCreator: React.FC<PostCreatorProps> = ({ onSubmit, userInfo }) => {
   // الحالات الأساسية
-  const [isAnonymous, setIsAnonymous] = useState(false);
   const [activeTab, setActiveTab] = useState<'opinion' | 'poll' | 'both'>('opinion');
   const [opinionText, setOpinionText] = useState('');
   const [pollQuestion, setPollQuestion] = useState('');
@@ -121,7 +119,6 @@ const PostCreator: React.FC<PostCreatorProps> = ({ onSubmit, userInfo }) => {
     
     try {
       await onSubmit({
-        isAnonymous,
         content: {
           ...(activeTab !== 'poll' && { opinion: opinionText }),
           ...(activeTab !== 'opinion' && { 
@@ -160,57 +157,6 @@ const PostCreator: React.FC<PostCreatorProps> = ({ onSubmit, userInfo }) => {
       setSubmitProgress(0);
     }
   };
-
-  // عرض أيقونة المستخدم
-  const renderUserAvatar = () => (
-    isAnonymous ? (
-      <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-        <FaUserSecret className="text-gray-500 text-lg" />
-      </div>
-    ) : (
-      <CustomIcon 
-        icon={userInfo.iconName}
-        iconColor={userInfo.iconColor}
-        bgColor={userInfo.bgColor}
-        size={20}
-      />
-    )
-  );
-
-  // عرض معلومات المستخدم
-  const renderUserInfo = () => (
-    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg mb-4">
-      {renderUserAvatar()}
-      <div>
-        <h4 className="font-medium text-gray-900">
-          {isAnonymous ? 'مجهول' : userInfo.fullName}
-        </h4>
-        {!isAnonymous && (
-          <span className="text-xs text-gray-500">@{userInfo.id}</span>
-        )}
-      </div>
-    </div>
-  );
-
-  // عرض خيارات مدة الاستطلاع
-  const renderPollDuration = () => (
-    <div className="mb-4">
-      <label className="block text-sm font-medium text-gray-700 mb-2">
-        مدة الاستطلاع (بالأيام)
-      </label>
-      <select
-        value={pollDuration}
-        onChange={(e) => setPollDuration(Number(e.target.value))}
-        className="bg-gray-100 border border-gray-300 text-gray-700 py-2 px-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
-      >
-        {durationOptions.map(days => (
-          <option key={days} value={days}>
-            {days} يوم
-          </option>
-        ))}
-      </select>
-    </div>
-  );
 
   // زر النشر مع الرسوم المتحركة
   const renderSubmitButton = () => (
@@ -254,30 +200,32 @@ const PostCreator: React.FC<PostCreatorProps> = ({ onSubmit, userInfo }) => {
       </div>
       
       <div className="p-4">
-        {renderUserInfo()}
+        <div className="mb-4">
+          <UserInfoComponent userInfo={userInfo} />
+        </div>
         
-        <div className="flex border-b border-gray-200 mb-6 overflow-x-auto">
+        <div className="flex border-b border-gray-200 mb-6">
           <button
             onClick={() => setActiveTab('opinion')}
-            className={`flex-1 min-w-[120px] py-3 font-medium text-sm flex items-center justify-center gap-2 ${activeTab === 'opinion' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
+            className={`flex-1 py-3 font-medium text-xs md:text-sm flex items-center justify-center gap-1 ${activeTab === 'opinion' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
           >
-            <FaPenAlt /> رأي
+            <FaPenAlt size={12} /> رأي
           </button>
           <button
             onClick={() => setActiveTab('both')}
-            className={`flex-1 min-w-[120px] py-3 font-medium text-sm flex items-center justify-center gap-2 ${activeTab === 'both' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
+            className={`flex-1 py-3 font-medium text-xs md:text-sm flex items-center justify-center gap-1 ${activeTab === 'both' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
           >
             <div className="flex items-center gap-1">
-              <FaPenAlt size={12} />
-              <FaPoll size={12} />
-              <span> معاً</span>
+              <FaPenAlt size={10} />
+              <FaPoll size={10} />
+              <span>معاً</span>
             </div>
           </button>
           <button
             onClick={() => setActiveTab('poll')}
-            className={`flex-1 min-w-[120px] py-3 font-medium text-sm flex items-center justify-center gap-2 ${activeTab === 'poll' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
+            className={`flex-1 py-3 font-medium text-xs md:text-sm flex items-center justify-center gap-1 ${activeTab === 'poll' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
           >
-            <FaPoll /> استطلاع
+            <FaPoll size={12} /> استطلاع
           </button>
         </div>
         
@@ -319,7 +267,22 @@ const PostCreator: React.FC<PostCreatorProps> = ({ onSubmit, userInfo }) => {
               )}
             </div>
             
-            {renderPollDuration()}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                مدة الاستطلاع (بالأيام)
+              </label>
+              <select
+                value={pollDuration}
+                onChange={(e) => setPollDuration(Number(e.target.value))}
+                className="bg-gray-100 border border-gray-300 text-gray-700 py-2 px-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+              >
+                {durationOptions.map(days => (
+                  <option key={days} value={days}>
+                    {days} يوم
+                  </option>
+                ))}
+              </select>
+            </div>
             
             <div className="mb-2">
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -359,18 +322,6 @@ const PostCreator: React.FC<PostCreatorProps> = ({ onSubmit, userInfo }) => {
             </div>
           </div>
         )}
-        
-        <div className="flex items-center gap-4 mb-6">
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={isAnonymous}
-              onChange={() => setIsAnonymous(!isAnonymous)}
-              className="form-checkbox h-5 w-5 text-blue-600 rounded focus:ring-blue-500"
-            />
-            <span className="text-gray-700">النشر كمجهول</span>
-          </label>
-        </div>
         
         <div className="flex justify-end">
           {renderSubmitButton()}

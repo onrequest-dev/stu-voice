@@ -9,7 +9,6 @@ const PollComponent: React.FC<{ poll: Poll }> = ({ poll }) => {
   const [isExpired, setIsExpired] = useState(false);
   const totalVotes = votes.reduce((sum, vote) => sum + vote, 0);
 
-  // دالة لتحويل المدة إلى تاريخ انتهاء
   const getExpiryDate = (duration: string) => {
     const now = new Date();
     switch (duration) {
@@ -29,12 +28,11 @@ const PollComponent: React.FC<{ poll: Poll }> = ({ poll }) => {
         now.setMonth(now.getMonth() + 1);
         break;
       default:
-        now.setDate(now.getDate() + 3); // افتراضي 3 أيام
+        now.setDate(now.getDate() + 3);
     }
     return now;
   };
 
-  // دالة لحساب الوقت المتبقي
   const calculateTimeRemaining = () => {
     if (!poll.durationInDays) return;
 
@@ -55,7 +53,6 @@ const PollComponent: React.FC<{ poll: Poll }> = ({ poll }) => {
     setTimeRemaining(`${days} يوم و ${hours} ساعة`);
   };
 
-  // تحديث الوقت المتبقي كل دقيقة
   useEffect(() => {
     calculateTimeRemaining();
     const interval = setInterval(calculateTimeRemaining, 60000);
@@ -77,8 +74,7 @@ const PollComponent: React.FC<{ poll: Poll }> = ({ poll }) => {
     return Math.round((votes / total) * 100);
   };
 
-  // دالة لعرض حالة الاستطلاع
- const renderPollStatus = () => {
+  const renderPollStatus = () => {
     if (!poll.durationInDays) return null;
     
     return (
@@ -93,8 +89,10 @@ const PollComponent: React.FC<{ poll: Poll }> = ({ poll }) => {
   };
 
   return (
-    <div className="px-4 pt-1 pb-1">
-      <h4 className="font-medium text-gray-900 mb-3 text-right">{poll.question}</h4>
+    <div className="px-3 pt-1 pb-1">
+      <h4 className="font-medium text-gray-900 mb-2 text-right text-sm md:text-base">
+        {poll.question}
+      </h4>
       
       {renderPollStatus()}
       
@@ -103,13 +101,13 @@ const PollComponent: React.FC<{ poll: Poll }> = ({ poll }) => {
           <div 
             key={index}
             onClick={() => handlePollSelect(index)}
-            className={`py-2 px-3 border rounded-lg text-right transition-all relative overflow-hidden ${
+            className={`py-1.5 px-2.5 border rounded-lg text-right transition-all relative overflow-hidden ${
               selectedPollOption === index 
                 ? 'border-blue-300 bg-blue-50 text-blue-700' 
                 : isExpired || hasVoted
                   ? 'border-gray-200 text-gray-500 cursor-default'
                   : 'border-gray-200 hover:bg-gray-50 text-gray-700 cursor-pointer'
-            }`}
+            } text-sm md:text-base`}
           >
             <div 
               className="absolute left-0 top-0 h-full bg-blue-100 opacity-20"
@@ -119,9 +117,9 @@ const PollComponent: React.FC<{ poll: Poll }> = ({ poll }) => {
               }}
             />
             <div className="relative z-10 flex justify-between items-center">
-              <span>{option}</span>
+              <span className="text-sm md:text-base">{option}</span>
               {(hasVoted || isExpired) && (
-                <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                <span className="text-xs bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded-full">
                   {calculatePercentage(votes[index], totalVotes)}%
                 </span>
               )}
@@ -131,7 +129,7 @@ const PollComponent: React.FC<{ poll: Poll }> = ({ poll }) => {
       </div>
       
       {(hasVoted || isExpired) && (
-        <div className="text-xs text-gray-500 mt-2">
+        <div className="text-xs text-gray-500 mt-1">
           مجموع المصوتين: {totalVotes}
         </div>
       )}

@@ -1,5 +1,5 @@
 'use client';
-import { FaArrowUp, FaArrowDown, FaFlag } from 'react-icons/fa';
+import { FaArrowUp, FaArrowDown, FaFlag, FaInfoCircle } from 'react-icons/fa';
 import CustomIcon from './CustomIcon';
 import { UserInfo } from './types';
 import { useState } from 'react';
@@ -27,32 +27,26 @@ const Comment = ({ comment, userInfo, onLike, onDislike }: CommentProps) => {
 
   const handleLike = () => {
     if (userVote === 'up') {
-      // إلغاء الإعجاب إذا كان مضغوطاً مسبقاً
       setUserVote(null);
-      onDislike(); // ننقص العدد
+      onDislike();
     } else {
-      // إعجاب جديد أو تغيير من عدم إعجاب إلى إعجاب
       setUserVote('up');
-      onLike(); // نزيد العدد
-      // إذا كان هناك تصويت سلبي مسبقاً، ننقصه
+      onLike();
       if (userVote === 'down') {
-        onLike(); // نزيد العدد لتعويض النقص السابق
+        onLike();
       }
     }
   };
 
   const handleDislike = () => {
     if (userVote === 'down') {
-      // إلغاء عدم الإعجاب إذا كان مضغوطاً مسبقاً
       setUserVote(null);
-      onLike(); // نزيد العدد
+      onLike();
     } else {
-      // تصويت سلبي جديد أو تغيير من إعجاب إلى عدم إعجاب
       setUserVote('down');
-      onDislike(); // ننقص العدد
-      // إذا كان هناك تصويت إيجابي مسبقاً، ننقصه
+      onDislike();
       if (userVote === 'up') {
-        onDislike(); // ننقص العدد لتعويض الزيادة السابقة
+        onDislike();
       }
     }
   };
@@ -61,63 +55,69 @@ const Comment = ({ comment, userInfo, onLike, onDislike }: CommentProps) => {
     <div className="border-b border-gray-100 pb-4 mb-4">
       {showReportAlert && (
         <Alert
-          message="شكرا  🌹, سيتم مراجعة الابلاغ من قبل الإدارة واتخاذ الاجراء المناسب 
-          شكرا لحفاظك على سلامة المنصة 😊"
+          message="شكراً 🌹، سيتم مراجعة الإبلاغ من قبل الإدارة واتخاذ الإجراء المناسب. شكراً لحفاظك على سلامة المنصة 😊"
           type="success"
           autoDismiss={5000}
           onDismiss={() => setShowReportAlert(false)}
         />
       )}
-      
-      <div className="flex items-start">
-        <div className="mr-3">
-          <CustomIcon 
-            icon={userInfo.iconName}
-            iconColor={userInfo.iconColor}
-            bgColor={userInfo.bgColor}
-            size={14}
-          />
-        </div>
-        
-        <div className="flex-1">
-          <div className="flex justify-between items-start">
-            <div>
-              <h4 className="font-medium text-gray-900">{userInfo.fullName}</h4>
-              <div className="flex items-center mt-1">
-                <span className="text-xs text-gray-500">@{userInfo.id}</span>
-              </div>
+
+      {/* الصف العلوي: التاريخ ومعلومات المستخدم */}
+      <div className="flex justify-between items-start">
+        {/* التاريخ في أقصى اليسار */}
+        <span className="text-xs text-gray-500">
+          {comment.timestamp}
+        </span>
+
+        {/* مجموعة معلومات المستخدم */}
+        <div className="flex items-center gap-3"> {/* استخدمنا gap-3 للمسافة بين العناصر */}
+          {/* الاسم واسم المستخدم */}
+          <div className="text-right">
+            <h4 className="font-medium text-gray-900">{userInfo.fullName}</h4>
+            <div className="flex items-center justify-end mt-1 gap-1">
+              <span className="text-xs text-gray-500">@{userInfo.id}</span>
+              <FaInfoCircle className="text-gray-400" size={10} />
             </div>
-            <span className="text-xs text-gray-500">
-              {comment.timestamp}
-            </span>
           </div>
-          
-          <p className="mt-2 text-gray-800 text-right">{comment.text}</p>
-          
-          <div className="flex mt-3 text-gray-500">
-            <button 
-              onClick={handleLike}
-              className={`flex items-center mr-4 ${userVote === 'up' ? 'text-green-600' : 'hover:text-blue-600'}`}
-            >
-              <FaArrowUp className="mr-1" />
-              <span className="text-xs">{comment.likes}</span>
-            </button>
-            <button 
-              onClick={handleDislike}
-              className={`flex items-center mr-4 ${userVote === 'down' ? 'text-red-600' : 'hover:text-red-600'}`}
-            >
-              <FaArrowDown className="mr-1" />
-            </button>
-            <button 
-              onClick={handleReport}
-              className="flex items-center hover:text-gray-600"
-              title="الإبلاغ عن التعليق"
-            >
-              <FaFlag className="mr-1" />
-              <span className="text-xs">إبلاغ</span>
-            </button>
+
+          {/* الأيقونة في أقصى اليمين */}
+          <div>
+            <CustomIcon
+              icon={userInfo.iconName}
+              iconColor={userInfo.iconColor}
+              bgColor={userInfo.bgColor}
+              size={14}
+            />
           </div>
         </div>
+      </div>
+
+      {/* نص التعليق */}
+      <p className="mt-2 text-gray-800 text-right">{comment.text}</p>
+
+      {/* أزرار التفاعل */}
+      <div className="flex mt-3 text-gray-500 justify-end gap-3">
+        <button
+          onClick={handleLike}
+          className={`flex items-center ${userVote === 'up' ? 'text-green-600' : 'hover:text-blue-600'}`}
+        >
+          <FaArrowUp className="ml-1" />
+          <span className="text-xs mr-1">{comment.likes}</span>
+        </button>
+        <button
+          onClick={handleDislike}
+          className={`flex items-center ${userVote === 'down' ? 'text-red-600' : 'hover:text-red-600'}`}
+        >
+          <FaArrowDown className="ml-1" />
+        </button>
+        <button
+          onClick={handleReport}
+          className="flex items-center hover:text-gray-600"
+          title="الإبلاغ عن التعليق"
+        >
+          <FaFlag className="ml-1" />
+          <span className="text-xs mr-1">إبلاغ</span>
+        </button>
       </div>
     </div>
   );

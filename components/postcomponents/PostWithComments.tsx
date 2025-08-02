@@ -32,9 +32,7 @@ const PostWithComments = ({ postData, commentsData }: PostWithCommentsProps) => 
   const [showAlert, setShowAlert] = useState(false);
   const [isManualTrigger, setIsManualTrigger] = useState(false);
   const [alertClosedPermanently, setAlertClosedPermanently] = useState(false);
-  const [isStickyHeader, setIsStickyHeader] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const headerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const closedPermanently = localStorage.getItem('commentAlertClosed') === 'true';
@@ -43,18 +41,6 @@ const PostWithComments = ({ postData, commentsData }: PostWithCommentsProps) => 
     if (!closedPermanently) {
       setShowAlert(true);
     }
-  }, []);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (headerRef.current) {
-        const headerBottom = headerRef.current.getBoundingClientRect().bottom;
-        setIsStickyHeader(headerBottom <= 0);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const handleAddComment = () => {
@@ -124,11 +110,8 @@ const PostWithComments = ({ postData, commentsData }: PostWithCommentsProps) => 
 
   return (
     <div className="max-w-2xl mx-auto bg-white min-h-screen relative">
-      {/* Header ثابت عند التمرير */}
-      <div 
-        ref={headerRef}
-        className={`p-4 border-b bg-white z-10 ${isStickyHeader ? 'fixed top-0 left-0 right-0 shadow-md max-w-2xl mx-auto' : ''}`}
-      >
+      {/* Header ثابت دائما */}
+      <div className="sticky top-0 z-50 p-4 border-b bg-white shadow-sm">
         <div className="flex items-center justify-between">
           <Link 
             href="/taps/HomeContent" 
@@ -148,9 +131,6 @@ const PostWithComments = ({ postData, commentsData }: PostWithCommentsProps) => 
         </div>
       </div>
 
-      {/* تعويض المساحة عند تثبيت الهيدر */}
-      {isStickyHeader && <div className="h-16"></div>}
-
       <div className="p-4 border-b">
         <PostComponent 
           id={postData.id}
@@ -162,9 +142,10 @@ const PostWithComments = ({ postData, commentsData }: PostWithCommentsProps) => 
 
       <div className="p-4 pb-20">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-800">
-            <FaRegComment className="inline ml-2" />
-            التعليقات ({comments.length})
+          <div></div> {/* عنصر فارغ لملء المساحة */}
+          <h2 className="text-lg font-semibold text-gray-800 flex items-center" dir="rtl">
+            <FaRegComment className="ml-2" />
+            <span>التعليقات ({comments.length})</span>
           </h2>
         </div>
         
@@ -192,10 +173,11 @@ const PostWithComments = ({ postData, commentsData }: PostWithCommentsProps) => 
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="flex-1 border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+            className="flex-1 border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-right"
             placeholder="أضف تعليقك..."
             rows={1}
             style={{ minHeight: '50px', maxHeight: '120px' }}
+            dir="rtl"
           />
           <button
             onClick={handleAddComment}
