@@ -5,7 +5,7 @@ import PollComponent from './PollComponent';
 import InteractionButtons from './InteractionButtons';
 import { PostProps } from './types';
 
-const PostComponent: React.FC<PostProps> = ({ id, userInfo, opinion, poll }) => {
+const PostComponent: React.FC<PostProps> = ({ id, userInfo, opinion, poll ,createdAt}) => {
   const [agreed, setAgreed] = useState<boolean | null>(null);
   const [localCounts, setLocalCounts] = useState({
     agree: opinion?.agreeCount || 0,
@@ -66,7 +66,17 @@ const PostComponent: React.FC<PostProps> = ({ id, userInfo, opinion, poll }) => 
           agreed={agreed}
         />
       </div>
+      {createdAt && (
+        <div className="text-sm text-gray-500 mt-2">
+          منشور في: {new Date(createdAt).toLocaleDateString('ar-EG', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          })}
+        </div>
+      )}
       <div className="border-b border-gray-200"></div>
+      
     </div>
   );
 };

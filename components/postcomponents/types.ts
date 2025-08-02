@@ -27,4 +27,5 @@ export interface PostProps {
   userInfo: UserInfo;
   opinion?: Opinion | null;
   poll?: Poll | null;
+  createdAt?: string;
 }
