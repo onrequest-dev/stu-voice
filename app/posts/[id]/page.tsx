@@ -21,6 +21,12 @@ export default function PostPage({ params }: { params: { id: string } }) {
       disagreeCount: 2,
       readersCount: 156,
       commentsCount: 8
+    },
+      poll: {
+      question: "كم مرة تزور المكتبة المركزية أسبوعياً؟",
+      options: ["أقل من مرة", "1-2 مرات", "3-5 مرات", "أكثر من 5 مرات"],
+      votes: [30, 45, 20, 5],
+      durationInDays:-1, 
     }
   }}
   commentsData={{

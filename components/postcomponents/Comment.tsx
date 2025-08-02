@@ -1,7 +1,9 @@
 'use client';
-import { FaArrowUp, FaArrowDown } from 'react-icons/fa';
+import { FaArrowUp, FaArrowDown, FaFlag } from 'react-icons/fa';
 import CustomIcon from './CustomIcon';
 import { UserInfo } from './types';
+import { useState } from 'react';
+import Alert from '../Alert';
 
 interface CommentProps {
   comment: {
@@ -16,10 +18,58 @@ interface CommentProps {
 }
 
 const Comment = ({ comment, userInfo, onLike, onDislike }: CommentProps) => {
+  const [showReportAlert, setShowReportAlert] = useState(false);
+  const [userVote, setUserVote] = useState<'up' | 'down' | null>(null);
+
+  const handleReport = () => {
+    setShowReportAlert(true);
+  };
+
+  const handleLike = () => {
+    if (userVote === 'up') {
+      // إلغاء الإعجاب إذا كان مضغوطاً مسبقاً
+      setUserVote(null);
+      onDislike(); // ننقص العدد
+    } else {
+      // إعجاب جديد أو تغيير من عدم إعجاب إلى إعجاب
+      setUserVote('up');
+      onLike(); // نزيد العدد
+      // إذا كان هناك تصويت سلبي مسبقاً، ننقصه
+      if (userVote === 'down') {
+        onLike(); // نزيد العدد لتعويض النقص السابق
+      }
+    }
+  };
+
+  const handleDislike = () => {
+    if (userVote === 'down') {
+      // إلغاء عدم الإعجاب إذا كان مضغوطاً مسبقاً
+      setUserVote(null);
+      onLike(); // نزيد العدد
+    } else {
+      // تصويت سلبي جديد أو تغيير من إعجاب إلى عدم إعجاب
+      setUserVote('down');
+      onDislike(); // ننقص العدد
+      // إذا كان هناك تصويت إيجابي مسبقاً، ننقصه
+      if (userVote === 'up') {
+        onDislike(); // ننقص العدد لتعويض الزيادة السابقة
+      }
+    }
+  };
+
   return (
     <div className="border-b border-gray-100 pb-4 mb-4">
+      {showReportAlert && (
+        <Alert
+          message="شكرا  🌹, سيتم مراجعة الابلاغ من قبل الإدارة واتخاذ الاجراء المناسب 
+          شكرا لحفاظك على سلامة المنصة 😊"
+          type="success"
+          autoDismiss={5000}
+          onDismiss={() => setShowReportAlert(false)}
+        />
+      )}
+      
       <div className="flex items-start">
-        {/* أيقونة المستخدم */}
         <div className="mr-3">
           <CustomIcon 
             icon={userInfo.iconName}
@@ -29,9 +79,7 @@ const Comment = ({ comment, userInfo, onLike, onDislike }: CommentProps) => {
           />
         </div>
         
-        {/* محتوى التعليق */}
         <div className="flex-1">
-          {/* معلومات المستخدم */}
           <div className="flex justify-between items-start">
             <div>
               <h4 className="font-medium text-gray-900">{userInfo.fullName}</h4>
@@ -44,23 +92,29 @@ const Comment = ({ comment, userInfo, onLike, onDislike }: CommentProps) => {
             </span>
           </div>
           
-          {/* نص التعليق */}
           <p className="mt-2 text-gray-800 text-right">{comment.text}</p>
           
-          {/* أزرار التفاعل */}
           <div className="flex mt-3 text-gray-500">
             <button 
-              onClick={onLike}
-              className="flex items-center mr-4 hover:text-blue-600"
+              onClick={handleLike}
+              className={`flex items-center mr-4 ${userVote === 'up' ? 'text-green-600' : 'hover:text-blue-600'}`}
             >
               <FaArrowUp className="mr-1" />
               <span className="text-xs">{comment.likes}</span>
             </button>
             <button 
-              onClick={onDislike}
-              className="flex items-center hover:text-red-600"
+              onClick={handleDislike}
+              className={`flex items-center mr-4 ${userVote === 'down' ? 'text-red-600' : 'hover:text-red-600'}`}
             >
               <FaArrowDown className="mr-1" />
+            </button>
+            <button 
+              onClick={handleReport}
+              className="flex items-center hover:text-gray-600"
+              title="الإبلاغ عن التعليق"
+            >
+              <FaFlag className="mr-1" />
+              <span className="text-xs">إبلاغ</span>
             </button>
           </div>
         </div>
