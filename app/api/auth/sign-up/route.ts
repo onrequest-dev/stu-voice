@@ -1,6 +1,6 @@
 // app/api/signup/route.ts
-import { z } from "zod";
-import { password_should_be_at_least_n_characters, user_creation_failed, user_already_exists, user_name_shouldbe_at_least_n_characters, username_and_password_required, user_created_successfully, not_trusted_device, password_shouldbe_at_most_n_characters, user_name_shouldbe_at_most_n_characters } from "@/static/keywords";
+
+import { user_creation_failed, user_already_exists, username_and_password_required, user_created_successfully, not_trusted_device, } from "@/static/keywords";
 import { NextRequest, NextResponse } from "next/server";
 import { sanitizeAndValidateInput } from "@/lib/sanitize";
 import { supabase } from "@/lib/supabase";
@@ -9,25 +9,10 @@ import createJwt from "@/lib/create_jwt";
 import { getUserIp } from "@/lib/get_userip";
 import { processFingerprintData } from "@/lib/processFingerprintData";
 import bcrypt from "bcryptjs";
+import { userSchema } from "@/types/zodtypes";
 
 // 1. تعريف شكل البيانات المتوقعة
-export const userSchema = z.object({
-  username: z.string()
-    .min(4, user_name_shouldbe_at_least_n_characters)
-    .max(20, user_name_shouldbe_at_most_n_characters),
-  password: z.string()
-    .min(6, password_should_be_at_least_n_characters)
-    .max(64, password_shouldbe_at_most_n_characters),
-  fingerprint: z
-    .object({})
-    .passthrough()
-    .optional(), // ← يمكن أن تكون موجودة أو لا
-});
-export type jwt_user = {
-    user_name: string;
-    ip: string;
 
-}
 
 
 export async function POST(request: NextRequest) {

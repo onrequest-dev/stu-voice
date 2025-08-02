@@ -5,44 +5,8 @@ import { supabase } from "@/lib/supabase";
 import { Failed_to_update, info_not_valid, User_information_updated_successfully, you_can_update_info_once_a_week, you_need_account_to_edit } from "@/static/keywords";
 import { JwtPayload } from "jsonwebtoken";
 import { NextRequest, NextResponse } from "next/server"
-import { addDays, isBefore } from "date-fns";;
+import { addDays, isBefore } from "date-fns";import { UserInfoSchema } from "@/types/zodtypes";
 
-import { z } from 'zod';
-
-// Gender schema
-export const GenderSchema = z.enum(['male', 'female']);
-
-// EducationLevel schema
-export const EducationLevelSchema = z.enum(['middle', 'high', 'university']);
-
-// Icon schema
-export const IconSchema = z.object({
-  component: z.string(),
-  color: z.string(),
-  bgColor: z.string(),
-});
-
-// UserEducation schema
-export const UserEducationSchema = z.object({
-  level: EducationLevelSchema,
-  grade: z.string().optional(),
-  track: z.string().optional(),
-  degreeSeeking: z.boolean().optional(),
-  university: z.string().optional(),
-  faculty: z.string().optional(),
-  specialization: z.string().optional(),
-  year: z.string().optional(),
-  studentId: z.string().optional(),
-  icon: IconSchema.optional(),
-});
-
-// UserInfo schema
-export const UserInfoSchema = z.object({
-  id: z.string(),
-  fullName: z.string(),
-  gender: GenderSchema,
-  education: UserEducationSchema,
-});
 
 
 export async function POST(request: NextRequest) {

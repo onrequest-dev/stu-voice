@@ -4,9 +4,9 @@ import { supabase } from "@/lib/supabase";
 import {  user_loged_in_successfully, username_and_password_required } from "@/static/keywords";
 import bcrypt from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
-import { userSchema } from "../sign-up/route";
 import createJwt from "@/lib/create_jwt";
 import { getUserIp } from "@/lib/get_userip";
+import { userSchema } from "@/types/zodtypes";
 
 export async function POST(request: NextRequest) {
   const body = await request.json();

@@ -1,72 +1,140 @@
-import React, { useEffect } from 'react';
-import PostComponent from '../postcomponents/PostComponent';
+import React, { useEffect, useState, useRef } from "react";
+import PostComponent from "../postcomponents/PostComponent";
+
+interface Post {
+  id: string;
+  userInfo: {
+    id: string;
+    iconName: string;
+    iconColor: string;
+    bgColor: string;
+    fullName: string;
+    study: string;
+    faculty?: string;
+    icon?: string;
+  };
+  opinion: {
+    text: string;
+    agreeCount: number;
+    disagreeCount: number;
+    readersCount: number;
+    commentsCount: number;
+  } | null;
+  poll: any;
+}
 
 const HomeContent = () => {
-const samplePosts = [
-  {
-    id: "post_1",
-    userInfo: {
-      id: "user_456",
-      iconName: "university",
-      iconColor: "#ffffff",
-      bgColor: "#3b82f6",
-      fullName: "يوسف زياد حيش",
-      study: "هندسة معلوماتية"
-    },
-    opinion: {
-      text: "نظام التعليم الإلكتروني في الجامعة يحتاج إلى تحسينات كبيرة في واجهة المستخدم واستقرار الخوادم",
-      agreeCount: 24,
-      disagreeCount: 5,
-      readersCount: 128,
-      commentsCount: 7
-    },
-    poll: {
-      question: "ما رأيك في نظام التعليم الإلكتروني الحالي؟",
-      options: ["ممتاز", "جيد", "مقبول", "ضعيف"],
-      votes: [15, 35, 42, 28],
-      durationInDays:7,
-    }
-  },
-  {
-    id: "post_2",
-    userInfo: {
-      id: "user_789",
-      iconName: "stethoscope",
-      iconColor: "#ffffff",
-      bgColor: "#dc3545",
-      fullName: "سارة أحمد",
-      study: "طب بشري"
-    },
-    opinion: null,
-    poll: {
-      question: "كم مرة تزور المكتبة المركزية أسبوعياً؟",
-      options: ["أقل من مرة", "1-2 مرات", "3-5 مرات", "أكثر من 5 مرات"],
-      votes: [30, 45, 20, 5],
-      durationInDays:-1, 
-    }
-  },
-  // ... باقي المنشورات
-];
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false);
+  const loaderRef = useRef<HTMLDivElement>(null);
+  const isFetchingRef = useRef(false);
 
-useEffect(()=>{
-  const get_posts = async () =>{
-    const response = await fetch('/api/opinions/get_foryou_opinions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-       body: JSON.stringify({ page:0, pageSize: 10, user_preferences: [] }),
-    });
-    console.log(await response.json());
+  const fetchPosts = async (pageNumber: number) => {
+    if (isFetchingRef.current) return;
+    isFetchingRef.current = true;
+    setLoading(true);
+
+    try {
+      const response = await fetch("/api/opinions/get_foryou_opinions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ page: pageNumber, pageSize: 50, user_preferences: [] }),
+      });
+      const data = await response.json();
+      console.log("Fetched posts:", data);
+      const mappedPosts: Post[] = data.posts.map((post: any) => ({
+        id: post.id,
+        userInfo: {
+          id: post.publisher_username,
+          iconName: post?.icon?.component||"user",
+          iconColor: post?.icon?.color||"#ffffff",
+          bgColor: post?.icon?.bgColor||"#6366f1",
+          fullName: post.publisher_full_name,
+          study: post?.faculty,
+        },
+        opinion: post.post
+          ? {
+              text: post.post,
+              agreeCount: post.upvotes,
+              disagreeCount: post.downvotes,
+              readersCount: 0,
+              commentsCount: 0,
+            }
+          : null,
+        poll: post.poll,
+      }));
+
+      setPosts((prev) => {
+        const existingIds = new Set(prev.map((p) => p.id));
+        const filteredNew = mappedPosts.filter((p) => !existingIds.has(p.id));
+        return [...prev, ...filteredNew];
+      });
+
+      setTotalPages(data.pagination.totalPages);
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+    } finally {
+      setLoading(false);
+      isFetchingRef.current = false;
+    }
+  };
+
+  // Fetch posts when page changes
+  useEffect(() => {
+    console.log(`Fetching posts for page ${page}`);
+    fetchPosts(page);
+  }, [page]);
+
+  // IntersectionObserver لتحميل صفحات عند الاقتراب من النهاية
+  useEffect(() => {
+  if (totalPages === null) return;
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      if (
+        entries[0].isIntersecting &&
+        !isFetchingRef.current &&
+        page < totalPages
+      ) {
+        setPage((prev) => prev + 1);
+      }
+    },
+    {
+      rootMargin: "1000px", // تحميل مبكر قبل الوصول
+      threshold: 0,
+    }
+  );
+
+  const current = loaderRef.current;
+
+  if (current) {
+    observer.observe(current);
   }
-  console.log("HomeContent mounted");
-  get_posts();
 
-})
+  // 💡 إعادة تفعيل كل مرة بعد التحديث
+  return () => {
+    if (current) observer.unobserve(current);
+  };
+}, [page, totalPages, loading]); // ← أعد التفعيل كل مرة تتغير الصفحة أو يتم تحميل جديد
+
+
+  // تحميل تلقائي كل 10 ثواني حتى لو ما تم تمرير الصفحة
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     if (!loading && totalPages !== null && page < totalPages && !isFetchingRef.current) {
+  //       setPage((prev) => prev + 1);
+  //     }
+  //   }, 10000); // 10 ثواني
+
+  //   return () => clearInterval(interval);
+  // }, [loading, page, totalPages]);
+
   return (
     <div className="pb-12">
       <div className="max-w-2xl mx-auto space-y-6">
-        {samplePosts.map((post) => (
+        {posts.map((post) => (
           <PostComponent
             key={post.id}
             id={post.id}
@@ -75,6 +143,8 @@ useEffect(()=>{
             poll={post.poll}
           />
         ))}
+        <div ref={loaderRef} style={{ height: "1px" }}></div>
+        {loading && <p className="text-center">جاري تحميل المزيد...</p>}
       </div>
     </div>
   );
