@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import PostComponent from "../postcomponents/PostComponent";
-import { create } from "domain";
+import PostSkeletonLoader from "../postcomponents/PostSkeletonLoader";
 
 interface Post {
   id: string;
@@ -57,6 +57,7 @@ const HomeContent = () => {
     });
 
     const data = await response.json();
+    console.log(data)
 
     const mappedPosts: Post[] = data.posts.map((post: any) => ({
       id: post.id,
@@ -89,6 +90,7 @@ const HomeContent = () => {
     });
 
     // ✅ هذا هو الأهم:
+    console.log(data.pagination)
     if (
       data.pagination?.nextCursor &&
       JSON.stringify(data.pagination.nextCursor) !== JSON.stringify(cursorToUse)
@@ -152,7 +154,7 @@ const HomeContent = () => {
           );
         })}
         <div ref={loaderRef} style={{ height: "1px" }}></div>
-        {loading && <p className="text-center">جاري تحميل المزيد...</p>}
+        {loading && <PostSkeletonLoader/>}
         {!hasMore && <p className="text-center">لا توجد منشورات أخرى.</p>}
       </div>
     </div>
