@@ -50,7 +50,7 @@ const PostComponent: React.FC<PostProps> = ({ id, userInfo, opinion, poll }) => 
 
   return (
     <div id={`post-${id}`} className="w-full max-w-2xl mx-auto bg-white">
-      <div className="pb-3">
+      <div className="pb-4">
         <UserInfoComponent userInfo={userInfo} />
         {opinion && <OpinionComponent opinion={opinion} />}
         {poll && <PollComponent poll={poll} />}

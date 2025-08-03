@@ -1,8 +1,8 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
-import { FaExclamationTriangle, FaRegComment, FaHeart, FaRegHeart, FaEllipsisH } from 'react-icons/fa';
+import { FaRegComment, FaArrowUp } from 'react-icons/fa';
 import { IoMdSend } from 'react-icons/io';
-import { FiArrowLeft } from 'react-icons/fi';
+import { AiOutlineArrowUp, AiOutlineArrowDown } from 'react-icons/ai';
 import Comment from './postcomponents/Comment';
 import { UserInfo } from './postcomponents/types';
 
@@ -11,6 +11,9 @@ interface DailyOpinionProps {
     id: string;
     type: 'ترفيهي' | 'أكاديمي' | 'اجتماعي';
     text: string;
+    agreeCount: number;
+    disagreeCount: number;
+    readersCount: number;
   };
   initialComments: {
     id: string;
@@ -25,10 +28,13 @@ interface DailyOpinionProps {
 const DailyOpinion = ({ opinion, initialComments }: DailyOpinionProps) => {
   const [comments, setComments] = useState(initialComments);
   const [newComment, setNewComment] = useState('');
-  const [showAlert, setShowAlert] = useState(true);
-  const [isScrolled, setIsScrolled] = useState(false);
-  const commentsRef = useRef<HTMLDivElement>(null);
+  const [userReaction, setUserReaction] = useState<'agree' | 'disagree' | null>(null);
+  const [showScrollButton, setShowScrollButton] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  
+  const commentsEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   const currentUser: UserInfo = {
     id: 'current-user',
@@ -40,15 +46,29 @@ const DailyOpinion = ({ opinion, initialComments }: DailyOpinionProps) => {
   };
 
   useEffect(() => {
+    commentsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [comments]);
+
+  useEffect(() => {
     const handleScroll = () => {
-      if (commentsRef.current) {
-        setIsScrolled(commentsRef.current.scrollTop > 50);
+      if (contentRef.current) {
+        const { scrollTop, scrollHeight, clientHeight } = contentRef.current;
+        const progress = (scrollTop / (scrollHeight - clientHeight)) * 100;
+        setScrollProgress(progress);
+        setShowScrollButton(scrollTop > 100);
       }
     };
 
-    const ref = commentsRef.current;
-    ref?.addEventListener('scroll', handleScroll);
-    return () => ref?.removeEventListener('scroll', handleScroll);
+    const contentElement = contentRef.current;
+    if (contentElement) {
+      contentElement.addEventListener('scroll', handleScroll);
+    }
+
+    return () => {
+      if (contentElement) {
+        contentElement.removeEventListener('scroll', handleScroll);
+      }
+    };
   }, []);
 
   const handleAddComment = () => {
@@ -61,13 +81,10 @@ const DailyOpinion = ({ opinion, initialComments }: DailyOpinionProps) => {
         userInfo: currentUser,
         userLiked: false
       };
-      setComments([comment, ...comments]);
+      
+      setComments([...comments, comment]);
       setNewComment('');
-
-
-      setTimeout(() => {
-        commentsRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
-      }, 100);
+      inputRef.current?.focus();
     }
   };
 
@@ -75,8 +92,8 @@ const DailyOpinion = ({ opinion, initialComments }: DailyOpinionProps) => {
     setComments(comments.map(comment => {
       if (comment.id === commentId) {
         const wasLiked = comment.userLiked;
-        return { 
-          ...comment, 
+        return {
+          ...comment,
           likes: wasLiked ? comment.likes - 1 : comment.likes + 1,
           userLiked: !wasLiked
         };
@@ -85,136 +102,161 @@ const DailyOpinion = ({ opinion, initialComments }: DailyOpinionProps) => {
     }));
   };
 
-  const handleDislike = (commentId: string) => {
-    
-    console.log('Dislike comment:', commentId);
+  const handleReaction = (reaction: 'agree' | 'disagree') => {
+    setUserReaction(userReaction === reaction ? null : reaction);
   };
 
+  const scrollToTop = () => {
+    if (contentRef.current) {
+      contentRef.current.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+      
+      let progress = scrollProgress;
+      const animateScroll = () => {
+        progress -= 2;
+        setScrollProgress(progress > 0 ? progress : 0);
+        if (progress > 0) {
+          requestAnimationFrame(animateScroll);
+        }
+      };
+      requestAnimationFrame(animateScroll);
+    }
+  };
+
+  const displayedAgreeCount = userReaction === 'agree' 
+    ? opinion.agreeCount + 1 
+    : opinion.agreeCount;
   
+  const displayedDisagreeCount = userReaction === 'disagree' 
+    ? opinion.disagreeCount + 1 
+    : opinion.disagreeCount;
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50 overflow-x-hidden">
-      {/* شريط الرأي اليومي - ثابت أعلى الصفحة */}
-      <div className={`sticky top-0 z-20 bg-white shadow-sm p-4 border-b transition-all duration-300 ${isScrolled ? 'shadow-md' : ''}`}>
-        <div className="flex items-center gap-4 mb-3">
-          <h1 className="text-xl font-bold text-gray-800">الرأي اليومي STUvoice</h1>
-        </div>
-        
-        <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 mx-0">
-          <div className="mb-2 flex justify-between items-start">
-            <span className={`inline-block px-3 py-1 text-xs rounded-full font-medium ${
-              opinion.type === 'ترفيهي' ? 'bg-purple-100 text-purple-800' :
-              opinion.type === 'أكاديمي' ? 'bg-blue-100 text-blue-800' :
-              'bg-green-100 text-green-800'
-            }`}>
-              {opinion.type}
-            </span>
-            
-            {!showAlert && (
-              <button 
-                onClick={() => setShowAlert(true)}
-                className="text-gray-500 hover:text-gray-700"
-                aria-label="إظهار التنبيه"
-              >
-                <FaExclamationTriangle size={16} />
-              </button>
-            )}
-          </div>
-          
-          <p className="text-gray-800 text-right text-lg leading-relaxed">
-            {opinion.text}
-          </p>
-        </div>
-      </div>
-
-      {/* قسم التعليقات */}
-      <div 
-        ref={commentsRef}
-        className="flex-1 overflow-y-auto p-4 w-full"
-        style={{
-          scrollbarWidth: 'none',
-          msOverflowStyle: 'none',
-        }}
-      >
-        <style jsx>{`
-          div::-webkit-scrollbar {
-            display: none;
-          }
-        `}</style>
-
-        <div className="w-full max-w-2xl mx-auto">
-          {showAlert && (
-            <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg w-full">
-              <div className="flex justify-between items-start mb-2">
-                <h3 className="text-sm font-bold text-blue-800 flex items-center gap-2">
-                  <FaExclamationTriangle />
-                  إرشادات التعليق
-                </h3>
-                <button 
-                  onClick={() => setShowAlert(false)}
-                  className="text-blue-600 text-sm hover:text-blue-800"
-                >
-                  فهمت، شكرًا
-                </button>
-              </div>
-              <ul className="text-xs text-blue-700 space-y-1 pr-4">
-                <li className="relative before:content-['•'] before:absolute before:right-0">الالتزام بأدب الحوار واحترام الآخرين</li>
-                <li className="relative before:content-['•'] before:absolute before:right-0">عدم استخدام ألفاظ مسيئة أو عنصرية</li>
-                <li className="relative before:content-['•'] before:absolute before:right-0">يمكنك الإبلاغ عن أي تعليق مسيء</li>
-              </ul>
+    <div className="flex flex-col h-screen bg-gray-50 relative">
+      {/* Content */}
+      <div ref={contentRef} className="flex-1 overflow-y-auto">
+        <div className="p-4">
+          {/* Opinion Card */}
+          <div className="bg-white rounded-lg shadow p-4 mb-4">
+            {/* Opinion Type */}
+            <div className="flex justify-between items-center mb-3">
+              <span className={`text-xs px-3 py-1 rounded-full ${
+                opinion.type === 'ترفيهي' ? 'bg-purple-100 text-purple-800' :
+                opinion.type === 'أكاديمي' ? 'bg-blue-100 text-blue-800' :
+                'bg-green-100 text-green-800'
+              }`}>
+                {opinion.type}
+              </span>
+              <span className="text-sm text-gray-500">
+                {opinion.readersCount} قارئ
+              </span>
             </div>
-          )}
 
-          <div className="mb-4 flex items-center justify-between w-full">
-            <h2 className="text-lg font-semibold text-gray-800">
-              <FaRegComment className="inline ml-2" />
-              التعليقات ({comments.length})
-            </h2>
+            {/* Opinion Text */}
+            <p className="text-gray-800 text-right text-lg mb-4">
+              {opinion.text}
+            </p>
+
+            {/* Reactions */}
+            <div className="flex justify-center gap-8">
+              <button
+                onClick={() => handleReaction('agree')}
+                className={`flex flex-col items-center ${userReaction === 'agree' ? 'text-green-600' : 'text-gray-500'}`}
+              >
+                <AiOutlineArrowUp size={24} />
+                <span className="text-sm mt-1">{displayedAgreeCount}</span>
+              </button>
+              
+              <button
+                onClick={() => handleReaction('disagree')}
+                className={`flex flex-col items-center ${userReaction === 'disagree' ? 'text-red-600' : 'text-gray-500'}`}
+              >
+                <AiOutlineArrowDown size={24} />
+                <span className="text-sm mt-1">{displayedDisagreeCount}</span>
+              </button>
+            </div>
           </div>
 
-          <div className="space-y-4 w-full">
-            {comments.map(comment => (
-              <div key={comment.id} className="relative group w-full">
+          {/* Comments Section */}
+          <div className="mt-6">
+            <div className="flex justify-end items-center mb-4">
+              <h2 className="text-lg font-semibold text-gray-800 flex items-center">
+                <FaRegComment className="ml-2" />
+                التعليقات ({comments.length})
+              </h2>
+            </div>
+
+            {/* Comments List */}
+            <div className="space-y-4">
+              {comments.map(comment => (
                 <Comment
+                  key={comment.id}
                   comment={{
                     id: comment.id,
                     text: comment.text,
                     likes: comment.likes,
                     timestamp: comment.timestamp
+                    // تمت إزالة userLiked من هنا
                   }}
                   userInfo={comment.userInfo}
                   onLike={() => handleLike(comment.id)}
-                  onDislike={() => handleDislike(comment.id)}
+                  onDislike={() => {}} // يجب إضافة هذه الدالة حتى لو كانت فارغة
                 />
-              </div>
-            ))}
+              ))}
+              <div ref={commentsEndRef} />
+            </div>
           </div>
         </div>
       </div>
 
-      {/* حقل إضافة تعليق - ثابت أسفل الصفحة */}
-      <div className="sticky bottom-0 bg-white border-t p-4 shadow-lg w-full">
-        <div className="w-full max-w-2xl mx-auto px-2">
-          <div className="flex items-center gap-2 w-full">
-            <input
-              ref={inputRef}
-              type="text"
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              placeholder="شاركنا رأيك..."
-              className="flex-1 border border-gray-300 rounded-full py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full max-w-[calc(100%-48px)] text-right direction-rtl"
-              onKeyDown={(e) => e.key === 'Enter' && handleAddComment()}
-              aria-label="إضافة تعليق جديد"
-            />
-            <button
-              onClick={handleAddComment}
-              disabled={!newComment.trim()}
-              className={`p-3 rounded-full ${newComment.trim() ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'}`}
-              aria-label="إرسال التعليق"
-            >
-              <IoMdSend size={20} />
-            </button>
+      {/* Floating Scroll Button */}
+      {showScrollButton && (
+        <button
+          onClick={scrollToTop}
+          className="fixed left-4 bottom-20 w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center z-10"
+          aria-label="التمرير إلى الأعلى"
+        >
+          <div className="relative w-full h-full">
+            {/* Progress Circle */}
+            <svg className="w-full h-full absolute top-0 left-0 transform -rotate-90">
+              <circle
+                cx="24"
+                cy="24"
+                r="22"
+                fill="none"
+                stroke="#3b82f6"
+                strokeWidth="2"
+                strokeDasharray={2 * Math.PI * 22}
+                strokeDashoffset={2 * Math.PI * 22 * (1 - scrollProgress / 100)}
+              />
+            </svg>
+            {/* Arrow Icon */}
+            <FaArrowUp className="text-gray-700 text-lg absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
           </div>
+        </button>
+      )}
+
+      {/* Comment Input */}
+      <div className="fixed bottom-1 left-0 right-0 bg-white border-t p-3 shadow-lg">
+        <div className="flex items-center gap-2 max-w-md mx-auto">
+          <input
+            ref={inputRef}
+            type="text"
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            placeholder="اكتب تعليقك..."
+            className="flex-1 border border-gray-300 rounded-full py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-right"
+            onKeyDown={(e) => e.key === 'Enter' && handleAddComment()}
+          />
+          <button
+            onClick={handleAddComment}
+            disabled={!newComment.trim()}
+            className={`p-2 rounded-full ${newComment.trim() ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'}`}
+          >
+            <IoMdSend size={20} />
+          </button>
         </div>
       </div>
     </div>

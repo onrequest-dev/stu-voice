@@ -70,7 +70,7 @@ const Comment = ({ comment, userInfo, onLike, onDislike }: CommentProps) => {
         </span>
 
         {/* مجموعة معلومات المستخدم */}
-        <div className="flex items-center gap-3"> {/* استخدمنا gap-3 للمسافة بين العناصر */}
+        <div className="flex items-center gap-3 pb-2"> {/* استخدمنا gap-3 للمسافة بين العناصر */}
           {/* الاسم واسم المستخدم */}
           <div className="text-right">
             <h4 className="font-medium text-gray-900">{userInfo.fullName}</h4>

@@ -89,7 +89,7 @@ const PollComponent: React.FC<{ poll: Poll }> = ({ poll }) => {
   };
 
   return (
-    <div className="px-3 pt-1 pb-1">
+    <div className="px-3 pt-1 pb-4">
       <h4 className="font-medium text-gray-900 mb-2 text-right text-sm md:text-base">
         {poll.question}
       </h4>

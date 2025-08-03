@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { 
-  FaArrowUp, FaArrowDown, FaEye, FaComment, FaShare, FaFlag 
+  FaArrowUp, FaArrowDown, FaEye, FaComment, FaShare, FaFlag,
+  FaTimes, FaTwitter, FaFacebook, FaWhatsapp, FaTelegram, FaLink
 } from 'react-icons/fa';
 import Alert from '../Alert';
 
@@ -31,34 +32,80 @@ const InteractionButtons: React.FC<InteractionButtonsProps> = ({
   agreed
 }) => {
   const [showAlert, setShowAlert] = useState(false);
+  const [showSharePanel, setShowSharePanel] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [alertType, setAlertType] = useState<'success' | 'error' | 'info' | 'warning'>('info');
 
-  const handleShare = () => {
+  const handleShare = async () => {
     const shareUrl = `${window.location.origin}/posts/${postId}`;
     
-    navigator.clipboard.writeText(shareUrl)
-      .then(() => {
-        setAlertMessage('تم نسخ رابط المنشور إلى الحافظة');
-        setAlertType('success');
-        setShowAlert(true);
-        
+    // المحاولة الأولى: استخدام Web Share API (للهواتف)
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'منشور مثير للاهتمام',
+          text: 'شاهد هذا المنشور الرائع',
+          url: shareUrl,
+        });
         if (onShare) onShare();
-      })
-      .catch(() => {
-        setAlertMessage('فشل نسخ الرابط، يرجى المحاولة مرة أخرى');
-        setAlertType('error');
-        setShowAlert(true);
-      });
+        return;
+      } catch (error) {
+        console.log('تم إلغاء المشاركة');
+        // لا تفعل شيء إذا ألغى المستخدم
+      }
+    }
+    
+    // المحاولة الثانية: عرض لوحة المشاركة المخصصة
+    setShowSharePanel(true);
+  };
+
+  const handleSocialShare = (platform: string) => {
+    const shareUrl = `${window.location.origin}/posts/${postId}`;
+    let url = '';
+    
+    switch (platform) {
+      case 'twitter':
+        url = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent('شاهد هذا المنشور الرائع')}`;
+        break;
+      case 'facebook':
+        url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
+        break;
+      case 'whatsapp':
+        url = `https://wa.me/?text=${encodeURIComponent(`شاهد هذا المنشور الرائع: ${shareUrl}`)}`;
+        break;
+      case 'telegram':
+        url = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent('شاهد هذا المنشور الرائع')}`;
+        break;
+      case 'copy':
+        navigator.clipboard.writeText(shareUrl)
+          .then(() => {
+            setAlertMessage('تم نسخ الرابط بنجاح!');
+            setAlertType('success');
+            setShowAlert(true);
+            setShowSharePanel(false);
+          })
+          .catch(() => {
+            setAlertMessage('فشل نسخ الرابط');
+            setAlertType('error');
+            setShowAlert(true);
+          });
+        return;
+      default:
+        return;
+    }
+    
+    window.open(url, '_blank', 'noopener,noreferrer');
+    setShowSharePanel(false);
+    if (onShare) onShare();
   };
 
   const handleReport = () => {
     if (onReport) {
       onReport();
       setAlertMessage('تم الإبلاغ عن المنشور بنجاح');
-      } else {
-      setAlertMessage("شكرا  🌹, سيتم مراجعة الابلاغ من قبل الإدارة واتخاذ الاجراء المناسب , شكرا لحفاظك على سلامة المنصة 😊");
-      }
+    } else {
+      setAlertMessage("شكراً لحفاظك على سلامة المنصة 🌹، سيتم مراجعة الإبلاغ");
+    }
     setAlertType('info');
     setShowAlert(true);
   };
@@ -119,6 +166,80 @@ const InteractionButtons: React.FC<InteractionButtonsProps> = ({
           </div>
         </div>
       </div>
+
+      {/* لوحة المشاركة المخصصة */}
+      {showSharePanel && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end justify-center z-50">
+          <div className="bg-white rounded-t-2xl w-full max-w-md animate-slide-up">
+            <div className="p-4 border-b flex justify-between items-center">
+              <h3 className="text-lg font-medium">مشاركة المنشور</h3>
+              <button 
+                onClick={() => setShowSharePanel(false)}
+                className="text-gray-500 hover:text-gray-700 p-2"
+              >
+                <FaTimes size={18} />
+              </button>
+            </div>
+            
+            <div className="grid grid-cols-4 gap-4 p-4">
+              {/* واتساب */}
+              <button 
+                onClick={() => handleSocialShare('whatsapp')}
+                className="flex flex-col items-center p-2 rounded-xl hover:bg-gray-50 transition-colors"
+              >
+                <div className="bg-[#25D366] text-white p-3 rounded-full mb-2 w-12 h-12 flex items-center justify-center">
+                  <FaWhatsapp size={20} />
+                </div>
+                <span className="text-xs">واتساب</span>
+              </button>
+              
+              {/* فيسبوك */}
+              <button 
+                onClick={() => handleSocialShare('facebook')}
+                className="flex flex-col items-center p-2 rounded-xl hover:bg-gray-50 transition-colors"
+              >
+                <div className="bg-[#1877F2] text-white p-3 rounded-full mb-2 w-12 h-12 flex items-center justify-center">
+                  <FaFacebook size={20} />
+                </div>
+                <span className="text-xs">فيسبوك</span>
+              </button>
+              
+              {/* تويتر */}
+              <button 
+                onClick={() => handleSocialShare('twitter')}
+                className="flex flex-col items-center p-2 rounded-xl hover:bg-gray-50 transition-colors"
+              >
+                <div className="bg-[#1DA1F2] text-white p-3 rounded-full mb-2 w-12 h-12 flex items-center justify-center">
+                  <FaTwitter size={20} />
+                </div>
+                <span className="text-xs">تويتر</span>
+              </button>
+              
+              {/* تلغرام */}
+              <button 
+                onClick={() => handleSocialShare('telegram')}
+                className="flex flex-col items-center p-2 rounded-xl hover:bg-gray-50 transition-colors"
+              >
+                <div className="bg-[#0088CC] text-white p-3 rounded-full mb-2 w-12 h-12 flex items-center justify-center">
+                  <FaTelegram size={20} />
+                </div>
+                <span className="text-xs">تلغرام</span>
+              </button>
+              
+              {/* نسخ الرابط */}
+              <button 
+                onClick={() => handleSocialShare('copy')}
+                className="flex flex-col items-center p-2 rounded-xl hover:bg-gray-50 transition-colors col-span-4 mt-2"
+              >
+                <div className="bg-gray-600 text-white p-3 rounded-full mb-2 w-12 h-12 flex items-center justify-center">
+                  <FaLink size={20} />
+                </div>
+                <span className="text-xs">نسخ الرابط</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showAlert && (
         <Alert 
