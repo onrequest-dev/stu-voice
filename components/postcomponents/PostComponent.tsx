@@ -50,7 +50,7 @@ const PostComponent: React.FC<PostProps> = ({ id, userInfo, opinion, poll ,creat
 
   return (
     <div id={`post-${id}`} className="w-full max-w-2xl mx-auto bg-white">
-      <div className="pb-4">
+      <div className="pb-1">
         <UserInfoComponent userInfo={userInfo} />
         {opinion && <OpinionComponent opinion={opinion} />}
         {poll && <PollComponent poll={poll} />}
@@ -66,15 +66,15 @@ const PostComponent: React.FC<PostProps> = ({ id, userInfo, opinion, poll ,creat
           agreed={agreed}
         />
       </div>
-      {createdAt && (
-        <div className="text-sm text-gray-500 mt-2">
-          منشور في: {new Date(createdAt).toLocaleDateString('ar-EG', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-          })}
-        </div>
-      )}
+        {createdAt && (
+          <div className="text-xs text-gray-500 mb-1 text-left ml-auto pd-2">
+            منشور في: {new Date(createdAt).toLocaleDateString('ar-EG', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            })}
+          </div>
+        )}
       <div className="border-b border-gray-200"></div>
       
     </div>

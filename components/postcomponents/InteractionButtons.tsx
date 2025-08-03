@@ -115,7 +115,7 @@ const InteractionButtons: React.FC<InteractionButtonsProps> = ({
       <div className="flex justify-between items-center px-3 py-4 md:px-4 md:py-6">
         <div className="flex items-center space-x-4 md:space-x-6">
           <div className="flex items-center text-gray-500 text-xs md:text-sm">
-            <FaEye className="ml-1" size={12} />
+            <FaEye className="ml-1 mr-1.5" size={12} />
             <span>{readersCount}</span>
           </div>
           
@@ -123,7 +123,7 @@ const InteractionButtons: React.FC<InteractionButtonsProps> = ({
             href={`/posts/${postId}`} 
             className="flex items-center text-blue-500 text-xs md:text-sm hover:underline"
           >
-            <FaComment className="ml-1" size={12} />
+            <FaComment className="ml-1 mr-1.5" size={12} />
             <span>{commentsCount}</span>
           </Link>
         </div>
