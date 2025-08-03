@@ -48,11 +48,12 @@ export async function POST(request: NextRequest) {
         id: lastPost.id
       };
     }
-
+    const hasMore = posts.length === page_size;
     return NextResponse.json({
       posts:shuffledPosts,
       pagination: {
-        nextCursor
+        nextCursor,
+        hasMore
       }
     });
 
