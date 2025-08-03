@@ -48,6 +48,7 @@ adjustCleanupInterval();
 
 export function rateLimiter(ip: string): { allowed: boolean; ttl: number } {
   const now = Date.now();
+  // console.log(rateLimitCache)
 
   let current = rateLimitCache.get(ip);
 
