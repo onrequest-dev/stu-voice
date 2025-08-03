@@ -22,7 +22,6 @@ import SettingsContent from './tabs/SettingsContent';
 import SupportedSitesContent from './tabs/SupportedSitesContent';
 import VotesContent from './tabs/VotesContent';
 import NewPostContent from './tabs/NewPostContent';
-import LoadingSpinner from './LoadingSpinner';
 
 interface Tab {
   id: string;
@@ -37,7 +36,6 @@ const MainInterface = ({ children }: { children?: React.ReactNode }) => {
   const router = useRouter();
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const tabsContainerRef = useRef<HTMLDivElement>(null);
   const mainContentRef = useRef<HTMLDivElement>(null);
@@ -126,8 +124,6 @@ const MainInterface = ({ children }: { children?: React.ReactNode }) => {
       // إذا كانت نفس الصفحة الحالية، لا تفعل شيئاً
       if (pathname === href) return;
       
-      setIsLoading(true);
-      
       // إذا كنا نعود إلى الصفحة السابقة، استخدم replace بدلاً من push
       if (href === previousPath.current) {
         router.replace(href);
@@ -141,13 +137,6 @@ const MainInterface = ({ children }: { children?: React.ReactNode }) => {
       setIsMenuOpen(false);
     }
   };
-
-  useEffect(() => {
-    if (isLoading) {
-      const timer = setTimeout(() => setIsLoading(false), 500);
-      return () => clearTimeout(timer);
-    }
-  }, [isLoading]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -170,15 +159,13 @@ const MainInterface = ({ children }: { children?: React.ReactNode }) => {
   const CurrentComponent = currentTab?.component || HomeContent;
 
   return (
-    <div className={`relative h-screen w-full overflow-hidden transition-colors duration-200 ${
+    <div className={`relative h-screen w-full overflow-hidden transition-colors duration-300 ${
       isMenuOpen && !isLargeScreen.current ? 'bg-gradient-to-br from-blue-50 to-blue-100' : 'bg-white'
     }`}>
       
-      {isLoading && <LoadingSpinner />}
-      
       <div
         ref={mainContentRef}
-        className={`absolute top-0 left-0 h-full transition-all duration-300 ease-in-out ${
+        className={`absolute top-0 left-0 h-full transition-all duration-500 ease-in-out ${
           isMenuOpen && !isLargeScreen.current ? 'rounded-r-2xl shadow-xl' : 'rounded-none'
         }`}
         style={{
@@ -188,7 +175,7 @@ const MainInterface = ({ children }: { children?: React.ReactNode }) => {
           transform: isMenuOpen && !isLargeScreen.current ? 'perspective(1000px) rotateY(30deg) translateX(0)' : 'none',
         }}
       >
-        <div className="p-6 h-full overflow-y-auto">
+        <div className="p-4 h-full overflow-y-auto"> {/* Changed from p-6 to p-4 */}
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold text-gray-800">STUvoice</h1>
             {!isLargeScreen.current && (
@@ -203,7 +190,7 @@ const MainInterface = ({ children }: { children?: React.ReactNode }) => {
           </div>
           
           <div 
-            className="mt-8 h-[calc(100%-4rem)] overflow-y-auto scrollbar-thin scrollbar-thumb-blue-200 scrollbar-track-blue-50"
+            className="mt-6 h-[calc(100%-3rem)] overflow-y-auto scrollbar-thin scrollbar-thumb-blue-200 scrollbar-track-blue-50" 
             style={{ touchAction: 'pan-y' }}
           >
             {children || <CurrentComponent />}
@@ -254,7 +241,7 @@ const MainInterface = ({ children }: { children?: React.ReactNode }) => {
         <>
           <div
             ref={menuRef}
-            className={`absolute top-0 right-0 h-full w-24 transition-all duration-300 ease-in-out ${
+            className={`absolute top-0 right-0 h-full w-24 transition-all duration-500 ease-in-out ${
               isMenuOpen ? 'translate-x-0' : 'translate-x-full'
             } z-20`}
           >

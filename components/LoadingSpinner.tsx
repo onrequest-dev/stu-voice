@@ -20,7 +20,7 @@ const LoadingSpinner = () => {
     }, 800);
 
     const progressInterval = setInterval(() => {
-      setProgress(prev => (prev >= 100 ? 0 : prev + 99));
+      setProgress(prev => (prev >= 100 ? 0 : prev + 25));
     }, 300);
 
     return () => {

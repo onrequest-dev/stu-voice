@@ -185,7 +185,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ onSubmit, userInfo }) => {
   );
 
   return (
-    <div className={`w-full ${isMobile ? 'px-0' : 'max-w-2xl mx-auto px-4'} bg-white ${!isMobile && 'rounded-xl shadow-sm border border-gray-100'}`}>
+    <div className={`w-full ${isMobile ? 'h-full' : ''} bg-white ${!isMobile ? 'max-w-2xl rounded-xl shadow-sm border border-gray-100' : ''}`}>
       {showAlert && (
         <Alert 
           message={alertMessage}
