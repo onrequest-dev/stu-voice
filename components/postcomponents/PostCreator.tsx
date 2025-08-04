@@ -197,7 +197,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ onSubmit, userInfo }) => {
         />
       )}
       
-      <div>
+      <div className='text-right'>
         <div className="w-full px-4">
           <div className="w-full max-w-screen mx-auto">
             <UserInfoComponent userInfo={userInfo} />
@@ -256,8 +256,8 @@ const PostCreator: React.FC<PostCreatorProps> = ({ onSubmit, userInfo }) => {
                   rows={4}
                   value={opinionText}
                   onChange={(e) => setOpinionText(e.target.value)}
-                  className={`w-full px-4 py-3 border ${errors.opinion ? 'border-red-300' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
-                  placeholder="ما رأيك في..."
+                  className={`w-full px-4 py-3 border ${errors.opinion ? 'border-red-300' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-right`}
+                  placeholder="...ما رأيك في "
                 />
                 {errors.opinion && (
                   <p className="mt-1 text-sm text-red-500">{errors.opinion}</p>
@@ -287,8 +287,8 @@ const PostCreator: React.FC<PostCreatorProps> = ({ onSubmit, userInfo }) => {
                     id="pollQuestion"
                     value={pollQuestion}
                     onChange={(e) => setPollQuestion(e.target.value)}
-                    className={`w-full px-4 py-3 border ${errors.pollQuestion ? 'border-red-300' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
-                    placeholder="ماذا تفضل..."
+                    className={`w-full px-4 py-3 border ${errors.pollQuestion ? 'border-red-300' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-right`}
+                    placeholder="...ماذا تفضل"
                   />
                   {errors.pollQuestion && (
                     <p className="mt-1 text-sm text-red-500">{errors.pollQuestion}</p>
@@ -302,7 +302,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ onSubmit, userInfo }) => {
                   <select
                     value={pollDuration}
                     onChange={(e) => setPollDuration(Number(e.target.value))}
-                    className="bg-gray-100 border border-gray-300 text-gray-700 py-2 px-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                    className="bg-gray-100 border border-gray-300 text-gray-700 py-2 px-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full text-right"
                   >
                     {durationOptions.map(days => (
                       <option key={days} value={days}>
@@ -322,11 +322,18 @@ const PostCreator: React.FC<PostCreatorProps> = ({ onSubmit, userInfo }) => {
                       <input
                         type="text"
                         value={option}
-                        onChange={(e) => handleOptionChange(index, e.target.value)}
+                        onChange={(e) => {
+                          if (e.target.value.length <= 50) {
+                            handleOptionChange(index, e.target.value);
+                          }
+                        }}
                         className={`flex-1 px-4 py-2 border ${
                           errors[`pollOption_${index}`] ? 'border-red-300' : 'border-gray-300'
                         } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
                         placeholder={`الخيار ${index + 1}`}
+                        maxLength={25}
+                        dir="rtl"
+                        style={{ textAlign: 'right' }}
                       />
                       {pollOptions.length > 2 && (
                         <button

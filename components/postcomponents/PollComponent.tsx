@@ -96,37 +96,38 @@ const PollComponent: React.FC<{ poll: Poll }> = ({ poll }) => {
       
       {renderPollStatus()}
       
-      <div className="space-y-2">
-        {poll.options.map((option, index) => (
-          <div 
-            key={index}
-            onClick={() => handlePollSelect(index)}
-            className={`py-1.5 px-2.5 border rounded-lg text-right transition-all relative overflow-hidden ${
-              selectedPollOption === index 
-                ? 'border-blue-300 bg-blue-50 text-blue-700' 
-                : isExpired || hasVoted
-                  ? 'border-gray-200 text-gray-500 cursor-default'
-                  : 'border-gray-200 hover:bg-gray-50 text-gray-700 cursor-pointer'
-            } text-sm md:text-base`}
-          >
+        <div className="space-y-2">
+          {poll.options.map((option, index) => (
             <div 
-              className="absolute left-0 top-0 h-full bg-blue-100 opacity-20"
-              style={{
-                width: (hasVoted || isExpired) ? `${calculatePercentage(votes[index], totalVotes)}%` : '0%',
-                transition: 'width 0.3s ease'
-              }}
-            />
-            <div className="relative z-10 flex justify-between items-center">
-              <span className="text-sm md:text-base">{option}</span>
-              {(hasVoted || isExpired) && (
-                <span className="text-xs bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded-full">
-                  {calculatePercentage(votes[index], totalVotes)}%
-                </span>
-              )}
+              key={index}
+              onClick={() => handlePollSelect(index)}
+              className={`py-1.5 px-2.5 border rounded-lg transition-all relative overflow-hidden ${
+                selectedPollOption === index 
+                  ? 'border-blue-300 bg-blue-50 text-blue-700' 
+                  : isExpired || hasVoted
+                    ? 'border-gray-200 text-gray-500 cursor-default'
+                    : 'border-gray-200 hover:bg-gray-50 text-gray-700 cursor-pointer'
+              } text-sm md:text-base`}
+              dir="rtl" // إضافة dir="rtl" هنا للعنصر الرئيسي
+            >
+              <div 
+                className="absolute left-0 top-0 h-full bg-blue-100 opacity-20"
+                style={{
+                  width: (hasVoted || isExpired) ? `${calculatePercentage(votes[index], totalVotes)}%` : '0%',
+                  transition: 'width 0.3s ease'
+                }}
+              />
+              <div className="relative z-10 flex justify-between items-center">
+                <span className="text-sm md:text-base text-right">{option}</span>
+                {(hasVoted || isExpired) && (
+                  <span className="text-xs bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded-full" dir="ltr">
+                    {calculatePercentage(votes[index], totalVotes)}%
+                  </span>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
       
       {(hasVoted || isExpired) && (
         <div className="text-xs text-gray-500 mt-1">

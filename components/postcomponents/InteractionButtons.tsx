@@ -36,26 +36,7 @@ const InteractionButtons: React.FC<InteractionButtonsProps> = ({
   const [alertMessage, setAlertMessage] = useState('');
   const [alertType, setAlertType] = useState<'success' | 'error' | 'info' | 'warning'>('info');
 
-  const handleShare = async () => {
-    const shareUrl = `${window.location.origin}/posts/${postId}`;
-    
-    // المحاولة الأولى: استخدام Web Share API (للهواتف)
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: 'منشور مثير للاهتمام',
-          text: 'شاهد هذا المنشور الرائع',
-          url: shareUrl,
-        });
-        if (onShare) onShare();
-        return;
-      } catch (error) {
-        console.log('تم إلغاء المشاركة');
-        // لا تفعل شيء إذا ألغى المستخدم
-      }
-    }
-    
-    // المحاولة الثانية: عرض لوحة المشاركة المخصصة
+  const handleShare = () => {
     setShowSharePanel(true);
   };
 
@@ -169,8 +150,8 @@ const InteractionButtons: React.FC<InteractionButtonsProps> = ({
 
       {/* لوحة المشاركة المخصصة */}
       {showSharePanel && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end justify-center z-50">
-          <div className="bg-white rounded-t-2xl w-full max-w-md animate-slide-up">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl w-full max-w-md animate-scale-in">
             <div className="p-4 border-b flex justify-between items-center">
               <h3 className="text-lg font-medium">مشاركة المنشور</h3>
               <button 
@@ -181,7 +162,7 @@ const InteractionButtons: React.FC<InteractionButtonsProps> = ({
               </button>
             </div>
             
-            <div className="grid grid-cols-4 gap-4 p-4">
+            <div className="grid grid-cols-4 gap-4 p-6">
               {/* واتساب */}
               <button 
                 onClick={() => handleSocialShare('whatsapp')}

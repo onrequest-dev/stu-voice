@@ -1,172 +1,225 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+"use client";
+import React from "react";
 import PostComponent from "../postcomponents/PostComponent";
 import PostSkeletonLoader from "../postcomponents/PostSkeletonLoader";
+import { PostProps, UserInfo, Opinion, Poll } from "../postcomponents/types";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInView } from "react-intersection-observer";
+import RefreshAlert from "../RefreshAlert"
+import { FaWifi, FaSync, FaNewspaper } from 'react-icons/fa';
+import Link from "next/link";
 
-interface Post {
-  id: string;
-  userInfo: {
-    id: string;
-    iconName: string;
-    iconColor: string;
-    bgColor: string;
-    fullName: string;
-    study: string;
+type Post = PostProps & {
+  userInfo: UserInfo & { 
     faculty?: string;
     icon?: string;
   };
-  opinion: {
-    text: string;
-    agreeCount: number;
-    disagreeCount: number;
-    readersCount: number;
-    commentsCount: number;
-  } | null;
-  poll: any;
-  createdAt?: string; // Assuming createdAt is part of the post data
-}
+  opinion: Opinion | null;
+  poll: Poll | null;
+};
 
-
-
+type PostResponse = {
+  posts: Post[];
+  nextCursor: { hot_score: number; id: number } | null;
+  hasMore: boolean;
+};
 
 const HomeContent = () => {
-  const [posts, setPosts] = useState<Post[]>([]);
-  type Cursor = { hot_score: number; id: number } | null;
-  const [cursor, setCursor] = useState<Cursor>(null);
+  const { ref, inView } = useInView({
+    threshold: 0.1,
+    rootMargin: "400px",
+  });
 
-  const [loading, setLoading] = useState(false);
-  const loaderRef = useRef<HTMLDivElement>(null);
-  const isFetchingRef = useRef(false);
-  const [hasMore, setHasMore] = useState(true);
-
-
-
-
-  
-
-
-  // fetchPosts مع استخدام useCallback لتجنب إعادة إنشائه بدون داعي
-  const fetchPosts = useCallback(async (cursorToUse: Cursor) => {
-  if (isFetchingRef.current || !hasMore) return;
-  isFetchingRef.current = true;
-  setLoading(true);
-
-  try {
-    const response = await fetch("/api/opinions/get_foryou_opinions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-      cursor_hot_score: cursorToUse?.hot_score ?? null,
-      cursor_id: cursorToUse?.id ?? null,
+  const fetchPosts = async ({ pageParam }: { pageParam: { hot_score: number; id: number } | null }): Promise<PostResponse> => {
+    console.log('📡 جلب البيانات - المؤشر الحالي:', pageParam);
+      console.log('📤 البيانات المرسلة إلى الباك إند:', {
+      cursor_hot_score: pageParam?.hot_score ?? null,
+      cursor_id: pageParam?.id ?? null,
       page_size: 50,
-      user_preferences: [],
-      }),
+      user_preferences: []
     });
+    try {
+      const response = await fetch("/api/opinions/get_foryou_opinions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          cursor_hot_score: pageParam?.hot_score ?? null,
+          cursor_id: pageParam?.id ?? null,
+          page_size: 50,
+          user_preferences: [],
+        }),
+      });
 
-    const data = await response.json();
-    console.log(data)
-
-    const mappedPosts: Post[] = data.posts.map((post: any) => ({
-      id: post.id,
-      userInfo: {
-        id: post.publisher_username,
-        iconName: post?.icon?.component || "user",
-        iconColor: post?.icon?.color || "#ffffff",
-        bgColor: post?.icon?.bgColor || "#6366f1",
-        fullName: post.publisher_full_name,
-        study: post?.faculty,
-      },
-      opinion: post.post
-        ? {
-            text: post.post,
-            agreeCount: post.upvotes,
-            disagreeCount: post.downvotes,
-            readersCount: 0,
-            commentsCount: 0,
-          }
-        : null,
-      poll: post.poll,
-      createdAt: post.created_at , // Assuming createdAt is part of the post data
-    }));
-
-    setPosts((prev) => {
-      const existingIds = new Set(prev.map((p) => p.id));
-      const filteredNew = mappedPosts.filter((p) => !existingIds.has(p.id));
-      console.log("Filtered new posts:", [...prev, ...filteredNew].length);
-      return [...prev, ...filteredNew];
-    });
-
-    // ✅ هذا هو الأهم:
-    if(!data.pagination.hasMore) setHasMore(false)
-    if (
-      data.pagination?.nextCursor &&
-      JSON.stringify(data.pagination.nextCursor) !== JSON.stringify(cursorToUse)
-    ) {
-      setCursor(data.pagination.nextCursor);
-    } else {
-      setHasMore(false);
-    }
-  } catch (error) {
-    console.error("Error fetching posts:", error);
-  } finally {
-    setLoading(false);
-    isFetchingRef.current = false;
-  }
-}, [hasMore]);
-
-
-  useEffect(() => {
-    fetchPosts(null);
-  }, [fetchPosts]);
-
-  useEffect(() => {
-  if (!hasMore) return;
-
-  const currentLoader = loaderRef.current;
-
-  if (!currentLoader) return;
-
-  const observer = new IntersectionObserver(
-    (entries) => {
-      if (entries[0].isIntersecting && !isFetchingRef.current) {
-        // تعطيل الـ observer مؤقتًا
-        observer.unobserve(currentLoader);
-        fetchPosts(cursor).then(() => {
-          if (currentLoader) observer.observe(currentLoader);
-        });
+      if (!response.ok) {
+        throw new Error(`خطأ في الشبكة: ${response.status}`);
       }
-    },
-    { rootMargin: "400px", threshold: 0.1 }
-  );
 
-  observer.observe(currentLoader);
+      const data = await response.json();
+      console.log('✅ تم جلب البيانات بنجاح - عدد المنشورات:', data.posts?.length || 0);
+      console.log('🔄 البيانات المعالجة:', {
+        posts: data.posts.length,
+        nextCursor: data.pagination?.nextCursor,
+        hasMore: data.pagination?.hasMore
+      })
 
-  return () => observer.disconnect();
-}, [hasMore, cursor, fetchPosts]);
+      return {
+        posts: data.posts.map((post: any) => ({
+          id: post.id,
+          userInfo: {
+            id: post.publisher_username,
+            iconName: post?.icon?.component || "user",
+            iconColor: post?.icon?.color || "#ffffff",
+            bgColor: post?.icon?.bgColor || "#6366f1",
+            fullName: post.publisher_full_name,
+            study: post?.faculty,
+          },
+          opinion: post.post
+            ? {
+                text: post.post,
+                agreeCount: post.upvotes,
+                disagreeCount: post.downvotes,
+                readersCount: 0,
+                commentsCount: 0,
+              }
+            : null,
+          poll: post.poll,
+          createdAt: post.created_at,
+        })),
+        nextCursor: data.pagination?.nextCursor,
+        hasMore: data.pagination?.hasMore,
+      };
+    } catch (error) {
+      console.error('❌ فشل في جلب البيانات:', error);
+      throw error;
+    }
+  };
 
+const {
+  data,
+  fetchNextPage,
+  hasNextPage,
+  isFetchingNextPage,
+  isError,
+  refetch,
+  status,
+} = useInfiniteQuery<PostResponse>({
+  queryKey: ['posts'],
+  queryFn: (context) => fetchPosts({ 
+    pageParam: context.pageParam as { hot_score: number; id: number } | null 
+  }),
+  getNextPageParam: (lastPage) => {
+    const nextParam = lastPage.hasMore ? lastPage.nextCursor : undefined;
+    console.log('➡️ تحديد الصفحة التالية:', nextParam);
+    return nextParam;
+  },
+  initialPageParam: null,
+  staleTime: 5 * 60 * 1000,
+  refetchOnWindowFocus: false,
+  retry: 2,
+});
+
+  React.useEffect(() => {
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      console.log('👀 تم رؤية عنصر التحميل - جلب الصفحة التالية');
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  const allPosts = data?.pages.flatMap(page => page.posts) || [];
+  console.log('📊 إجمالي المنشورات المعروضة:', allPosts.length);
+
+  const handleRefresh = () => {
+    console.log('🔄 تحديث الصفحة يدويًا');
+    refetch();
+  };
 
   return (
     <div className="pb-12">
       <div className="max-w-2xl mx-auto space-y-6 scroll-smooth">
-        
-        {posts.map((post, index) => {
-          const middleIndex = Math.floor(posts.length / 2);
-          return (
-            <React.Fragment key={post.id}>
-              <PostComponent
-                id={post.id}
-                userInfo={post.userInfo}
-                opinion={post.opinion}
-                poll={post.poll}
-                createdAt={post.createdAt}
-              />
-              {index === middleIndex && <div ref={loaderRef} style={{ height: "1px" }} />}
-            </React.Fragment>
-          );
-        })}
+        {status === 'pending' && (
+          <>
+            <PostSkeletonLoader />
+            <PostSkeletonLoader />
+            <PostSkeletonLoader />
+            <PostSkeletonLoader />
+          </>
+        )}
 
-        {loading && <PostSkeletonLoader/>}
-        {!hasMore && <p className="text-center">لا توجد منشورات أخرى.</p>}
-        {/* <div ref={loaderRef} style={{ height: "1px" }} className=" bg-slate-500 "></div> */}
+        {status === 'error' && (
+          <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
+            <div className="bg-transparent p-6 text-center max-w-md mx-4">
+              <div className="text-red-500 mb-4">
+                <FaWifi size={48} className="mx-auto" style={{ stroke: 'currentColor', strokeWidth: 1 }} />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-500 mb-2">
+                انقطع الاتصال
+              </h3>
+              <p className="text-lg text-gray-500 mb-6">
+                لا يمكن الاتصال بالخادم
+              </p>
+              <button
+                onClick={handleRefresh}
+                className="pointer-events-auto px-6 py-2 bg-transparent border-2 border-red-500 text-blue-500 rounded-full hover:bg-red-50 transition-colors flex items-center justify-center mx-auto text-lg font-medium"
+              >
+                <FaSync className="mr-4" />
+                إعادة المحاولة
+              </button>
+              <p className="text-lg text-gray-500 mt-6">
+                إذا كان الإنترنت متوفراً لديك 
+              </p>
+              <p className="text-lg text-gray-500 mb-6">
+                تأكد من أنك قمت بتسجيل الدخول بشكل صحيح
+              </p>
+              <Link
+                href={'/log-in'}
+                className="pointer-events-auto px-6 py-2 bg-transparent border-2 border-blue-500 text-blue-500 rounded-full hover:bg-red-50 transition-colors flex items-center justify-center mx-auto text-lg font-medium"
+              > قم بالتسجيل مجدداً
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {allPosts.map((post, index) => (
+          <React.Fragment key={`${post.id}-${index}`}>
+            <PostComponent
+              id={post.id}
+              userInfo={post.userInfo}
+              opinion={post.opinion}
+              poll={post.poll}
+              createdAt={post.createdAt}
+            />
+            {index === allPosts.length - 1 && (
+              <div 
+                ref={ref} 
+                className="h-1" 
+                aria-hidden="true"
+              />
+            )}
+          </React.Fragment>
+        ))}
+        
+        {isFetchingNextPage && (
+          <>
+            <PostSkeletonLoader />
+            <PostSkeletonLoader />
+          </>
+        )}
+        
+        {!hasNextPage && !isFetchingNextPage && allPosts.length > 0 && (
+          <RefreshAlert onRefresh={() => window.location.reload()} />
+        )}
+
+        {status === 'success' && allPosts.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-12 space-y-4">
+              <div className="text-gray-400">
+                <FaNewspaper size={64} className="opacity-70" />
+              </div>
+              <h3 className="text-xl font-medium text-gray-600">لا توجد منشورات متاحة</h3>
+              <p className="text-gray-500 max-w-md text-center px-4">
+                لم يتم العثور على أي منشورات لعرضها حالياً. يمكنك المحاولة لاحقاً 
+              </p>
+            </div>
+        )}
       </div>
     </div>
   );
