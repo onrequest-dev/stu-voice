@@ -27,10 +27,10 @@ export async function POST(request: NextRequest) {
 
     const { data: posts, error } = await supabase.rpc("get_foryou_opinions_fresh", {
         user_preferences,
-        cursor_hot_score,
-        cursor_id,
+        cur_hot_score: cursor_hot_score,
+        cur_id: cursor_id,
         page_size: 50,
-        fresh_ratio: 10
+        fresh_ratio: 5 //%
         });
 
     if (error) {
@@ -39,6 +39,8 @@ export async function POST(request: NextRequest) {
     }
 
     let nextCursor = null;
+    const shuffledPosts = shuffleArray(posts)
+
     if (posts.length > 0) {
       const lastPost = posts[posts.length - 1];
       nextCursor = {
@@ -46,11 +48,12 @@ export async function POST(request: NextRequest) {
         id: lastPost.id
       };
     }
-
+    const hasMore = posts.length === page_size;
     return NextResponse.json({
-      posts,
+      posts:shuffledPosts,
       pagination: {
-        nextCursor
+        nextCursor,
+        hasMore
       }
     });
 
@@ -58,6 +61,16 @@ export async function POST(request: NextRequest) {
     console.error("Unexpected error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
+}
+
+
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
 }
 
 

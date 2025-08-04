@@ -59,7 +59,7 @@ const OpinionComponent: React.FC<OpinionProps> = ({ opinion, charLimit = 200 }) 
               e.stopPropagation();
               setIsExpanded(true);
             }}
-            className="text-blue-500 text-xs cursor-pointer hover:underline focus:outline-none mr-1"
+            className="text-blue-500 lg:text-sm text-xs cursor-pointer hover:underline focus:outline-none mr-1"
           >
             المزيد
           </button>

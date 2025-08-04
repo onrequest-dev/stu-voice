@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import PostComponent from "../postcomponents/PostComponent";
-import { create } from "domain";
+import PostSkeletonLoader from "../postcomponents/PostSkeletonLoader";
 
 interface Post {
   id: string;
@@ -38,6 +38,12 @@ const HomeContent = () => {
   const isFetchingRef = useRef(false);
   const [hasMore, setHasMore] = useState(true);
 
+
+
+
+  
+
+
   // fetchPosts مع استخدام useCallback لتجنب إعادة إنشائه بدون داعي
   const fetchPosts = useCallback(async (cursorToUse: Cursor) => {
   if (isFetchingRef.current || !hasMore) return;
@@ -57,6 +63,7 @@ const HomeContent = () => {
     });
 
     const data = await response.json();
+    console.log(data)
 
     const mappedPosts: Post[] = data.posts.map((post: any) => ({
       id: post.id,
@@ -89,6 +96,7 @@ const HomeContent = () => {
     });
 
     // ✅ هذا هو الأهم:
+    if(!data.pagination.hasMore) setHasMore(false)
     if (
       data.pagination?.nextCursor &&
       JSON.stringify(data.pagination.nextCursor) !== JSON.stringify(cursorToUse)
@@ -127,7 +135,7 @@ const HomeContent = () => {
         });
       }
     },
-    { rootMargin: "100px", threshold: 0 }
+    { rootMargin: "400px", threshold: 0.1 }
   );
 
   observer.observe(currentLoader);
@@ -138,22 +146,27 @@ const HomeContent = () => {
 
   return (
     <div className="pb-12">
-      <div className="max-w-2xl mx-auto space-y-6">
-        {posts.map((post) => {
+      <div className="max-w-2xl mx-auto space-y-6 scroll-smooth">
+        
+        {posts.map((post, index) => {
+          const middleIndex = Math.floor(posts.length / 2);
           return (
-            <PostComponent
-              key={post.id}
-              id={post.id}
-              userInfo={post.userInfo}
-              opinion={post.opinion}
-              poll={post.poll}
-              createdAt={post.createdAt} // Assuming createdAt is part of the post data
-            />
+            <React.Fragment key={post.id}>
+              <PostComponent
+                id={post.id}
+                userInfo={post.userInfo}
+                opinion={post.opinion}
+                poll={post.poll}
+                createdAt={post.createdAt}
+              />
+              {index === middleIndex && <div ref={loaderRef} style={{ height: "1px" }} />}
+            </React.Fragment>
           );
         })}
-        <div ref={loaderRef} style={{ height: "1px" }}></div>
-        {loading && <p className="text-center">جاري تحميل المزيد...</p>}
+
+        {loading && <PostSkeletonLoader/>}
         {!hasMore && <p className="text-center">لا توجد منشورات أخرى.</p>}
+        {/* <div ref={loaderRef} style={{ height: "1px" }} className=" bg-slate-500 "></div> */}
       </div>
     </div>
   );
