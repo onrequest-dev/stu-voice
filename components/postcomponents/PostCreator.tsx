@@ -197,9 +197,9 @@ const PostCreator: React.FC<PostCreatorProps> = ({ onSubmit, userInfo }) => {
         />
       )}
       
-      <div className="p-4">
-        <div className="mb-6 w-full px-4">
-          <div className="w-full max-w-screen-md mx-auto">
+      <div>
+        <div className="w-full px-4">
+          <div className="w-full max-w-screen mx-auto">
             <UserInfoComponent userInfo={userInfo} />
           </div>
         </div>
@@ -235,7 +235,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ onSubmit, userInfo }) => {
           </button>
         </div>
         
-        <div className="relative overflow-hidden">
+        <div className="relative overflow-hidden p-2">
           {/* محتوى الرأي */}
           {(activeTab === 'opinion' || activeTab === 'both') && (
             <div 
