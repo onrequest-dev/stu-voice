@@ -2,7 +2,7 @@
 import { FaArrowUp, FaArrowDown, FaFlag, FaInfoCircle } from 'react-icons/fa';
 import CustomIcon from './CustomIcon';
 import { UserInfo } from './types';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Alert from '../Alert';
 
 interface CommentProps {
@@ -15,11 +15,49 @@ interface CommentProps {
   userInfo: UserInfo;
   onLike: () => void;
   onDislike: () => void;
+  charLimit?: number;
 }
 
-const Comment = ({ comment, userInfo, onLike, onDislike }: CommentProps) => {
+const Comment = ({ comment, userInfo, onLike, onDislike, charLimit = 150 }: CommentProps) => {
   const [showReportAlert, setShowReportAlert] = useState(false);
   const [userVote, setUserVote] = useState<'up' | 'down' | null>(null);
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const { displayText, needsTruncation } = useMemo(() => {
+    if (isExpanded) {
+      return { displayText: comment.text, needsTruncation: false };
+    }
+
+    let length = 0;
+    let lastValidIndex = 0;
+    const text = comment.text;
+
+    for (let i = 0; i < text.length; i++) {
+      const char = text[i];
+      length += char.charCodeAt(0) > 127 ? 2 : 1;
+      
+      if (length <= charLimit) {
+        lastValidIndex = i;
+      } else {
+        break;
+      }
+    }
+
+    if (length <= charLimit) {
+      return { displayText: text, needsTruncation: false };
+    }
+
+    // البحث عن آخر مسافة قبل النقطة المقطوعة
+    let truncateAt = text.lastIndexOf(' ', lastValidIndex);
+    if (truncateAt < charLimit / 2) {
+      truncateAt = lastValidIndex;
+    }
+
+    return {
+      displayText: text.substring(0, truncateAt) + '...',
+      needsTruncation: true
+    };
+  }, [comment.text, isExpanded, charLimit]);
 
   const handleReport = () => {
     setShowReportAlert(true);
@@ -70,7 +108,7 @@ const Comment = ({ comment, userInfo, onLike, onDislike }: CommentProps) => {
         </span>
 
         {/* مجموعة معلومات المستخدم */}
-        <div className="flex items-center gap-3 pb-2"> {/* استخدمنا gap-3 للمسافة بين العناصر */}
+        <div className="flex items-center gap-3 pb-2">
           {/* الاسم واسم المستخدم */}
           <div className="text-right">
             <h4 className="font-medium text-gray-900">{userInfo.fullName}</h4>
@@ -93,7 +131,25 @@ const Comment = ({ comment, userInfo, onLike, onDislike }: CommentProps) => {
       </div>
 
       {/* نص التعليق */}
-      <p className="mt-2 text-gray-800 text-right">{comment.text}</p>
+      <div className="mt-2" dir="rtl">
+        <div 
+          className="text-gray-800 text-right text-sm md:text-base whitespace-pre-wrap"
+          style={{ wordBreak: 'break-word', lineHeight: '1.6' }}
+        >
+          {displayText}
+          {needsTruncation && !isExpanded && (
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsExpanded(true);
+              }}
+              className="text-blue-500 lg:text-sm text-xs cursor-pointer hover:underline focus:outline-none mr-1"
+            >
+              المزيد
+            </button>
+          )}
+        </div>
+      </div>
 
       {/* أزرار التفاعل */}
       <div className="flex mt-3 text-gray-500 justify-end gap-3">
@@ -115,7 +171,7 @@ const Comment = ({ comment, userInfo, onLike, onDislike }: CommentProps) => {
           className="flex items-center hover:text-gray-600"
           title="الإبلاغ عن التعليق"
         >
-          <FaFlag className="ml-1" />
+          <FaFlag className="mr-2" />
           <span className="text-xs mr-1">إبلاغ</span>
         </button>
       </div>

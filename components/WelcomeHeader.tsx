@@ -55,10 +55,14 @@ const WelcomeHeader = () => {
                 </span>
             </h1>
             
-            <p className="text-lg text-gray-700 mb-8 max-w-lg mx-auto md:mx-0">
-              منصة STUvoice تجمع آراء الطلاب لتحسين تجربتهم التعليمية. سجل رأيك اليوم وساهم في صنع التغيير!
+            <p className="text-lg text-gray-700 max-w-lg mx-auto md:mx-0">
+              منصة تجمع آراء الطلاب لتحسين تجربتهم التعليمية STUvoice
             </p>
-            
+            <p className="text-lg text-gray-700 mb-8 max-w-lg mx-auto md:mx-0 ">
+              شارك  
+              <span className="text-blue-600 relative inline-block ml-2 mr-2">رأيك</span>
+                اليومي و ساهم في صناعة الفرق
+            </p>
             <Link 
                   href="/main" // المسار النسبي الصحيح
                   passHref
@@ -68,7 +72,7 @@ const WelcomeHeader = () => {
                 >
                   <span className="relative z-10 px-8 py-3 text-lg font-semibold text-white bg-blue-600 rounded-full hover:bg-blue-700 transition-all duration-300 transform group-hover:-translate-y-1 inline-flex items-center">
                     ابدأ الآن
-                    <FaArrowDown className="mr-2 group-hover:rotate-180 transition-transform duration-500" />
+                    <FaArrowDown className="ml-2 group-hover:rotate-180 transition-transform duration-500" />
                   </span>
                   <span 
                     className="absolute -bottom-1 left-0 w-full h-3 bg-blue-400 rounded-full opacity-70 group-hover:opacity-100 transition-all duration-300"
