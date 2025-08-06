@@ -1,13 +1,75 @@
-import { NextRequest } from "next/server";
+import { decodeJWT } from "@/lib/decodejwt";
+import { rateLimiterMiddleware } from "@/lib/rateLimiterMiddleware";
+import { supabase } from "@/lib/supabase";
+import { you_need_account_to_post } from "@/static/keywords";
+import { JwtPayload } from "jsonwebtoken";
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
-export async function POST(request:NextRequest){
-    const body = await request.json();
-    console.log("Received reaction:", body);
-    
+const voteSchema = z.object({
+  id: z.number(),  // لأن الأمثلة id أرقام
+  type: z.enum(["upvote", "downvote", "pollvote"])
+});
 
-    // Here you would typically call your database or service to save the reaction
-    // For example:
-    // await saveReactionToDatabase({ reaction, postId });
+const bodySchema = z.object({
+  votes: z.array(voteSchema)
+});
 
-    return new Response("Reaction saved", { status: 200 });
+export async function POST(request: NextRequest) {
+  // تحقق تحديد معدل الطلبات (rate limiting)
+  const rateLimitResponse = await rateLimiterMiddleware(request);
+  if (rateLimitResponse) return rateLimitResponse;
+
+  // تحقق وجود JWT في الكوكيز
+  const jwt = request.cookies.get("jwt")?.value;
+  if (!jwt)
+    return NextResponse.json(
+      { error: you_need_account_to_post },
+      { status: 401 }
+    );
+
+  // فك تشفير JWT والتحقق من صحته
+  const jwt_user = decodeJWT(jwt) as JwtPayload | null;
+  if (!jwt_user || typeof jwt_user === "string" || !jwt_user.user_name) {
+    return NextResponse.json(
+      { error: you_need_account_to_post },
+      { status: 401 }
+    );
+  }
+
+  // قراءة جسم الطلب JSON والتحقق من صحته
+  const body = await request.json();
+
+  const result = bodySchema.safeParse(body);
+  if (!result.success) {
+    return NextResponse.json(
+      { error: "Invalid request body" },
+      { status: 400 }
+    );
+  }
+
+  // تجهيز البيانات للإدخال إلى قاعدة البيانات
+  const upsertData = result.data.votes.map((reaction) => ({
+    post_id: reaction.id,
+    reaction_type: reaction.type,
+    reactor_username: jwt_user.user_name,
+  }));
+
+  // إدخال أو تحديث البيانات في جدول reactions باستخدام supabase
+  const { data, error } = await supabase
+  .from("reactions")
+  .upsert(upsertData, { onConflict: "post_id,reactor_username" });
+
+
+
+
+  if (error) {
+    console.error("Error saving reactions:", error);
+    return NextResponse.json(
+      { error: "Failed to save reactions" },
+      { status: 500 }
+    );
+  }
+
+  return NextResponse.json({ message: "Reaction saved" }, { status: 200 });
 }
