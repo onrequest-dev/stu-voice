@@ -60,7 +60,7 @@ const UserProfileComponent: React.FC<{ userData: UserInfo }> = ({ userData }) =>
   };
 
   return (
-    <div className="relative w-full px-0 sm:px-4 md:px-6 pt-0 md:pt-12 max-w-md mx-auto">
+    <div className="relative w-full px-0 sm:px-4 md:px-6 pt-0 md:pt-12 max-w-md mx-auto text-right">
       {/* بطاقة المستخدم المعدلة */}
       <div className={`${theme.secondary} ${cardStyle}`}>
         {/* شريط العنوان المتدرج */}
@@ -93,15 +93,15 @@ const UserProfileComponent: React.FC<{ userData: UserInfo }> = ({ userData }) =>
               {userData.fullName}
             </h1>
             
-            <div className={`flex items-center mt-1 md:mt-2 px-1.5 py-0.5 md:px-2 md:py-1 rounded-full ${theme.accent} ${theme.text} text-xs md:text-sm font-medium`}>
+            <div className={`flex items-center mt-1 md:mt-2 px-1.5 py-0.5 md:px-2 md:py-1 rounded-full ${theme.accent} ${theme.text} text-xs  md:text-sm font-medium`}>
               {userData.gender === 'male' ? (
                 <>
-                  <FaMars className="mr-0.5 md:mr-1 text-xs md:text-sm" />
+                  <FaMars className="mr-2 md:mr-1 text-xs md:text-sm" />
                   <span>ذكر</span>
                 </>
               ) : (
                 <>
-                  <FaVenus className="mr-0.5 md:mr-1 text-xs md:text-sm" />
+                  <FaVenus className="mr-2 md:mr-1 text-xs md:text-sm" />
                   <span>أنثى</span>
                 </>
               )}
@@ -114,7 +114,7 @@ const UserProfileComponent: React.FC<{ userData: UserInfo }> = ({ userData }) =>
               <h2 className={`text-sm md:text-base font-semibold ${theme.text} flex items-center mb-0.5 sm:mb-0`}>
                 {userData.education.level === 'university' ? (
                   <>
-                    <FaUniversity className={`mr-1 ${theme.iconColor} text-sm md:text-base`} />
+                    <FaUniversity className={`mr-2 ${theme.iconColor} text-sm md:text-base`} />
                     <span>المعلومات الأكاديمية</span>
                   </>
                 ) : (
@@ -164,7 +164,7 @@ const MiddleSchoolView = ({ education, theme }: any) => {
     <>
       <div className="flex justify-between items-center p-1.5 md:p-2 rounded bg-gray-50 text-xs md:text-sm">
         <span className={`font-medium ${theme.text} flex items-center`}>
-          <FaBook className={`mr-0.5 md:mr-1 ${theme.iconColor} text-xs md:text-sm`} />
+          <FaBook className={`mr-2 md:mr-1 ${theme.iconColor} text-xs md:text-sm`} />
           <span>الصف الدراسي</span>
         </span>
         <span className="font-semibold text-gray-700 truncate max-w-[50%]">
@@ -174,7 +174,7 @@ const MiddleSchoolView = ({ education, theme }: any) => {
 
       {education.degreeSeeking && (
         <div className={`p-1.5 md:p-2 rounded ${theme.accent} flex items-center text-2xs md:text-xs mt-0.5 md:mt-1`}>
-          <FaGraduationCap className={`mr-0.5 md:mr-1 ${theme.iconColor} text-xs md:text-sm`} />
+          <FaGraduationCap className={`mr-2 md:mr-1 ${theme.iconColor} text-xs md:text-sm`} />
           <span className={`${theme.text} font-medium`}>في مرحلة استخراج شهادة الإعدادية</span>
         </div>
       )}
@@ -199,7 +199,7 @@ const HighSchoolView = ({ education, theme }: any) => {
     <>
       <div className="flex justify-between items-center p-1.5 md:p-2 rounded bg-gray-50 text-xs md:text-sm">
         <span className={`font-medium ${theme.text} flex items-center`}>
-          <FaBook className={`mr-0.5 md:mr-1 ${theme.iconColor} text-xs md:text-sm`} />
+          <FaBook className={`mr-2 md:mr-1 ${theme.iconColor} text-xs md:text-sm`} />
           <span>الصف الدراسي</span>
         </span>
         <span className="font-semibold text-gray-700 truncate max-w-[50%]">
@@ -209,7 +209,7 @@ const HighSchoolView = ({ education, theme }: any) => {
 
       <div className="flex justify-between items-center p-1.5 md:p-2 rounded bg-gray-50 text-xs md:text-sm mt-0.5 md:mt-1">
         <span className={`font-medium ${theme.text} flex items-center`}>
-          <FaUserGraduate className={`mr-0.5 md:mr-1 ${theme.iconColor} text-xs md:text-sm`} />
+          <FaUserGraduate className={`mr-2 md:mr-1 ${theme.iconColor} text-xs md:text-sm`} />
           <span>التخصص</span>
         </span>
         <span className="font-semibold text-gray-700 truncate max-w-[50%]">
@@ -219,7 +219,7 @@ const HighSchoolView = ({ education, theme }: any) => {
 
       {education.degreeSeeking && (
         <div className={`p-1.5 md:p-2 rounded ${theme.accent} flex items-center text-2xs md:text-xs mt-0.5 md:mt-1`}>
-          <FaGraduationCap className={`mr-0.5 md:mr-1 ${theme.iconColor} text-xs md:text-sm`} />
+          <FaGraduationCap className={`mr-2 md:mr-1 ${theme.iconColor} text-xs md:text-sm`} />
           <span className={`${theme.text} font-medium`}>في مرحلة استخراج شهادة الثانوية</span>
         </div>
       )}
@@ -241,7 +241,7 @@ const UniversityView = ({ education, theme }: any) => {
     <div className="grid grid-cols-1 gap-1 md:gap-1.5">
       <div className="flex justify-between items-center p-1.5 md:p-2 rounded bg-gray-50 text-xs md:text-sm">
         <span className={`font-medium ${theme.text} flex items-center`}>
-          <FaUniversity className={`mr-0.5 md:mr-1 ${theme.iconColor} text-xs md:text-sm`} />
+          <FaUniversity className={`mr-2 md:mr-1 ${theme.iconColor} text-xs md:text-sm`} />
           <span>الجامعة</span>
         </span>
         <span className="font-semibold text-gray-700 truncate max-w-[50%]">
@@ -251,7 +251,7 @@ const UniversityView = ({ education, theme }: any) => {
 
       <div className="flex justify-between items-center p-1.5 md:p-2 rounded bg-gray-50 text-xs md:text-sm">
         <span className={`font-medium ${theme.text} flex items-center`}>
-          <FaBook className={`mr-0.5 md:mr-1 ${theme.iconColor} text-xs md:text-sm`} />
+          <FaBook className={`mr-2 md:mr-1 ${theme.iconColor} text-xs md:text-sm`} />
           <span>الكلية</span>
         </span>
         <span className="font-semibold text-gray-700 truncate max-w-[50%]">
@@ -261,7 +261,7 @@ const UniversityView = ({ education, theme }: any) => {
 
       <div className="flex justify-between items-center p-1.5 md:p-2 rounded bg-gray-50 text-xs md:text-sm">
         <span className={`font-medium ${theme.text} flex items-center`}>
-          <FaUserGraduate className={`mr-0.5 md:mr-1 ${theme.iconColor} text-xs md:text-sm`} />
+          <FaUserGraduate className={`mr-2 md:mr-1 ${theme.iconColor} text-xs md:text-sm`} />
           <span>التخصص</span>
         </span>
         <span className="font-semibold text-gray-700 truncate max-w-[50%]">
@@ -271,7 +271,7 @@ const UniversityView = ({ education, theme }: any) => {
 
       <div className="flex justify-between items-center p-1.5 md:p-2 rounded bg-gray-50 text-xs md:text-sm">
         <span className={`font-medium ${theme.text} flex items-center`}>
-          <FaGraduationCap className={`mr-0.5 md:mr-1 ${theme.iconColor} text-xs md:text-sm`} />
+          <FaGraduationCap className={`mr-2 md:mr-1 ${theme.iconColor} text-xs md:text-sm`} />
           <span>السنة</span>
         </span>
         <span className="font-semibold text-gray-700 truncate max-w-[50%]">
@@ -281,7 +281,7 @@ const UniversityView = ({ education, theme }: any) => {
 
       <div className="flex justify-between items-center p-1.5 md:p-2 rounded bg-gray-50 text-xs md:text-sm">
         <span className={`font-medium ${theme.text} flex items-center`}>
-          <FaIdCard className={`mr-0.5 md:mr-1 ${theme.iconColor} text-xs md:text-sm`} />
+          <FaIdCard className={`mr-2 md:mr-1 ${theme.iconColor} text-xs md:text-sm`} />
           <span>الرقم الجامعي</span>
         </span>
         <span className="font-mono font-semibold text-gray-700 truncate max-w-[50%]">

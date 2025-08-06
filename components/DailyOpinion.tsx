@@ -124,17 +124,8 @@ const DailyOpinion = ({ opinion, initialComments }: DailyOpinionProps) => {
       requestAnimationFrame(animateScroll);
     }
   };
-
-  const displayedAgreeCount = userReaction === 'agree' 
-    ? opinion.agreeCount + 1 
-    : opinion.agreeCount;
-  
-  const displayedDisagreeCount = userReaction === 'disagree' 
-    ? opinion.disagreeCount + 1 
-    : opinion.disagreeCount;
-
   return (
-    <div className="flex flex-col h-screen bg-gray-50 relative">
+    <div className="flex flex-col h-screen relative">
       {/* Content */}
       <div ref={contentRef} className="flex-1 overflow-y-auto">
         <div className="p-4">
@@ -158,25 +149,6 @@ const DailyOpinion = ({ opinion, initialComments }: DailyOpinionProps) => {
             <p className="text-gray-800 text-right text-lg mb-4">
               {opinion.text}
             </p>
-
-            {/* Reactions */}
-            <div className="flex justify-center gap-8">
-              <button
-                onClick={() => handleReaction('agree')}
-                className={`flex flex-col items-center ${userReaction === 'agree' ? 'text-green-600' : 'text-gray-500'}`}
-              >
-                <AiOutlineArrowUp size={24} />
-                <span className="text-sm mt-1">{displayedAgreeCount}</span>
-              </button>
-              
-              <button
-                onClick={() => handleReaction('disagree')}
-                className={`flex flex-col items-center ${userReaction === 'disagree' ? 'text-red-600' : 'text-gray-500'}`}
-              >
-                <AiOutlineArrowDown size={24} />
-                <span className="text-sm mt-1">{displayedDisagreeCount}</span>
-              </button>
-            </div>
           </div>
 
           {/* Comments Section */}
@@ -239,21 +211,21 @@ const DailyOpinion = ({ opinion, initialComments }: DailyOpinionProps) => {
       )}
 
       {/* Comment Input */}
-      <div className="fixed bottom-1 left-0 right-0 bg-white border-t p-3 shadow-lg">
+      <div className="fixed bottom-1 left-0 right-0 bg-white pb-1 pl-3 pr-3">
         <div className="flex items-center gap-2 max-w-md mx-auto">
           <input
             ref={inputRef}
             type="text"
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
-            placeholder="اكتب تعليقك..."
-            className="flex-1 border border-gray-300 rounded-full py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-right"
+            placeholder="...اكتب تعليقك"
+            className="flex-1 border border-gray-300 rounded-full py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-right shadow-sm"
             onKeyDown={(e) => e.key === 'Enter' && handleAddComment()}
           />
           <button
             onClick={handleAddComment}
             disabled={!newComment.trim()}
-            className={`p-2 rounded-full ${newComment.trim() ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'}`}
+            className={`p-2 rounded-full ${newComment.trim() ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'} shadow-sm`}
           >
             <IoMdSend size={20} />
           </button>

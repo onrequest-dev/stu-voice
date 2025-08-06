@@ -89,7 +89,7 @@ const UserFormComponent: React.FC<{
   const currentGender = genderClasses[formData.gender];
 
   return (
-    <div className="relative">
+    <div className="relative text-right">
         <div className={`max-w-2xl mx-auto p-4 md:p-6 rounded-lg shadow-lg transition-all duration-300 ${currentGender.bgSecondary} border ${currentGender.border} mt-12`}>
             {/* تغليف الأيقونة - تم تعديل الموضع هنا */}
             <div className="mx-auto -mt-16 w-16 h-16 md:w-20 md:h-20 rounded-full bg-white shadow-lg flex items-center justify-center border-4 border-white">
@@ -115,7 +115,7 @@ const UserFormComponent: React.FC<{
             </label>
             <input
               type="text"
-              className={`w-full p-2 md:p-3 text-sm md:text-base rounded border ${currentGender.border} focus:outline-none focus:ring-2 ${currentGender.focusRing}`}
+              className={`w-full p-2 md:p-3 text-sm text-right md:text-base rounded border ${currentGender.border} focus:outline-none focus:ring-2 ${currentGender.focusRing}`}
               value={formData.fullName}
               onChange={(e) => handleChange('fullName', e.target.value)}
               required
@@ -252,15 +252,15 @@ interface EducationFormProps {
 }
 
 const MiddleSchoolForm: React.FC<EducationFormProps> = ({ education, onChange, currentGender }) => (
-  <div className={`mb-4 md:mb-6 p-3 md:p-4 rounded-lg bg-white bg-opacity-70`}>
-    <h3 className={`font-bold mb-2 md:mb-3 text-sm md:text-base flex items-center ${currentGender.text}`}>
-      <FaSchool className="ml-1 md:ml-2" /> معلومات المرحلة الإعدادية
+  <div className={`mb-4 md:mb-6 p-3 md:p-4 rounded-lg bg-white bg-opacity-70 text-right`}>
+    <h3 className={`font-bold mb-2 md:mb-3 text-sm text-right md:text-base flex items-center ${currentGender.text}`}>
+      <FaSchool className="mr-2 md:ml-2" /> معلومات المرحلة الإعدادية 
     </h3>
 
     <div className="mb-3 md:mb-4">
       <label className={`block mb-1 md:mb-2 text-sm md:text-base ${currentGender.text}`}>الصف الدراسي</label>
       <select
-        className={`w-full p-2 md:p-3 text-sm md:text-base rounded border ${currentGender.border} focus:outline-none focus:ring-2 ${currentGender.focusRing}`}
+        className={`w-full p-2 md:p-3 text-sm text-right md:text-base rounded border ${currentGender.border} focus:outline-none focus:ring-2 ${currentGender.focusRing}`}
         value={education.grade || ''}
         onChange={(e) => onChange('grade', e.target.value)}
         required
@@ -281,7 +281,7 @@ const MiddleSchoolForm: React.FC<EducationFormProps> = ({ education, onChange, c
         checked={education.degreeSeeking || false}
         onChange={(e) => onChange('degreeSeeking', e.target.checked)}
       />
-      <label htmlFor="middleDegree" className={`text-xs md:text-sm ${currentGender.text}`}>
+      <label htmlFor="middleDegree" className={`text-xs md:text-sm ${currentGender.text} `}>
         أنا في مرحلة استخراج شهادة الإعدادية
       </label>
     </div>
@@ -289,15 +289,15 @@ const MiddleSchoolForm: React.FC<EducationFormProps> = ({ education, onChange, c
 );
 
 const HighSchoolForm: React.FC<EducationFormProps> = ({ education, onChange, currentGender }) => (
-  <div className={`mb-4 md:mb-6 p-3 md:p-4 rounded-lg bg-white bg-opacity-70`}>
+  <div className={`mb-4 md:mb-6 p-3 md:p-4 rounded-lg bg-white bg-opacity-70`} >
     <h3 className={`font-bold mb-2 md:mb-3 text-sm md:text-base flex items-center ${currentGender.text}`}>
-      <FaSchool className="ml-1 md:ml-2" /> معلومات المرحلة الثانوية
+      <FaSchool className="mr-2 md:ml-2" /> معلومات المرحلة الثانوية
     </h3>
 
     <div className="mb-3 md:mb-4">
       <label className={`block mb-1 md:mb-2 text-sm md:text-base ${currentGender.text}`}>الصف الدراسي</label>
       <select
-        className={`w-full p-2 md:p-3 text-sm md:text-base rounded border ${currentGender.border} focus:outline-none focus:ring-2 ${currentGender.focusRing}`}
+        className={`w-full p-2 md:p-3 text-sm text-right md:text-base rounded border ${currentGender.border} focus:outline-none focus:ring-2 ${currentGender.focusRing}`}
         value={education.grade || ''}
         onChange={(e) => onChange('grade', e.target.value)}
         required
@@ -352,14 +352,14 @@ const HighSchoolForm: React.FC<EducationFormProps> = ({ education, onChange, cur
 const UniversityForm: React.FC<EducationFormProps> = ({ education, onChange, currentGender }) => (
   <div className={`mb-4 md:mb-6 p-3 md:p-4 rounded-lg bg-white bg-opacity-70`}>
     <h3 className={`font-bold mb-2 md:mb-3 text-sm md:text-base flex items-center ${currentGender.text}`}>
-      <FaUniversity className="ml-1 md:ml-2" /> معلومات المرحلة الجامعية
+      <FaUniversity className="mr-2 md:ml-2" /> معلومات المرحلة الجامعية
     </h3>
 
     <div className="mb-3 md:mb-4">
       <label className={`block mb-1 md:mb-2 text-sm md:text-base ${currentGender.text}`}>الجامعة</label>
       <input
         type="text"
-        className={`w-full p-2 md:p-3 text-sm md:text-base rounded border ${currentGender.border} focus:outline-none focus:ring-2 ${currentGender.focusRing}`}
+        className={`w-full p-2 md:p-3 text-sm text-right md:text-base rounded border ${currentGender.border} focus:outline-none focus:ring-2 ${currentGender.focusRing}`}
         value={education.university || ''}
         onChange={(e) => onChange('university', e.target.value)}
         required
@@ -370,7 +370,7 @@ const UniversityForm: React.FC<EducationFormProps> = ({ education, onChange, cur
       <label className={`block mb-1 md:mb-2 text-sm md:text-base ${currentGender.text}`}>الكلية/الفرع</label>
       <input
         type="text"
-        className={`w-full p-2 md:p-3 text-sm md:text-base rounded border ${currentGender.border} focus:outline-none focus:ring-2 ${currentGender.focusRing}`}
+        className={`w-full p-2 md:p-3 text-sm text-right md:text-base rounded border ${currentGender.border} focus:outline-none focus:ring-2 ${currentGender.focusRing}`}
         value={education.faculty || ''}
         onChange={(e) => onChange('faculty', e.target.value)}
         required
@@ -381,7 +381,7 @@ const UniversityForm: React.FC<EducationFormProps> = ({ education, onChange, cur
       <label className={`block mb-1 md:mb-2 text-sm md:text-base ${currentGender.text}`}>التخصص</label>
       <input
         type="text"
-        className={`w-full p-2 md:p-3 text-sm md:text-base rounded border ${currentGender.border} focus:outline-none focus:ring-2 ${currentGender.focusRing}`}
+        className={`w-full p-2 md:p-3 text-sm text-right md:text-base rounded border ${currentGender.border} focus:outline-none focus:ring-2 ${currentGender.focusRing}`}
         value={education.specialization || ''}
         onChange={(e) => onChange('specialization', e.target.value)}
         required
@@ -392,7 +392,7 @@ const UniversityForm: React.FC<EducationFormProps> = ({ education, onChange, cur
       <div>
         <label className={`block mb-1 md:mb-2 text-sm md:text-base ${currentGender.text}`}>السنة الدراسية</label>
         <select
-          className={`w-full p-2 md:p-3 text-sm md:text-base rounded border ${currentGender.border} focus:outline-none focus:ring-2 ${currentGender.focusRing}`}
+          className={`w-full p-2 md:p-3 text-sm text-right md:text-base rounded border ${currentGender.border} focus:outline-none focus:ring-2 ${currentGender.focusRing}`}
           value={education.year || ''}
           onChange={(e) => onChange('year', e.target.value)}
           required
@@ -410,8 +410,10 @@ const UniversityForm: React.FC<EducationFormProps> = ({ education, onChange, cur
       <div>
         <label className={`block mb-1 md:mb-2 text-sm md:text-base ${currentGender.text}`}>الرقم الجامعي</label>
         <input
-          type="text"
-          className={`w-full p-2 md:p-3 text-sm md:text-base rounded border ${currentGender.border} focus:outline-none focus:ring-2 ${currentGender.focusRing}`}
+          type="number"
+          max="9999"
+          min="1000"
+          className={`w-full p-2 md:p-3 text-sm text-right md:text-base rounded border ${currentGender.border} focus:outline-none focus:ring-2 ${currentGender.focusRing}`}
           value={education.studentId || ''}
           onChange={(e) => onChange('studentId', e.target.value)}
           required

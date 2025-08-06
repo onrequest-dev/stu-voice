@@ -166,23 +166,30 @@ const PostWithComments = ({ postData, commentsData }: PostWithCommentsProps) => 
       </div>
 
       {/* حقل التعليق الثابت في الأسفل للهواتف */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t p-3 shadow-lg md:relative md:border-t-0 md:shadow-none md:p-0 md:bg-transparent">
-        <div className="max-w-2xl mx-auto flex items-end gap-2">
+      <div className="fixed bottom-0 left-0 right-0 bg-white p-3">
+        <div className="flex items-center gap-2 max-w-md mx-auto">
           <textarea
-            ref={textareaRef}
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
-            onKeyDown={handleKeyDown}
-            className="flex-1 border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-right"
-            placeholder="أضف تعليقك..."
+            placeholder="اكتب تعليقك..."
+            className="flex-1 border border-gray-300 rounded-2xl py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-right resize-none"
             rows={1}
-            style={{ minHeight: '50px', maxHeight: '120px' }}
-            dir="rtl"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleAddComment();
+              }
+            }}
+            style={{
+              minHeight: '44px',
+              maxHeight: '120px',
+              overflowY: 'auto'
+            }}
           />
           <button
             onClick={handleAddComment}
             disabled={!newComment.trim()}
-            className={`p-3 rounded-full ${newComment.trim() ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'}`}
+            className={`p-2 rounded-full ${newComment.trim() ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'}`}
           >
             <IoMdSend size={20} />
           </button>
