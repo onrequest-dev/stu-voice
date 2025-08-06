@@ -50,8 +50,13 @@ const PostCreator: React.FC<PostCreatorProps> = ({ onSubmit, userInfo }) => {
     return () => window.removeEventListener('resize', checkIfMobile);
   }, []);
 
+  const hasDuplicateOptions = (options: string[]): boolean => {
+    const nonEmptyOptions = options.filter(opt => opt.trim() !== '');
+    const uniqueOptions = new Set(nonEmptyOptions.map(opt => opt.trim().toLowerCase()));
+    return uniqueOptions.size !== nonEmptyOptions.length;
+  };
+
   const handleTabChange = (newTab: 'opinion' | 'poll' | 'both') => {
-    // تحديد اتجاه الانتقال بناء على الترتيب الحالي
     const tabOrder: ('opinion' | 'both' | 'poll')[] = ['opinion', 'both', 'poll'];
     const currentIndex = tabOrder.indexOf(activeTab);
     const newIndex = tabOrder.indexOf(newTab);
@@ -97,6 +102,12 @@ const PostCreator: React.FC<PostCreatorProps> = ({ onSubmit, userInfo }) => {
           newErrors[`pollOption_${idx}`] = 'الرجاء إدخال نص الخيار';
         }
       });
+      
+      if (!Object.keys(newErrors).some(key => key.startsWith('pollOption_'))) {
+        if (hasDuplicateOptions(pollOptions)) {
+          newErrors.pollOptions = 'يوجد خيارات مكررة في الاستطلاع';
+        }
+      }
     }
     
     setErrors(newErrors);
@@ -346,6 +357,10 @@ const PostCreator: React.FC<PostCreatorProps> = ({ onSubmit, userInfo }) => {
                       )}
                     </div>
                   ))}
+                  
+                  {errors.pollOptions && (
+                    <p className="mt-1 text-sm text-red-500 text-right">{errors.pollOptions}</p>
+                  )}
                   
                   {pollOptions.length < 5 && (
                     <button
