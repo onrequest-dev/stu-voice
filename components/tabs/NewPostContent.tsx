@@ -37,6 +37,7 @@ const NewPostContent = () => {
       };
     };
   }) => {
+    console.log(postData)
     if (!userData) {
       alert('بيانات المستخدم غير متوفرة');
       return;
@@ -51,6 +52,7 @@ const NewPostContent = () => {
           ? {
               title: postData.content.poll.question,
               options: postData.content.poll.options,
+              durationInDays: postData.content.poll.durationInDays,
             }
           : undefined,
       };
