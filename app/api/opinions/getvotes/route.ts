@@ -40,12 +40,10 @@ export async function POST(request: NextRequest) {
     .select("*")
     .eq("vote_id", vote_id)
     if (error) {
-        console.error("Error fetching vote:", error);
       return NextResponse.json(
         { error: "حدث خطأ أثناء استرجاع التصويت" },
         { status: 500 }
       );
     }
-    console.log("Fetched vote:", data);
     return NextResponse.json({ vote: data }, { status: 200 });
 }

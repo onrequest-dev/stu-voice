@@ -86,7 +86,7 @@ const PostComponent: React.FC<PostProps> = ({ id, userInfo, opinion, poll ,creat
       </div>
         {createdAt && (
           <div className="text-xs text-gray-500 mb-1 text-left ml-auto pd-2">
-            منشور في: {new Date(createdAt).toLocaleDateString('ar-EG', {
+              {new Date(createdAt).toLocaleDateString('ar-EG', {
               year: 'numeric',
               month: 'long',
               day: 'numeric'
