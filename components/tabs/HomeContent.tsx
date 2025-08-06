@@ -8,6 +8,7 @@ import { useInView } from "react-intersection-observer";
 import RefreshAlert from "../RefreshAlert"
 import { FaWifi, FaSync, FaNewspaper } from 'react-icons/fa';
 import Link from "next/link";
+import useVoteSync from "@/hooks/useVoteSync";
 
 type Post = PostProps & {
   userInfo: UserInfo & { 
@@ -25,19 +26,13 @@ type PostResponse = {
 };
 
 const HomeContent = () => {
+  useVoteSync();
   const { ref, inView } = useInView({
     threshold: 0.1,
     rootMargin: "400px",
   });
 
   const fetchPosts = async ({ pageParam }: { pageParam: { hot_score: number; id: number } | null }): Promise<PostResponse> => {
-    console.log('📡 جلب البيانات - المؤشر الحالي:', pageParam);
-      console.log('📤 البيانات المرسلة إلى الباك إند:', {
-      cursor_hot_score: pageParam?.hot_score ?? null,
-      cursor_id: pageParam?.id ?? null,
-      page_size: 50,
-      user_preferences: []
-    });
     try {
       const response = await fetch("/api/opinions/get_foryou_opinions", {
         method: "POST",
@@ -55,16 +50,10 @@ const HomeContent = () => {
       }
 
       const data = await response.json();
-      console.log('✅ تم جلب البيانات بنجاح - عدد المنشورات:', data.posts?.length || 0);
-      console.log('🔄 البيانات المعالجة:', {
-        posts: data.posts.length,
-        nextCursor: data.pagination?.nextCursor,
-        hasMore: data.pagination?.hasMore
-      })
-
       return {
         posts: data.posts.map((post: any) => ({
           id: post.id,
+          createdAt:post.created_at,
           userInfo: {
             id: post.publisher_username,
             iconName: post?.icon?.component || "user",
@@ -82,14 +71,12 @@ const HomeContent = () => {
                 commentsCount: 0,
               }
             : null,
-          poll: post.poll,
-          createdAt: post.created_at,
+          poll: {"options":post?.poll?.options||[],"question":post?.poll?.title||"", "durationInDays": post?.poll?.durationInDays || -1}
         })),
         nextCursor: data.pagination?.nextCursor,
         hasMore: data.pagination?.hasMore,
       };
     } catch (error) {
-      console.error('❌ فشل في جلب البيانات:', error);
       throw error;
     }
   };
@@ -99,7 +86,6 @@ const {
   fetchNextPage,
   hasNextPage,
   isFetchingNextPage,
-  isError,
   refetch,
   status,
 } = useInfiniteQuery<PostResponse>({
@@ -109,7 +95,6 @@ const {
   }),
   getNextPageParam: (lastPage) => {
     const nextParam = lastPage.hasMore ? lastPage.nextCursor : undefined;
-    console.log('➡️ تحديد الصفحة التالية:', nextParam);
     return nextParam;
   },
   initialPageParam: null,
@@ -120,18 +105,18 @@ const {
 
   React.useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
-      console.log('👀 تم رؤية عنصر التحميل - جلب الصفحة التالية');
       fetchNextPage();
     }
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const allPosts = data?.pages.flatMap(page => page.posts) || [];
-  console.log('📊 إجمالي المنشورات المعروضة:', allPosts.length);
 
   const handleRefresh = () => {
-    console.log('🔄 تحديث الصفحة يدويًا');
     refetch();
   };
+
+
+
 
   return (
     <div className="pb-12">

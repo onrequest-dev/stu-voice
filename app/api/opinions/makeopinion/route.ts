@@ -19,7 +19,6 @@ export async function POST(request: NextRequest){
     return NextResponse.json({ error: you_need_account_to_post }, { status: 500 });
   }
   const validatedData = await validateAndSanitizeRequestBody(request);
-
   if ("error" in validatedData) {
     return NextResponse.json(
       { error: validatedData.error, details: validatedData.details },
@@ -27,8 +26,7 @@ export async function POST(request: NextRequest){
     );
   }
   const { post, topics, poll } = validatedData;
-    const user_name = jwt_user.user_name;
-    
+    const user_name = jwt_user.user_name;    
     const {data: db, error:dbError} = await supabase
     .from('posts')
     .insert({
@@ -41,7 +39,6 @@ export async function POST(request: NextRequest){
     
 
     if (dbError) {
-      console.log(dbError)
       return NextResponse.json({ error: Failed_to_create_post }, { status: 500 });
     }
 
@@ -72,7 +69,6 @@ if (poll) {
 
 async function validateAndSanitizeRequestBody(request: NextRequest) {
   const body = await request.json();
-
   const schema = z.object({
     post: z.string().optional().default(''),     // قد يكون فارغاً
     topics: z.string().optional().default(''),   // قد يكون فارغاً
@@ -81,8 +77,7 @@ async function validateAndSanitizeRequestBody(request: NextRequest) {
         title: z.string().optional().default(''),
         options: z.array(z.string().min(1)).min(2).max(5),
         durationInDays: z.number().min(1).max(30).optional(),
-      })
-      .optional(),
+      }),
   });
 
   const parseResult = schema.safeParse(body);
@@ -127,6 +122,8 @@ async function validateAndSanitizeRequestBody(request: NextRequest) {
     cleanPoll = {
       title: cleanTitle,
       options: cleanOptions,
+      durationInDays: data.poll.durationInDays, 
+      
     };
   }
 

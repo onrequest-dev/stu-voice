@@ -1,9 +1,12 @@
+"use client"
 import React, { useState } from 'react';
 import UserInfoComponent from './UserInfoComponent';
 import OpinionComponent from './OpinionComponent';
 import PollComponent from './PollComponent';
 import InteractionButtons from './InteractionButtons';
 import { PostProps } from './types';
+import { handelreactionInStorage } from '@/client_helpers/handelreaction';
+
 
 const PostComponent: React.FC<PostProps> = ({ id, userInfo, opinion, poll ,createdAt}) => {
   const [agreed, setAgreed] = useState<boolean | null>(null);
@@ -15,14 +18,23 @@ const PostComponent: React.FC<PostProps> = ({ id, userInfo, opinion, poll ,creat
   });
 
   const handleAgree = () => {
+    // storing reaction 
+    
+
+
     setLocalCounts(prev => {
       const newCounts = {...prev};
       
       if (agreed === true) {
+        handelreactionInStorage('reactions', id,"upvote", 'remove');
         newCounts.agree -= 1;
         setAgreed(null);
       } else {
-        if (agreed === false) newCounts.disagree -= 1;
+        handelreactionInStorage('reactions', id,"upvote", 'set');
+        if (agreed === false){
+          handelreactionInStorage('reactions', id,"downvote", 'remove');
+           newCounts.disagree -= 1
+          };
         newCounts.agree += 1;
         setAgreed(true);
       }
@@ -32,14 +44,21 @@ const PostComponent: React.FC<PostProps> = ({ id, userInfo, opinion, poll ,creat
   };
 
   const handleDisagree = () => {
+        // storing reaction 
+        
     setLocalCounts(prev => {
       const newCounts = {...prev};
       
       if (agreed === false) {
+        handelreactionInStorage('reactions', id,"downvote", 'remove');
         newCounts.disagree -= 1;
         setAgreed(null);
       } else {
-        if (agreed === true) newCounts.agree -= 1;
+        handelreactionInStorage('reactions', id,"downvote", 'set');
+        if (agreed === true) {
+          handelreactionInStorage('reactions', id,"upvote", 'remove');
+          newCounts.agree -= 1
+        };
         newCounts.disagree += 1;
         setAgreed(false);
       }

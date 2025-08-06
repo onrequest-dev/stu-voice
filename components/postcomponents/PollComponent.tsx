@@ -34,6 +34,7 @@ const PollComponent: React.FC<{ poll: Poll }> = ({ poll }) => {
   };
 
   const calculateTimeRemaining = () => {
+    // console.log("poll d:",poll)
     if (!poll.durationInDays) return;
 
     const expiryDate = new Date();
@@ -50,7 +51,7 @@ const PollComponent: React.FC<{ poll: Poll }> = ({ poll }) => {
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     
-    setTimeRemaining(`${days} يوم و ${hours} ساعة`);
+  setTimeRemaining([days > 0 ? `${days} يوم` : '', hours > 0 ? `${hours} ساعة` : ''].filter(Boolean).join(' و ') || 'الوقت انتهى');
   };
 
   useEffect(() => {
@@ -78,6 +79,8 @@ const PollComponent: React.FC<{ poll: Poll }> = ({ poll }) => {
     if (!poll.durationInDays) return null;
     
     return (
+      <>
+      {poll.options.length>0&&
       <div className={`text-xs mb-2 ${isExpired ? 'text-red-500' : 'text-gray-500'}`}>
         {isExpired ? (
           <span>انتهى الاستطلاع</span>
@@ -85,6 +88,8 @@ const PollComponent: React.FC<{ poll: Poll }> = ({ poll }) => {
           <span>متبقي: {timeRemaining}</span>
         )}
       </div>
+      }
+      </>
     );
   };
 
@@ -129,7 +134,7 @@ const PollComponent: React.FC<{ poll: Poll }> = ({ poll }) => {
           ))}
         </div>
       
-      {(hasVoted || isExpired) && (
+      {(hasVoted || isExpired) && poll.options.length>0&& (
         <div className="text-xs text-gray-500 mt-1">
           مجموع المصوتين: {totalVotes}
         </div>
