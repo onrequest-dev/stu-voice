@@ -72,8 +72,7 @@ const PostComponent: React.FC<PostProps> = ({ id, userInfo, opinion, poll ,creat
       <div className="pb-1">
         <UserInfoComponent userInfo={userInfo} />
         {opinion && <OpinionComponent opinion={opinion} />}
-        {poll && <PollComponent poll={poll} />}
-        
+        {poll && <PollComponent poll={poll} id={id} />}
         <InteractionButtons
           postId={id}
           onAgree={handleAgree}

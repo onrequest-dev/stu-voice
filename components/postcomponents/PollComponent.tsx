@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Poll } from './types';
+type PollWithId = Poll & { id?: string };
 
-const PollComponent: React.FC<{ poll: Poll }> = ({ poll }) => {
+const PollComponent: React.FC<{ poll: Poll ,id?:string }> = ({ poll , id}) => {
   const [selectedPollOption, setSelectedPollOption] = useState<number | null>(null);
   const [votes, setVotes] = useState<number[]>(poll.votes || Array(poll.options.length).fill(0));
   const [hasVoted, setHasVoted] = useState(false);
@@ -60,12 +61,33 @@ const PollComponent: React.FC<{ poll: Poll }> = ({ poll }) => {
     return () => clearInterval(interval);
   }, [poll.durationInDays]);
 
-  const handlePollSelect = (index: number) => {
+  const handlePollSelect = async (index: number) => {
     if (hasVoted || isExpired) return;
     
+    const result = await fetch('/api/opinions/sendreactions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        votes: [{ id: id ? parseInt(id) : 0, type: poll.options[index] }],
+      }),
+    });
+    //get votes
+    const votes_result = await fetch(`/api/opinions/getvotes`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        vote_id: id ? parseInt(id) : 0,
+      }),
+    });
+    const votesData = await votes_result.json();
+    console.log("Votes data:", votesData.vote.map((vote: any) => vote.votes_count));
     const newVotes = [...votes];
     newVotes[index] += 1;
-    setVotes(newVotes);
+    setVotes(votesData.vote.map((vote: any) => vote.votes_count));
     setSelectedPollOption(index);
     setHasVoted(true);
   };
