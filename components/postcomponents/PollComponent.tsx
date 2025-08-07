@@ -79,50 +79,62 @@ const PollComponent: React.FC<{ poll: Poll, id?: string }> = ({ poll, id }) => {
   };
 
   const handlePollSelect = async (index: number) => {
-    if (hasVoted || isExpired || loading || !id) return;
-    // حفظ التصويت محليًا
-    handelreactionInStorage("votes", id, poll.options[index], "set");
-    setSelectedPollOption(index);
-    setLoading(true);
-    if(hasAlredyVoted) await randomDelay(2);
-    await randomDelay(0.5)
-    const [result, votes_result] = await Promise.all([
-      fetch('/api/opinions/sendreactions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          votes: [{ id: id ? parseInt(id) : 0, type: poll.options[index] }],
-        }),
-      }),
-      fetch('/api/opinions/getvotes', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          vote_id: id ? parseInt(id) : 0,
-        }),
-      }),
-    ]);
+  if (hasVoted || isExpired || loading || !id) return;
 
-    if (!result.ok || !votes_result.ok) {
+  // حفظ التصويت محليًا
+  handelreactionInStorage("votes", id, poll.options[index], "set");
+  setSelectedPollOption(index);
+  setLoading(true);
+
+  if (hasAlredyVoted) await randomDelay(2);
+  await randomDelay(0.5);
+
+  let votes_result: Response;
+
+  if (!hasAlredyVoted) {
+    const result = await fetch('/api/opinions/sendreactions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        votes: [{ id: id ? parseInt(id) : 0, type: poll.options[index] }],
+      }),
+    });
+
+    if (!result.ok) {
       setLoading(false);
       return;
     }
+  }
 
-    const votesData = await votes_result.json();
+  votes_result = await fetch('/api/opinions/getvotes', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      vote_id: id ? parseInt(id) : 0,
+    }),
+  });
 
-    const votesArray = Array(poll.options.length).fill(0);
-    votesData.vote.forEach((vote: any) => {
-      const optionIndex = poll.options.findIndex((opt) => opt === vote.title);
-      if (optionIndex !== -1) {
-        votesArray[optionIndex] = vote.votes_count;
-      }
-    });
-
-    setVotes(votesArray);
-    setHasVoted(true);
-    setShowResults(true);
+  if (!votes_result.ok) {
     setLoading(false);
-  };
+    return;
+  }
+
+  const votesData = await votes_result.json();
+
+  const votesArray = Array(poll.options.length).fill(0);
+  votesData.vote.forEach((vote: any) => {
+    const optionIndex = poll.options.findIndex((opt) => opt === vote.title);
+    if (optionIndex !== -1) {
+      votesArray[optionIndex] = vote.votes_count;
+    }
+  });
+
+  setVotes(votesArray);
+  setHasVoted(true);
+  setShowResults(true);
+  setLoading(false);
+};
+
 
   const loadVotes = async () => {
     if (!id) return;
