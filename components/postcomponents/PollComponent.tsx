@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Poll } from './types';
 import { FiEye } from 'react-icons/fi';
+import { handelreactionInStorage } from '@/client_helpers/handelreaction';
+import { randomDelay } from '@/client_helpers/delay';
 
 const PollComponent: React.FC<{ poll: Poll, id?: string }> = ({ poll, id }) => {
   const [selectedPollOption, setSelectedPollOption] = useState<number | null>(null);
@@ -11,30 +13,7 @@ const PollComponent: React.FC<{ poll: Poll, id?: string }> = ({ poll, id }) => {
   const totalVotes = votes.reduce((sum, vote) => sum + vote, 0);
   const [loading, setLoading] = useState(false);
   const [showResults, setShowResults] = useState(false);
-
-  const getExpiryDate = (duration: string) => {
-    const now = new Date();
-    switch (duration) {
-      case '3days':
-        now.setDate(now.getDate() + 3);
-        break;
-      case '1week':
-        now.setDate(now.getDate() + 7);
-        break;
-      case '10days':
-        now.setDate(now.getDate() + 10);
-        break;
-      case '15days':
-        now.setDate(now.getDate() + 15);
-        break;
-      case '1month':
-        now.setMonth(now.getMonth() + 1);
-        break;
-      default:
-        now.setDate(now.getDate() + 3);
-    }
-    return now;
-  };
+  const [hasAlredyVoted,setHasAlredyVoted] = useState(false);
 
   const calculateTimeRemaining = () => {
     if (!poll.durationInDays) return;
@@ -64,10 +43,49 @@ const PollComponent: React.FC<{ poll: Poll, id?: string }> = ({ poll, id }) => {
     return () => clearInterval(interval);
   }, [poll.durationInDays]);
 
-  const handlePollSelect = async (index: number) => {
-    if (hasVoted || isExpired) return;
-    setLoading(true);
+  // استرجاع التصويت من التخزين المحلي عند تحميل الكومبوننت
+  useEffect(() => {
+    if (!id) return;
 
+    try {
+      const storedVotesString = localStorage.getItem("votes");
+      if (!storedVotesString) return;
+
+      const storedVotes = JSON.parse(storedVotesString); // متوقع مصفوفة من {id:number, type:string}
+      if (!Array.isArray(storedVotes)) return;
+
+      // ابحث عن تصويت للـ id الحالي
+      const foundVote = storedVotes.find((v: {id:number, type:string}) => v.id === parseInt(id));
+
+      if (foundVote) {
+        setHasAlredyVoted(true);
+        const optionIndex = poll.options.findIndex(opt => opt === foundVote.type);
+        if (optionIndex !== -1) {
+          setSelectedPollOption(optionIndex);
+          setHasVoted(true);
+          setShowResults(true);
+          // يمكن تحميل الأصوات لتحديث الواجهة
+          loadVotes();
+        }
+      }
+    } catch (error) {
+      console.error("خطأ في قراءة التصويت من التخزين المحلي", error);
+    }
+  }, [id, poll.options]);
+
+  const calculatePercentage = (votes: number, total: number) => {
+    if (total === 0) return 0;
+    return Math.round((votes / total) * 100);
+  };
+
+  const handlePollSelect = async (index: number) => {
+    if (hasVoted || isExpired || loading || !id) return;
+    // حفظ التصويت محليًا
+    handelreactionInStorage("votes", id, poll.options[index], "set");
+    setSelectedPollOption(index);
+    setLoading(true);
+    if(hasAlredyVoted) await randomDelay(2);
+    await randomDelay(0.5)
     const [result, votes_result] = await Promise.all([
       fetch('/api/opinions/sendreactions', {
         method: 'POST',
@@ -101,7 +119,6 @@ const PollComponent: React.FC<{ poll: Poll, id?: string }> = ({ poll, id }) => {
     });
 
     setVotes(votesArray);
-    setSelectedPollOption(index);
     setHasVoted(true);
     setShowResults(true);
     setLoading(false);
@@ -129,14 +146,10 @@ const PollComponent: React.FC<{ poll: Poll, id?: string }> = ({ poll, id }) => {
         setShowResults(true);
       }
     } catch (error) {
+      console.log("خطأ عند جلب الأصوات");
     } finally {
       setLoading(false);
     }
-  };
-
-  const calculatePercentage = (votes: number, total: number) => {
-    if (total === 0) return 0;
-    return Math.round((votes / total) * 100);
   };
 
   const renderPollStatus = () => {
@@ -164,20 +177,24 @@ const PollComponent: React.FC<{ poll: Poll, id?: string }> = ({ poll, id }) => {
           <div
             key={index}
             onClick={() => handlePollSelect(index)}
-            className={`py-1.5 px-2.5 border rounded-lg transition-all relative overflow-hidden ${
-              selectedPollOption === index
-                ? 'border-blue-300 bg-blue-50 text-blue-700'
-                : isExpired || hasVoted
-                ? 'border-gray-200 text-gray-500 cursor-default'
-                : 'border-gray-200 hover:bg-gray-50 text-gray-700 cursor-pointer'
-            } text-sm md:text-base`}
+            className={`py-1.5 px-2.5 border rounded-lg transition-all relative overflow-hidden text-sm md:text-base text-right
+              ${
+                selectedPollOption === index
+                  ? 'border-blue-500 bg-blue-100 text-blue-800 cursor-default'
+                  : isExpired || hasVoted || loading
+                  ? 'border-gray-200 text-gray-500 cursor-default'
+                  : 'border-gray-200 hover:bg-gray-50 text-gray-700 cursor-pointer'
+              }
+            `}
             dir="rtl"
+            aria-disabled={isExpired || hasVoted || loading}
           >
+            {/* خلفية النسبة */}
             <div
               className="absolute left-0 top-0 h-full bg-blue-100 opacity-20"
               style={{
                 width:
-                  hasVoted || (isExpired && showResults)
+                  (hasVoted || (isExpired && showResults)) && votes[index] !== undefined
                     ? `${calculatePercentage(votes[index], totalVotes)}%`
                     : '0%',
                 transition: 'width 0.3s ease',
@@ -185,21 +202,36 @@ const PollComponent: React.FC<{ poll: Poll, id?: string }> = ({ poll, id }) => {
             />
 
             <div className="relative z-10 flex justify-between items-center">
-              <span className="text-sm md:text-base text-right">{option}</span>
+              <span>{option}</span>
 
-              {(hasVoted || (isExpired && showResults)) && !loading && (
+              {loading && selectedPollOption === index ? (
+                <span className="flex items-center space-x-2" dir="ltr">
+                  <svg
+                    className="animate-spin -ml-1 mr-2 h-5 w-5 text-blue-600"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                    />
+                  </svg>
+                </span>
+              ) : (hasVoted || (isExpired && showResults)) ? (
                 <span className="text-xs bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded-full" dir="ltr">
                   {calculatePercentage(votes[index], totalVotes)}%
                 </span>
-              )}
-
-              {loading && (
-                <span
-                  className="inline-block bg-gray-300 rounded-full h-4 w-12 animate-pulse"
-                  dir="ltr"
-                  aria-label="Loading"
-                />
-              )}
+              ) : null}
             </div>
           </div>
         ))}
@@ -209,14 +241,13 @@ const PollComponent: React.FC<{ poll: Poll, id?: string }> = ({ poll, id }) => {
         <div className="text-xs text-gray-500 mt-1">مجموع المصوتين: {totalVotes}</div>
       )}
 
-      {/* زر عرض النتائج فقط إذا الاستطلاع منتهي ولم تعرض النتائج بعد */}
       {isExpired && !showResults && !loading && poll.options.length > 0 && (
         <button
           onClick={loadVotes}
           className="mt-3 flex items-center space-x-1 px-2 py-1 bg-blue-100 bg-opacity-30 text-blue-700 rounded hover:bg-blue-200 transition"
           dir="rtl"
           aria-label="عرض نتائج التصويت"
-          style={{ fontSize: '0.875rem' }} // 14px تقريبا
+          style={{ fontSize: '0.875rem' }}
         >
           <FiEye className="w-4 h-4" aria-hidden="true" />
           <span>عرض نتائج التصويت</span>
