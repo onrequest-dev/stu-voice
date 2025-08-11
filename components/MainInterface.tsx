@@ -176,20 +176,29 @@ const MainInterface = ({ children }: { children?: React.ReactNode }) => {
         }}
       >
         <div className="h-full"> 
-          <div className="flex justify-between items-center p-4">
-            <h1 className="text-2xl font-bold text-gray-800">STUvoice</h1>
+          <div className="flex justify-between p-4 pb-2">
+            <h1 className="text-2xl font-semibold text-gray-800 relative z-10">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-400">
+                STUvoice
+              </span>
+            </h1>
+            
             {!isLargeScreen.current && (
               <button
                 onClick={toggleMenu}
-                className="p-2 text-gray-600 hover:text-blue-600 transition-colors"
+                className="p-2 text-blue-600 hover:text-blue-800 relative z-10"
                 aria-label={isMenuOpen ? "إغلاق القائمة" : "فتح القائمة"}
               >
-                {isMenuOpen ? <FaTimes size={20} /> : <FaBars size={20} />}
+                {isMenuOpen ? (
+                  <FaTimes size={20} className="instant-icon" />
+                ) : (
+                  <FaBars size={20} className="instant-icon" />
+                )}
               </button>
             )}
           </div>
           
-          <div className={`mt-6 overflow-y-auto ${styles.scrollContainer}`}>
+          <div className={`mb-2 overflow-y-auto ${styles.scrollContainer}`}>
             {children || <CurrentComponent />}
           </div>
         </div>

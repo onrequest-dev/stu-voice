@@ -203,7 +203,7 @@ const PollComponent: React.FC<{ poll: Poll, id?: string }> = ({ poll, id }) => {
           >
             {/* خلفية النسبة */}
             <div
-              className="absolute left-0 top-0 h-full bg-blue-100 opacity-20"
+              className="absolute left-0 top-0 h-full bg-blue-300 opacity-20"
               style={{
                 width:
                   (hasVoted || (isExpired && showResults)) && votes[index] !== undefined
@@ -256,13 +256,16 @@ const PollComponent: React.FC<{ poll: Poll, id?: string }> = ({ poll, id }) => {
       {isExpired && !showResults && !loading && poll.options.length > 0 && (
         <button
           onClick={loadVotes}
-          className="mt-3 flex items-center space-x-1 px-2 py-1 bg-blue-100 bg-opacity-30 text-blue-700 rounded hover:bg-blue-200 transition"
+          className="mt-3 p-1 flex items-center justify-center bg-blue-100/30 text-blue-700 text-xs rounded-lg hover:bg-blue-200/50 transition-colors duration-200 shadow-sm hover:shadow-md"
           dir="rtl"
           aria-label="عرض نتائج التصويت"
-          style={{ fontSize: '0.875rem' }}
+          style={{ 
+            minWidth: '100px',
+            border: '1px solid rgba(29, 78, 216, 0.2)'
+          }}
         >
-          <FiEye className="w-4 h-4" aria-hidden="true" />
-          <span>عرض نتائج التصويت</span>
+          <span className="ml-2 text-xs">نتائج التصويت</span>
+          <FiEye className="ml-0"/>
         </button>
       )}
     </div>

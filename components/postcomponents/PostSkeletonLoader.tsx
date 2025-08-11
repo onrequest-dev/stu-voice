@@ -23,9 +23,9 @@ const PostSkeletonLoader: React.FC = () => {
         <div className="flex space-x-4 space-x-reverse">
           <div className="h-6 w-6 bg-gray-200 rounded-full"></div>
           <div className="h-6 w-6 bg-gray-200 rounded-full"></div>
+          <div className="h-6 w-6 bg-gray-200 rounded-full"></div>
         </div>
         <div className="flex space-x-4 space-x-reverse">
-          <div className="h-6 w-6 bg-gray-200 rounded-full"></div>
           <div className="h-6 w-6 bg-gray-200 rounded-full"></div>
           <div className="h-6 w-6 bg-gray-200 rounded-full"></div>
         </div>

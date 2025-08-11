@@ -19,7 +19,7 @@ const UserInfoComponent: React.FC<UserInfoProps> = ({ userInfo }) => {
   return (
     <div className="flex items-start justify-between w-full py-4 gap-2">
       {/* الجزء الأيسر - الدراسة */}
-      <div className="flex-shrink-0 min-w-[40px]">
+      <div className="flex-shrink-0 min-w-[40px] ml-4">
         {userInfo.study && (
           <span className="inline-block text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
             {userInfo.study}
@@ -28,7 +28,7 @@ const UserInfoComponent: React.FC<UserInfoProps> = ({ userInfo }) => {
       </div>
 
       {/* الجزء الأيمن - معلومات المستخدم */}
-      <div className="flex items-start flex-1 min-w-0">
+      <div className="flex items-start flex-1 min-w-0 mr-1">
         <div className="text-right mr-3 min-w-0 flex-1">
           <div className="flex flex-col items-end">
             <Link 

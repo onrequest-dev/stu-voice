@@ -25,7 +25,7 @@ const mockUserData: UserInfo = {
 
 export default function UserProfilePage() {
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 mt-6">
       <UserProfileViewComponent userData={mockUserData} />
     </div>
   );
