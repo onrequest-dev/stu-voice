@@ -55,6 +55,7 @@ if (poll) {
     .from('polls_options')
     .insert(optionsToInsert);
     if (pollError) {
+      console.log(pollError)
       return NextResponse.json({ error: Failed_to_create_post }, { status: 500 });
     }
 }
@@ -77,7 +78,7 @@ async function validateAndSanitizeRequestBody(request: NextRequest) {
         title: z.string().optional().default(''),
         options: z.array(z.string().min(1)).min(2).max(5),
         durationInDays: z.number().min(1).max(30).optional(),
-      }),
+      }).optional(),
   });
 
   const parseResult = schema.safeParse(body);

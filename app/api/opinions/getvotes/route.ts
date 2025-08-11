@@ -4,16 +4,6 @@ import { supabase } from "@/lib/supabase";
 import { you_need_account_to_post } from "@/static/keywords";
 import { JwtPayload } from "jsonwebtoken";
 import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
-
-const voteSchema = z.object({
-  id: z.number(),  // لأن الأمثلة id أرقام
-  type: z.string().max(100)
-});
-
-const bodySchema = z.object({
-  votes: z.array(voteSchema)
-});
 
 export async function POST(request: NextRequest) {
   // تحقق تحديد معدل الطلبات (rate limiting)
@@ -36,38 +26,24 @@ export async function POST(request: NextRequest) {
       { status: 401 }
     );
   }
-
-  // قراءة جسم الطلب JSON والتحقق من صحته
   const body = await request.json();
-  const result = bodySchema.safeParse(body);
-  if (!result.success) {
+  const { vote_id } = body;
+
+  if (!vote_id) {
     return NextResponse.json(
-      { error: "Invalid request body" },
+      { error: "مفقود معرف التصويت" },
       { status: 400 }
     );
   }
-
-  // تجهيز البيانات للإدخال إلى قاعدة البيانات
-  const upsertData = result.data.votes.map((reaction) => ({
-    post_id: reaction.id,
-    reaction_type: reaction.type,
-    reactor_username: jwt_user.user_name,
-  }));
-
-  // إدخال أو تحديث البيانات في جدول reactions باستخدام supabase
   const { data, error } = await supabase
-  .from("reactions")
-  .upsert(upsertData, { onConflict: "post_id,reactor_username" });
-
-
-
-
-  if (error) {
-    return NextResponse.json(
-      { error: "Failed to save reactions" },
-      { status: 500 }
-    );
-  }
-
-  return NextResponse.json({ message: "Reaction saved" }, { status: 200 });
+    .from("polls_options")
+    .select("*")
+    .eq("vote_id", vote_id)
+    if (error) {
+      return NextResponse.json(
+        { error: "حدث خطأ أثناء استرجاع التصويت" },
+        { status: 500 }
+      );
+    }
+    return NextResponse.json({ vote: data }, { status: 200 });
 }

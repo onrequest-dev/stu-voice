@@ -31,8 +31,6 @@ export async function POST(request: NextRequest) {
     .select('user_name, hashed_password')
     .eq('user_name', username)
     .single();
-    console.log("Existing user:", existingUser, dbError);
-
   if (dbError || !existingUser) {
     return NextResponse.json({ error: "Invalid username or password" }, { status: 401 });
   }
