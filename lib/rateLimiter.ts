@@ -1,5 +1,5 @@
 const RATE_LIMIT_WINDOW = 60 * 1000; // 1 دقيقة
-const MAX_REQUESTS = 25;
+const MAX_REQUESTS = 100;
 const MAX_CACHE_SIZE = 300;
 
 interface RateLimitEntry {

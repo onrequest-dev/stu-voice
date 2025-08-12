@@ -57,12 +57,13 @@ export async function POST(request: NextRequest) {
   // إدخال أو تحديث البيانات في جدول reactions باستخدام supabase
   const { data, error } = await supabase
   .from("reactions")
-  .upsert(upsertData, { onConflict: "post_id,reactor_username" });
+  .upsert(upsertData, { onConflict: "post_id,reactor_username,reaction_type" });
 
 
 
 
   if (error) {
+    console.log(error)
     return NextResponse.json(
       { error: "Failed to save reactions" },
       { status: 500 }
