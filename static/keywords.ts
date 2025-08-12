@@ -16,3 +16,4 @@ export const Failed_to_update = "فشل في التحديث";
 export const User_information_updated_successfully = "تم تحديث معلومات المستخدم بنجاح";
 export const Failed_to_create_post = "فشل في إنشاء المنشور";
 export const Post_created_successfully = "تم إنشاء المنشور بنجاح";
+export const INVALID_REQUEST = "طلب سيئ"; 
