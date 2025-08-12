@@ -22,7 +22,7 @@ import SettingsContent from './tabs/SettingsContent';
 import SupportedSitesContent from './tabs/SupportedSitesContent';
 import VotesContent from './tabs/VotesContent';
 import NewPostContent from './tabs/NewPostContent';
-
+import styles from '../ScrollableArea.module.css';
 interface Tab {
   id: string;
   icon: JSX.Element;
@@ -175,24 +175,30 @@ const MainInterface = ({ children }: { children?: React.ReactNode }) => {
           transform: isMenuOpen && !isLargeScreen.current ? 'perspective(1000px) rotateY(30deg) translateX(0)' : 'none',
         }}
       >
-        <div className="p-4 h-full overflow-y-auto"> {/* Changed from p-6 to p-4 */}
-          <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-gray-800">STUvoice</h1>
+        <div className="h-full"> 
+          <div className="flex justify-between p-4 pb-2">
+            <h1 className="text-2xl font-semibold text-gray-800 relative z-10">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-400">
+                STUvoice
+              </span>
+            </h1>
+            
             {!isLargeScreen.current && (
               <button
                 onClick={toggleMenu}
-                className="p-2 text-gray-600 hover:text-blue-600 transition-colors"
+                className="p-2 text-blue-600 hover:text-blue-800 relative z-10"
                 aria-label={isMenuOpen ? "إغلاق القائمة" : "فتح القائمة"}
               >
-                {isMenuOpen ? <FaTimes size={20} /> : <FaBars size={20} />}
+                {isMenuOpen ? (
+                  <FaTimes size={20} className="instant-icon" />
+                ) : (
+                  <FaBars size={20} className="instant-icon" />
+                )}
               </button>
             )}
           </div>
           
-          <div 
-            className="mt-6 h-[calc(100%-3rem)] overflow-y-auto scrollbar-thin scrollbar-thumb-blue-200 scrollbar-track-blue-50" 
-            style={{ touchAction: 'pan-y' }}
-          >
+          <div className={`mb-2 overflow-y-auto ${styles.scrollContainer}`}>
             {children || <CurrentComponent />}
           </div>
         </div>
@@ -200,11 +206,10 @@ const MainInterface = ({ children }: { children?: React.ReactNode }) => {
 
       {isLargeScreen.current ? (
         <div 
-          className="absolute top-0 right-0 h-full w-24 bg-white border-l border-gray-200 shadow-sm flex flex-col items-center py-8"
+          className="absolute top-0 right-0 h-full bg-white border-gray-200 shadow-sm flex flex-col items-center py-4"
         >
           <div 
-            className="h-full flex flex-col items-center space-y-6 overflow-y-auto scrollbar-thin scrollbar-thumb-blue-200 scrollbar-track-blue-50"
-            style={{ touchAction: 'pan-y' }}
+            className={`h-full flex flex-col items-center space-y-6 overflow-y-auto ${styles.scrollContainer}`}
           >
             {tabs.map((tab) => (
               <div key={tab.id} className="flex flex-col items-center px-2">
@@ -303,3 +308,4 @@ const MainInterface = ({ children }: { children?: React.ReactNode }) => {
 };
 
 export default MainInterface;
+

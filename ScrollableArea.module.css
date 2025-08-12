@@ -1,0 +1,24 @@
+/* ScrollableArea.module.css */
+.scrollContainer {
+  height: calc(100% - 3rem);
+  overflow-y: auto;
+  touch-action: pan-y;
+}
+
+/* تخصيص شريط التمرير */
+.scrollContainer::-webkit-scrollbar {
+  width: 2px; /* عرض شريط التمرير */
+}
+
+.scrollContainer::-webkit-scrollbar-track {
+  background: transparent; /* scrollbar-track-blue-50 */
+}
+
+.scrollContainer::-webkit-scrollbar-thumb {
+  background: #0073ff6b; /* scrollbar-thumb-blue-200 */
+  border-radius: 4px;
+}
+
+.scrollContainer::-webkit-scrollbar-thumb:hover {
+  background: #043d7e4b;
+}

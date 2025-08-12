@@ -187,6 +187,10 @@ const {
           <>
             <PostSkeletonLoader />
             <PostSkeletonLoader />
+            <PostSkeletonLoader />
+            <PostSkeletonLoader />
+            <PostSkeletonLoader />
+            <PostSkeletonLoader />
           </>
         )}
         
