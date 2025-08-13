@@ -45,6 +45,15 @@ const DailyOpinion = ({ opinion, initialComments }: DailyOpinionProps) => {
     study: 'طالب'
   };
 
+  // إنشاء بيانات المستخدمين (usersData)
+  const usersData = {
+    [currentUser.id]: currentUser,
+    ...initialComments.reduce((acc, comment) => {
+      acc[comment.userInfo.id] = comment.userInfo;
+      return acc;
+    }, {} as Record<string, UserInfo>)
+  };
+
   useEffect(() => {
     commentsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [comments]);
@@ -102,8 +111,27 @@ const DailyOpinion = ({ opinion, initialComments }: DailyOpinionProps) => {
     }));
   };
 
+  const handleDislike = (commentId: string) => {
+    setComments(comments.map(comment => {
+      if (comment.id === commentId) {
+        const wasLiked = comment.userLiked;
+        return {
+          ...comment,
+          likes: wasLiked ? comment.likes - 1 : comment.likes,
+          userLiked: false
+        };
+      }
+      return comment;
+    }));
+  };
+
   const handleReaction = (reaction: 'agree' | 'disagree') => {
     setUserReaction(userReaction === reaction ? null : reaction);
+  };
+
+  const handleAddReply = (replyText: string, parentCommentId: string) => {
+    // يمكنك تنفيذ هذه الوظيفة حسب احتياجاتك
+    console.log('تمت إضافة رد:', replyText, 'للتعليق:', parentCommentId);
   };
 
   const scrollToTop = () => {
@@ -124,6 +152,7 @@ const DailyOpinion = ({ opinion, initialComments }: DailyOpinionProps) => {
       requestAnimationFrame(animateScroll);
     }
   };
+
   return (
     <div className="flex flex-col h-screen relative">
       {/* Content */}
@@ -169,12 +198,16 @@ const DailyOpinion = ({ opinion, initialComments }: DailyOpinionProps) => {
                     id: comment.id,
                     text: comment.text,
                     likes: comment.likes,
-                    timestamp: comment.timestamp
-                    // تمت إزالة userLiked من هنا
+                    timestamp: comment.timestamp,
+                    repliesCount: 0 // يمكنك تغيير هذا حسب احتياجاتك
                   }}
                   userInfo={comment.userInfo}
                   onLike={() => handleLike(comment.id)}
-                  onDislike={() => {}} // يجب إضافة هذه الدالة حتى لو كانت فارغة
+                  onDislike={() => handleDislike(comment.id)}
+                  currentUser={currentUser}
+                  usersData={usersData}
+                  onAddReply={handleAddReply}
+                  charLimit={170}
                 />
               ))}
               <div ref={commentsEndRef} />

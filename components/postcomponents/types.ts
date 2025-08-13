@@ -29,3 +29,11 @@ export interface PostProps {
   poll?: Poll | null;
   createdAt?: string;
 }
+
+export interface ReplyType {
+  id: string;
+  userId: string;
+  text: string;
+  timestamp: string;
+  repliedToUserId?: string;
+}
