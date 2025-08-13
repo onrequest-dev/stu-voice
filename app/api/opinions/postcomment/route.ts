@@ -1,18 +1,20 @@
 import { decodeJWT } from "@/lib/decodejwt";
 import { rateLimiterMiddleware } from "@/lib/rateLimiterMiddleware";
 import { supabase } from "@/lib/supabase";
-import { you_need_account_to_post } from "@/static/keywords";
+import { validateAndSanitize } from "@/lib/validateAndSanitizePostBody";
+import { INVALID_REQUEST, you_need_account_to_post } from "@/static/keywords";
 import { JwtPayload } from "jsonwebtoken";
 import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
+import {  z } from "zod";
 
-const voteSchema = z.object({
-  id: z.number(),  // لأن الأمثلة id أرقام
-  type: z.string().max(100)
-});
 
-const bodySchema = z.object({
-  votes: z.array(voteSchema)
+
+
+const PostSchema = z.object({
+  content: z.string().min(1).max(5000),
+  id : z.number(),
+  comment_replied_to_id : z.number().optional(),
+
 });
 
 export async function POST(request: NextRequest) {
@@ -37,38 +39,34 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // قراءة جسم الطلب JSON والتحقق من صحته
+
   const body = await request.json();
-  const result = bodySchema.safeParse(body);
-  if (!result.success) {
+  const {  data, errors } = validateAndSanitize(PostSchema, body);
+  if(errors){
     return NextResponse.json(
-      { error: "Invalid request body" },
+      { error: INVALID_REQUEST },
       { status: 400 }
     );
   }
-
-  // تجهيز البيانات للإدخال إلى قاعدة البيانات
-  const upsertData = result.data.votes.map((reaction) => ({
-    post_id: reaction.id,
-    reaction_type: reaction.type,
-    reactor_username: jwt_user.user_name,
-  }));
-
-  // إدخال أو تحديث البيانات في جدول reactions باستخدام supabase
-  const { data, error } = await supabase
-  .from("reactions")
-  .upsert(upsertData, { onConflict: "post_id,reactor_username,reaction_type" });
-
-
-
-
-  if (error) {
-    console.log(error)
+  const {content,id,comment_replied_to_id} = data;
+  const { data: post, error } = await supabase
+    .from("comments")
+    .insert({
+      content,
+      post_id: id,
+      comment_replied_to_id: comment_replied_to_id,
+      commenter_username: jwt_user.user_name,
+    })
+    .select()
+    .single();
+        if(error){
+        return NextResponse.json(
+        { error: INVALID_REQUEST },
+        { status: 400 }
+        );
+    }
     return NextResponse.json(
-      { error: "Failed to save reactions" },
-      { status: 500 }
+      { message: "Comment posted successfully", post },
     );
-  }
 
-  return NextResponse.json({ message: "Reaction saved" }, { status: 200 });
 }
