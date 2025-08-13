@@ -1,11 +1,11 @@
 'use client';
 import { FaArrowUp, FaArrowDown, FaFlag, FaInfoCircle, FaReply } from 'react-icons/fa';
-import CustomIcon from './CustomIcon';
-import { UserInfo } from './types';
+import CustomIcon from '../CustomIcon';
+import { UserInfo } from '../types';
 import { useState } from 'react';
-import Alert from '../Alert';
+import Alert from '../../Alert';
 import CommentReplies from './CommentReplies';
-import { TextExpander } from '../TextExpander';
+import { TextExpander } from '../../TextExpander';
 
 interface CommentProps {
   comment: {

@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import { FaRegComment, FaArrowUp } from 'react-icons/fa';
 import { IoMdSend } from 'react-icons/io';
 import { AiOutlineArrowUp, AiOutlineArrowDown } from 'react-icons/ai';
-import Comment from './postcomponents/Comment';
+import Comment from './postcomponents/Comment/Comment';
 import { UserInfo } from './postcomponents/types';
 
 interface DailyOpinionProps {

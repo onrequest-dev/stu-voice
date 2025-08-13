@@ -1,5 +1,5 @@
 // app/posts/[id]/page.tsx
-import PostWithComments from '@/components/postcomponents/PostWithComments';
+import PostWithComments from '@/components/postcomponents/Comment/PostWithComments';
 
 export default function PostPage({ params }: { params: { id: string } }) {
   return (

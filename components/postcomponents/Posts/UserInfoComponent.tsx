@@ -1,9 +1,9 @@
 import React from 'react';
 import { FaInfoCircle } from 'react-icons/fa';
-import CustomIcon from './CustomIcon';
-import { UserInfo } from './types';
+import CustomIcon from '../CustomIcon';
+import { UserInfo } from '../types';
 import Link from 'next/link';
-import LoadingSpinner from '../LoadingSpinner';
+import LoadingSpinner from '../../LoadingSpinner';
 
 interface UserInfoProps {
   userInfo: UserInfo;

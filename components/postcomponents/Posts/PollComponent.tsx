@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Poll } from './types';
+import { Poll } from '../types';
 import { FiEye } from 'react-icons/fi';
 import { handelreactionInStorage } from '@/client_helpers/handelreaction';
 import { randomDelay } from '@/client_helpers/delay';
-import { TextExpander } from '../TextExpander';
+import { TextExpander } from '../../TextExpander';
 const PollComponent: React.FC<{ poll: Poll, id?: string }> = ({ poll, id }) => {
   const [selectedPollOption, setSelectedPollOption] = useState<number | null>(null);
   const [votes, setVotes] = useState<number[]>(poll.votes || Array(poll.options.length).fill(0));

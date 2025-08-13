@@ -190,9 +190,9 @@ const MainInterface = ({ children }: { children?: React.ReactNode }) => {
                 aria-label={isMenuOpen ? "إغلاق القائمة" : "فتح القائمة"}
               >
                 {isMenuOpen ? (
-                  <FaTimes size={20} className="instant-icon" />
+                  <FaTimes size={20} />
                 ) : (
-                  <FaBars size={20} className="instant-icon" />
+                  <FaBars size={20} />
                 )}
               </button>
             )}
@@ -205,12 +205,8 @@ const MainInterface = ({ children }: { children?: React.ReactNode }) => {
       </div>
 
       {isLargeScreen.current ? (
-        <div 
-          className="absolute top-0 right-0 h-full bg-white border-gray-200 shadow-sm flex flex-col items-center py-4"
-        >
-          <div 
-            className={`h-full flex flex-col items-center space-y-6 overflow-y-auto ${styles.scrollContainer}`}
-          >
+        <div className="absolute top-0 right-0 h-full bg-white flex items-center">
+          <div className={`flex flex-col items-center space-y-6 overflow-y-auto ${styles.scrollContainer}`}>
             {tabs.map((tab) => (
               <div key={tab.id} className="flex flex-col items-center px-2">
                 <button 
@@ -228,7 +224,7 @@ const MainInterface = ({ children }: { children?: React.ReactNode }) => {
               </div>
             ))}
             {/* رابط موقع المطورين في نهاية القائمة */}
-            <div className="flex flex-col items-center px-2 mt-auto">
+            <div className="flex flex-col items-center px-2">
               <a 
                 href="https://hadiiik.github.io/onrequest/" 
                 target="_blank" 

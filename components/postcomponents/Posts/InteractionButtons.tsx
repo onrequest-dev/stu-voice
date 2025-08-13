@@ -4,7 +4,7 @@ import {
   FaArrowUp, FaArrowDown, FaEye, FaComment, FaShare, FaFlag,
   FaTimes, FaTwitter, FaFacebook, FaWhatsapp, FaTelegram, FaLink
 } from 'react-icons/fa';
-import Alert from '../Alert';
+import Alert from '../../Alert';
 
 interface InteractionButtonsProps {
   postId: string;

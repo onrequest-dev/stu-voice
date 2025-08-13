@@ -1,8 +1,8 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { FaPlus, FaMinus, FaPenAlt, FaPoll, FaSpinner } from 'react-icons/fa';
-import Alert from '../Alert';
-import { UserInfo } from './types';
+import Alert from '../../Alert';
+import { UserInfo } from '../types';
 import UserInfoComponent from './UserInfoComponent';
 
 interface PostCreatorProps {

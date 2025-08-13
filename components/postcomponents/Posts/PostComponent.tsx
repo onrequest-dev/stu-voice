@@ -4,7 +4,7 @@ import UserInfoComponent from './UserInfoComponent';
 import OpinionComponent from './OpinionComponent';
 import PollComponent from './PollComponent';
 import InteractionButtons from './InteractionButtons';
-import { PostProps } from './types';
+import { PostProps } from '../types';
 import { handelreactionInStorage } from '@/client_helpers/handelreaction';
 
 

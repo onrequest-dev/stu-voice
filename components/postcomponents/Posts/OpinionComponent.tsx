@@ -1,6 +1,6 @@
 import React from 'react';
-import { Opinion } from './types';
-import { TextExpander } from '../TextExpander';
+import { Opinion } from '../types';
+import { TextExpander } from '../../TextExpander';
 
 interface OpinionProps {
   opinion: Opinion;

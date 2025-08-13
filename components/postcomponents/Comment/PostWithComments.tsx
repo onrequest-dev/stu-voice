@@ -2,9 +2,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { FaArrowRight, FaExclamationTriangle, FaRegComment, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { IoMdSend } from 'react-icons/io';
-import PostComponent from './PostComponent';
+import PostComponent from '../Posts/PostComponent';
 import Comment from './Comment';
-import { UserInfo, PostProps } from './types';
+import { UserInfo, PostProps } from '../types';
 import Link from 'next/link';
 import CommentRulesAlert from './CommentRulesAlert';
 

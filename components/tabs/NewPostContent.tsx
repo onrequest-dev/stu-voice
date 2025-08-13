@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import PostCreator from '../postcomponents/PostCreator';
-import PostComponent from '../postcomponents/PostComponent';
+import PostCreator from '../postcomponents/Posts/PostCreator';
+import PostComponent from '../postcomponents/Posts/PostComponent';
 import { PostProps, UserInfo } from '../postcomponents/types';
 import Link from 'next/link';
 

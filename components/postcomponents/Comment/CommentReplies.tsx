@@ -2,10 +2,10 @@
     import { useState, useRef, useEffect } from 'react';
     import { FaReply, FaTimes, FaFlag, FaInfoCircle } from 'react-icons/fa';
     import { IoMdSend } from 'react-icons/io';
-    import CustomIcon from './CustomIcon';
-    import Alert from '../Alert';
-    import { UserInfo, ReplyType } from './types';
-    import { TextExpander } from '../TextExpander';
+    import CustomIcon from '../CustomIcon';
+    import Alert from '../../Alert';
+    import { UserInfo, ReplyType } from '../types';
+    import { TextExpander } from '../../TextExpander';
 
     interface CommentRepliesProps {
     comment: {

@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
-import PostComponent from "../postcomponents/PostComponent";
-import PostSkeletonLoader from "../postcomponents/PostSkeletonLoader";
+import PostComponent from "../postcomponents/Posts/PostComponent";
+import PostSkeletonLoader from "../postcomponents/Posts/PostSkeletonLoader";
 import { PostProps, UserInfo, Opinion, Poll } from "../postcomponents/types";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useInView } from "react-intersection-observer";
