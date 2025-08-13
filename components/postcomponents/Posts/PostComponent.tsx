@@ -4,7 +4,7 @@ import UserInfoComponent from './UserInfoComponent';
 import OpinionComponent from './OpinionComponent';
 import PollComponent from './PollComponent';
 import InteractionButtons from './InteractionButtons';
-import { PostProps } from './types';
+import { PostProps } from '../types';
 import { handelreactionInStorage } from '@/client_helpers/handelreaction';
 
 
@@ -85,7 +85,7 @@ const PostComponent: React.FC<PostProps> = ({ id, userInfo, opinion, poll ,creat
         />
       </div>
         {createdAt && (
-          <div className="text-xs text-gray-500 mb-1 text-left ml-auto pd-2 ml-4">
+          <div className="text-xs text-gray-500 mb-1 text-left ml-auto pd-2 pl-2">
               {new Date(createdAt).toLocaleDateString('ar-EG', {
               year: 'numeric',
               month: 'long',

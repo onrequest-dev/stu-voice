@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { FaVenus, FaMars, FaSchool, FaUniversity, FaUserGraduate, FaIdCard, FaBook, FaGraduationCap, FaEdit, FaSignOutAlt } from 'react-icons/fa';
-import { UserEducation, UserInfo } from '../types/types';
+import { UserInfo } from '../types/types';
 import CustomIcon from './postcomponents/CustomIcon';
 import Link from 'next/link';
 

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Poll } from './types';
+import { Poll } from '../types';
 import { FiEye } from 'react-icons/fi';
 import { handelreactionInStorage } from '@/client_helpers/handelreaction';
 import { randomDelay } from '@/client_helpers/delay';
-
+import { TextExpander } from '../../TextExpander';
 const PollComponent: React.FC<{ poll: Poll, id?: string }> = ({ poll, id }) => {
   const [selectedPollOption, setSelectedPollOption] = useState<number | null>(null);
   const [votes, setVotes] = useState<number[]>(poll.votes || Array(poll.options.length).fill(0));
@@ -180,7 +180,14 @@ const PollComponent: React.FC<{ poll: Poll, id?: string }> = ({ poll, id }) => {
 
   return (
     <div className="px-3 pt-1 pb-4">
-      <h4 className="font-medium text-gray-900 mb-2 text-right text-sm md:text-base">{poll.question}</h4>
+      <h4 className="font-medium text-gray-900 mb-2 text-right text-sm md:text-base">
+        <TextExpander 
+                text={poll.question}
+                charLimit={200}
+                className="text-gray-800 text-right text-sm md:text-base"
+                dir="rtl"
+              />
+        </h4>
 
       {renderPollStatus()}
 

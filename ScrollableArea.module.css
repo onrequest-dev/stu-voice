@@ -1,6 +1,6 @@
 /* ScrollableArea.module.css */
 .scrollContainer {
-  height: calc(100% - 3rem);
+  height: calc(100% - 1rem);
   overflow-y: auto;
   touch-action: pan-y;
 }

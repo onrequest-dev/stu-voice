@@ -3,6 +3,7 @@ import React from 'react';
 import { FaVenus, FaMars, FaSchool, FaUniversity, FaUserGraduate, FaIdCard, FaBook, FaGraduationCap } from 'react-icons/fa';
 import { UserEducation, UserInfo } from '../types/types';
 import CustomIcon from '../components/postcomponents/CustomIcon';
+import LoadingSpinner from './LoadingSpinner';
 
 const UserProfileViewComponent: React.FC<{ userData?: UserInfo }> = ({ userData }) => {
   // أنظمة الألوان المحسنة
@@ -25,7 +26,7 @@ const UserProfileViewComponent: React.FC<{ userData?: UserInfo }> = ({ userData 
 
   // إذا لم تكن البيانات متوفرة، عرض رسالة تحميل
   if (!userData) {
-    return <div className="p-4 text-center">جاري تحميل البيانات...</div>;
+    return <LoadingSpinner/> ;
   }
 
   // الحصول على الثيم مع قيمة افتراضية
@@ -260,18 +261,6 @@ const UniversityView = ({ education, theme }: { education: UserEducation, theme:
           {education.year ? yearMap[education.year] || 'غير محدد' : 'غير محدد'}
         </span>
       </div>
-
-      {education.studentId && (
-        <div className="flex justify-between items-center p-1.5 md:p-2 rounded bg-gray-50 text-xs md:text-sm">
-          <span className={`font-medium ${theme.text} flex items-center`}>
-            <FaIdCard className={`mr-2 md:mr-1 ${theme.iconColor} text-xs md:text-sm`} />
-            <span>الرقم الجامعي</span>
-          </span>
-          <span className="font-mono font-semibold text-gray-700 truncate max-w-[50%]">
-            {education.studentId}
-          </span>
-        </div>
-      )}
     </div>
   );
 };
