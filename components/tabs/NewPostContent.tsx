@@ -2,29 +2,32 @@
 import React, { useState, useEffect } from 'react';
 import PostCreator from '../postcomponents/Posts/PostCreator';
 import PostComponent from '../postcomponents/Posts/PostComponent';
-import { PostProps, UserInfo } from '../postcomponents/types';
+import { UserInfo as PostUserInfo,PostProps } from '../postcomponents/types';
 import Link from 'next/link';
+import { getUserDataFromStorage } from '../../client_helpers/userStorage';
 
 const NewPostContent = () => {
   const [posts, setPosts] = useState<Array<PostProps>>([]);
-  const [userData, setUserData] = useState<UserInfo | null>(null);
+  const [userData, setUserData] = useState<PostUserInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUserData = () => {
-      const storedData = localStorage.getItem('userInfo');
-      if (storedData) {
-        try {
-          const parsed: UserInfo = JSON.parse(storedData);
-          setUserData(parsed);
-        } catch (err) {
-          console.error('فشل في قراءة بيانات المستخدم:', err);
-        }
+    // تأخير جلب البيانات قليلاً لمحاكاة عملية غير متزامنة
+    const loadUserData = () => {
+      try {
+        const data = getUserDataFromStorage();
+        setUserData(data);
+      } catch (error) {
+        console.error('Failed to load user data:', error);
+        setUserData(null);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
 
-    fetchUserData();
+    // تأخير بسيط لضمان أن يتم تحميل الصفحة أولاً
+    const timer = setTimeout(loadUserData, 100);
+    return () => clearTimeout(timer);
   }, []);
 
   const handleSubmitPost = async (postData: {
@@ -37,14 +40,12 @@ const NewPostContent = () => {
       };
     };
   }) => {
-    console.log(postData)
     if (!userData) {
       alert('بيانات المستخدم غير متوفرة');
       return;
     }
 
     try {
-      // تجهيز البيانات للإرسال للـ API
       const bodyPayload = {
         post: postData.content.opinion ?? '',
         topics: '',
@@ -73,7 +74,6 @@ const NewPostContent = () => {
         return;
       }
 
-      // بناء المنشور الجديد محلياً بعد نجاح الإضافة
       const newPost: PostProps = {
         id: `post-${Date.now()}`,
         userInfo: userData,
@@ -109,51 +109,51 @@ const NewPostContent = () => {
 
   if (!userData) {
     return (
-  <div className="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6 text-center">
-    <div className="mb-4">
-      <svg 
-        className="w-16 h-16 mx-auto text-gray-400" 
-        fill="none" 
-        stroke="currentColor" 
-        viewBox="0 0 24 24"
-      >
-        <path 
-          strokeLinecap="round" 
-          strokeLinejoin="round" 
-          strokeWidth="1.5" 
-          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-        />
-      </svg>
-    </div>
-    
-    <h3 className="text-lg font-medium text-gray-800 mb-2">
-      لم يتم العثور على بيانات المستخدم
-    </h3>
-    <p className="text-gray-600 mb-6">
-      يرجى إكمال بياناتك الشخصية للمتابعة
-    </p>
-    
-    <Link
-      href="/complete-profile"
-      className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-    >
-      <svg 
-        className="w-5 h-5 mr-2" 
-        fill="none" 
-        stroke="currentColor" 
-        viewBox="0 0 24 24"
-      >
-        <path 
-          strokeLinecap="round" 
-          strokeLinejoin="round" 
-          strokeWidth="2" 
-          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-        />
-      </svg>
-      استكمال البيانات
-    </Link>
-  </div>
-);
+      <div className="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6 text-center">
+        <div className="mb-4">
+          <svg 
+            className="w-16 h-16 mx-auto text-gray-400" 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              strokeWidth="1.5" 
+              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+            />
+          </svg>
+        </div>
+        
+        <h3 className="text-lg font-medium text-gray-800 mb-2">
+          لم يتم العثور على بيانات المستخدم
+        </h3>
+        <p className="text-gray-600 mb-6">
+          يرجى إكمال بياناتك الشخصية للمتابعة
+        </p>
+        
+        <Link
+          href="/complete-profile"
+          className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          <svg 
+            className="w-5 h-5 mr-2" 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              strokeWidth="2" 
+              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+            />
+          </svg>
+          استكمال البيانات
+        </Link>
+      </div>
+    );
   }
 
   return (
@@ -163,7 +163,6 @@ const NewPostContent = () => {
         userInfo={userData} 
       />
       
-      {/* عرض المنشورات */}
       <div className="mt-8 space-y-6">
         {posts.map((post) => (
           <PostComponent 
