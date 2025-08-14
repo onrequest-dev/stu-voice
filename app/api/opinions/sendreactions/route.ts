@@ -47,28 +47,56 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // تجهيز البيانات للإدخال إلى قاعدة البيانات
-  const upsertData = result.data.votes.map((reaction) => ({
-    post_id: reaction.id,
-    reaction_type: reaction.type,
-    reactor_username: jwt_user.user_name,
-  }));
+  // فصل الأصوات بحسب نوع التفاعل
+  const upvoteDownvoteVotes = result.data.votes.filter(
+    (reaction) => reaction.type === "upvote" || reaction.type === "downvote"
+  );
 
-  // إدخال أو تحديث البيانات في جدول reactions باستخدام supabase
-  const { data, error } = await supabase
-  .from("reactions")
-  .upsert(upsertData, { onConflict: "post_id,reactor_username,reaction_type" });
+  const pollVotes = result.data.votes.filter(
+    (reaction) => reaction.type !== "upvote" && reaction.type !== "downvote"
+  );
 
+  // إدخال أو تحديث بيانات upvote/downvote
+  if (upvoteDownvoteVotes.length > 0) {
+    const upsertData = upvoteDownvoteVotes.map((reaction) => ({
+      post_id: reaction.id,
+      reaction_type: reaction.type,
+      reactor_username: jwt_user.user_name,
+    }));
 
+    const { error } = await supabase
+      .from("upvote_downvote_reactions")
+      .upsert(upsertData, { onConflict: "post_id,reactor_username" });
 
-
-  if (error) {
-    console.log(error)
-    return NextResponse.json(
-      { error: "Failed to save reactions" },
-      { status: 500 }
-    );
+    if (error) {
+      console.log("Error upserting upvote/downvote:", error);
+      return NextResponse.json(
+        { error: "Failed to save upvote/downvote reactions" },
+        { status: 500 }
+      );
+    }
   }
 
-  return NextResponse.json({ message: "Reaction saved" }, { status: 200 });
+  // إدخال أو تحديث بيانات poll reactions
+  if (pollVotes.length > 0) {
+    const upsertData = pollVotes.map((reaction) => ({
+      post_id: reaction.id,
+      poll_option: reaction.type,  // استخدم نوع التفاعل كخيار التصويت في الاستطلاع
+      reactor_username: jwt_user.user_name,
+    }));
+
+    const { error } = await supabase
+      .from("poll_reactions")
+      .upsert(upsertData, { onConflict: "post_id,reactor_username" });
+
+    if (error) {
+      console.log("Error upserting poll reactions:", error);
+      return NextResponse.json(
+        { error: "Failed to save poll reactions" },
+        { status: 500 }
+      );
+    }
+  }
+
+  return NextResponse.json({ message: "Reactions saved successfully" }, { status: 200 });
 }
