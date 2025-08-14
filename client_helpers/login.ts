@@ -17,6 +17,23 @@ export async function loginUser(username: string, password: string) {
       };
     }
 
+    // تخزين معلومات المستخدم في التخزين المحلي عند نجاح تسجيل الدخول
+    const userInfo = {
+      id: username,
+      fullName: '',
+      gender: 'male' as const,
+      education: {
+        university: '',
+        faculty: '',
+        department: '',
+        level: ''
+      }
+    };
+    
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('userInfo', JSON.stringify(userInfo));
+    }
+
     return {
       success: true,
       message: result.message || "Login successful",

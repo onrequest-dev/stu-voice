@@ -208,12 +208,6 @@ const PostCreator: React.FC<PostCreatorProps> = ({ onSubmit, userInfo }) => {
       )}
       
       <div className='text-right'>
-        <div className="w-full px-4">
-          <div className="w-full max-w-screen mx-auto">
-            <UserInfoComponent userInfo={userInfo} />
-          </div>
-        </div>
-        
         <div className="flex border-b border-gray-200 mb-6">
           <button
             onClick={() => handleTabChange('opinion')}

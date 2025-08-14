@@ -107,7 +107,7 @@ const NewPostContent = () => {
     return <div className="text-center py-10">جارٍ تحميل البيانات...</div>;
   }
 
-  if (!userData) {
+  if (!userData?.fullName) {
     return (
       <div className="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6 text-center">
         <div className="mb-4">

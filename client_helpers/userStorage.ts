@@ -25,12 +25,12 @@ const transformUserInfo = (userInfo: MainUserInfo): PostUserInfo => {
   const education = userInfo.education;
   
   return {
-    id: userInfo.id || 'default-id',
-    fullName: userInfo.fullName || 'مستخدم جديد',
+    id: userInfo.id ,
+    fullName: userInfo.fullName,
     iconName: education?.icon?.component || getInitialLetter(userInfo.fullName),
     iconColor: education?.icon?.color || '#4CAF50',
     bgColor: education?.icon?.bgColor || '#F5F5F5',
-    study: getStudyInfo(education) || 'غير محدد'
+    study: getStudyInfo(education)
   };
 };
 
