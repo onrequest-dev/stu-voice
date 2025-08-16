@@ -6,6 +6,7 @@ import {
 } from 'react-icons/fa';
 import Alert from '../../Alert';
 import ReportComponent from '@/components/ReportComponent';
+import { boolean } from 'zod';
 
 interface InteractionButtonsProps {
   postId: string;
@@ -177,47 +178,93 @@ const InteractionButtons: React.FC<InteractionButtonsProps> = ({
     if (onShare) onShare();
   };
 
-  const handleUpvote = () => {
+const handleUpvote = () => {
+  console.log('--- بدء handleUpvote ---');
+  console.log('الحالة الحالية:', { agreed, localUpvote, localDownvote, upcount, downcount });
+
+  // إذا كان هناك تفاعل إيجابي (سواء من الخادم أو المحلي)
+  if (agreed === true || localUpvote) {
+    console.log('حالة إلغاء التفاعل الإيجابي');
+    
+    // إعادة تعيين الحالة المحلية أولاً
+    setLocalUpvote(false);
+    setUpcount(prev => Math.max(0, prev - 1));
+    
+    // إذا كان التفاعل من الخادم (agreed === true) نرسل طلب إلغاء
+    if (agreed === true) {
+      onAgree(); // إلغاء التفاعل في الخادم
+    }
+    
+    // إذا كان التفاعل محلياً فقط (localUpvote) نمسحه من التخزين
     if (localUpvote) {
-      // إلغاء الإعجاب
-      setLocalUpvote(false);
-      setUpcount(prev => Math.max(0, prev - 1));
       writeStoredReaction(postId, null);
-      onAgree();
-    } else {
-      // تفعيل إعجاب
-      setLocalUpvote(true);
-      setUpcount(prev => prev + 1);
-      writeStoredReaction(postId, 'upvote');
-
-      if (localDownvote) {
-        setLocalDownvote(false);
-        setDowncount(prev => Math.max(0, prev - 1));
-      }
-      onAgree();
     }
-  };
+    
+    console.log('الحالة بعد الإلغاء:', { localUpvote: false, upcount: upcount - 1 });
+    return;
+  }
 
-  const handleDownvote = () => {
+  console.log('حالة إضافة تفاعل إيجابي جديد');
+  
+  // إلغاء أي تفاعل سلبي موجود أولاً
+  if (agreed === false || localDownvote) {
+    console.log('إزالة التفاعل السلبي الموجود');
+    setLocalDownvote(false);
+    setDowncount(prev => Math.max(0, prev - 1));
+  }
+
+  // إضافة التفاعل الجديد
+  setLocalUpvote(true);
+  setUpcount(prev => prev + 1);
+  writeStoredReaction(postId, 'upvote');
+  onAgree(); // إعلام الخادم بالتفاعل الجديد
+  
+  console.log('الحالة النهائية:', { localUpvote: true, localDownvote: false, upcount: upcount + 1, downcount: localDownvote ? downcount - 1 : downcount });
+};
+
+const handleDownvote = () => {
+  console.log('--- بدء handleDownvote ---');
+  console.log('الحالة الحالية:', { agreed, localUpvote, localDownvote, upcount, downcount });
+
+  // إذا كان هناك تفاعل سلبي (سواء من الخادم أو المحلي)
+  if (agreed === false || localDownvote) {
+    console.log('حالة إلغاء التفاعل السلبي');
+    
+    // إعادة تعيين الحالة المحلية أولاً
+    setLocalDownvote(false);
+    setDowncount(prev => Math.max(0, prev - 1));
+    
+    // إذا كان التفاعل من الخادم (agreed === false) نرسل طلب إلغاء
+    if (agreed === false) {
+      onDisagree(); // إلغاء التفاعل في الخادم
+    }
+    
+    // إذا كان التفاعل محلياً فقط (localDownvote) نمسحه من التخزين
     if (localDownvote) {
-      // إلغاء عدم الإعجاب
-      setLocalDownvote(false);
-      setDowncount(prev => Math.max(0, prev - 1));
       writeStoredReaction(postId, null);
-      onDisagree();
-    } else {
-      // تفعيل عدم إعجاب
-      setLocalDownvote(true);
-      setDowncount(prev => prev + 1);
-      writeStoredReaction(postId, 'downvote');
-
-      if (localUpvote) {
-        setLocalUpvote(false);
-        setUpcount(prev => Math.max(0, prev - 1));
-      }
-      onDisagree();
     }
-  };
+    
+    console.log('الحالة بعد الإلغاء:', { localDownvote: false, downcount: downcount - 1 });
+    return;
+  }
+
+  console.log('حالة إضافة تفاعل سلبي جديد');
+  
+  // إلغاء أي تفاعل إيجابي موجود أولاً
+  if (agreed === true || localUpvote) {
+    console.log('إزالة التفاعل الإيجابي الموجود');
+    setLocalUpvote(false);
+    setUpcount(prev => Math.max(0, prev - 1));
+  }
+
+  // إضافة التفاعل الجديد
+  setLocalDownvote(true);
+  setDowncount(prev => prev + 1);
+  writeStoredReaction(postId, 'downvote');
+  onDisagree(); // إعلام الخادم بالتفاعل الجديد
+  
+  console.log('الحالة النهائية:', { localUpvote: false, localDownvote: true, upcount: localUpvote ? upcount - 1 : upcount, downcount: downcount + 1 });
+};
 
   return (
     <>
