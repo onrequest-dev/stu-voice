@@ -90,7 +90,7 @@ export default async function PostPage({ params }: PostPageProps) {
   // ==== تحويل معلومات المستخدمين إلى خريطة ====
   const users: Record<string, any> = {};
   for (const row of commentsRaw || []) {
-    console.log("djbh",row)
+    console.log(row)
     const userId = row.commenter_username;
     if (!users[userId]) {
       users[userId] = {

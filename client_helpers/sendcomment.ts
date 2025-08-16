@@ -17,13 +17,18 @@ export async function postComment(
   payload: PostCommentPayload
 ): Promise<SuccessResponse | ErrorResponse> {
   try {
+    let p:PostCommentPayload ={
+      content : payload.content,
+      id : payload.id.toString(),
+      comment_replied_to_id : payload.comment_replied_to_id?.toString()
+    }
     const response = await fetch("/api/opinions/postcomment", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       credentials: "include", // مهم حتى يتم إرسال الكوكيز (مثل jwt)
-      body: JSON.stringify(payload),
+      body: JSON.stringify(p),
     });
 
     const data = await response.json();

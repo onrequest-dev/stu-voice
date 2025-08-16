@@ -143,9 +143,9 @@ useEffect(() => {
     setIsAnimating(true);
     const newState = !commentsOpen;
     
-    if (newState && comments.length === 0) {
-      await fetchComments();
-    }
+    // if (newState && comments.length === 0) {
+    //   await fetchComments();
+    // }
     
     setCommentsOpen(newState);
     
@@ -158,27 +158,7 @@ useEffect(() => {
     setTimeout(() => setIsAnimating(false), 300);
   };
 
-const handleAddComment = () => {
-  if (newComment.trim()) {
-    const comment: CommentType = {
-      id: Date.now().toString(),
-      userId: currentUser.id,
-      text: newComment,
-      likes: 0,
-      timestamp: 'الآن',
-      userLiked: false,
-      repliesCount: 0
-    };
-    
-    setComments([comment, ...comments]);
-    setUsers(prev => ({...prev, [currentUser.id]: currentUser}));
-    setNewComment('');
-    
-    if (textareaRef.current) {
-      textareaRef.current.focus();
-    }
-  }
-};
+
   const handleAddComment = async () => {
     
     if (newComment.trim()) {
@@ -232,11 +212,11 @@ const handleAddComment = () => {
         : comment
     ));
     try{
-      console.log(repliedToUserId)
+      console.log(parentCommentId)
       const result = await postComment({
         content : replyText,
         id : postData.id,
-        comment_replied_to_id : repliedToUserId
+        comment_replied_to_id : parentCommentId
       })
     }catch{console.log("error")}
   };
