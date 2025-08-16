@@ -60,6 +60,7 @@ export async function POST(request: NextRequest) {
     .select()
     .single();
         if(error){
+        console.log(error)
         return NextResponse.json(
         { error: INVALID_REQUEST },
         { status: 400 }

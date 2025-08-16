@@ -7,6 +7,7 @@ import Comment from './Comment';
 import { UserInfo, PostProps } from '../types';
 import Link from 'next/link';
 import CommentRulesAlert from './CommentRulesAlert';
+import { postComment } from '@/client_helpers/sendcomment';
 
 interface CommentType {
   id: string;
@@ -147,7 +148,8 @@ const PostWithComments = ({ postData, initialCommentsData }: PostWithCommentsPro
     setTimeout(() => setIsAnimating(false), 300);
   };
 
-  const handleAddComment = () => {
+  const handleAddComment = async () => {
+    
     if (newComment.trim()) {
       const comment: CommentType = {
         id: Date.now().toString(),
@@ -167,9 +169,18 @@ const PostWithComments = ({ postData, initialCommentsData }: PostWithCommentsPro
         textareaRef.current.focus();
       }
     }
+    try{
+    const result = await postComment(
+      {
+        content : newComment,
+        id : postData.id,
+        
+      }
+    )
+  }catch{console.log("error")}
   };
 
-  const handleAddReply = (replyText: string, parentCommentId: string, repliedToUserId?: string) => {
+  const handleAddReply = async (replyText: string, parentCommentId: string, repliedToUserId?: string) => {
     const reply: ReplyType = {
       id: Date.now().toString(),
       userId: currentUser.id,
@@ -189,6 +200,14 @@ const PostWithComments = ({ postData, initialCommentsData }: PostWithCommentsPro
           }
         : comment
     ));
+    try{
+      console.log(repliedToUserId)
+      const result = await postComment({
+        content : replyText,
+        id : postData.id,
+        comment_replied_to_id : repliedToUserId
+      })
+    }catch{console.log("error")}
   };
 
   const handleLike = (commentId: string) => {
