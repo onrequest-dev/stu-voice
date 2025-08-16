@@ -1,13 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { 
-  FaArrowUp, FaArrowDown, FaEye, FaComment, FaShare, FaFlag,
+  FaArrowUp, FaArrowDown, FaEye, FaComment, FaShare,
   FaTimes, FaTwitter, FaFacebook, FaWhatsapp, FaTelegram, FaLink
 } from 'react-icons/fa';
 import Alert from '../../Alert';
+import ReportComponent from '@/components/ReportComponent';
+import { boolean } from 'zod';
 
 interface InteractionButtonsProps {
   postId: string;
+  userId: string;
   onAgree: () => void;
   onDisagree: () => void;
   onShare?: () => void;
@@ -16,15 +19,19 @@ interface InteractionButtonsProps {
   disagreeCount: number;
   readersCount: number;
   commentsCount?: number;
+  // true: عمل upvote، false: downvote، null: لا يوجد تفاعل مسجل على الخادم
   agreed: boolean | null;
 }
 
+type ReactionType = 'upvote' | 'downvote';
+const LS_KEY = 'permanent_reactions';
+
 const InteractionButtons: React.FC<InteractionButtonsProps> = ({
   postId,
+  userId,
   onAgree,
   onDisagree,
   onShare,
-  onReport,
   agreeCount,
   disagreeCount,
   readersCount,
@@ -35,50 +42,97 @@ const InteractionButtons: React.FC<InteractionButtonsProps> = ({
   const [showSharePanel, setShowSharePanel] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [alertType, setAlertType] = useState<'success' | 'error' | 'info' | 'warning'>('info');
-  const [loacalUpvote, setLoacalUpvote] = useState(false);
-  const [loacalDownvote, setLoacalDownvote] = useState(false);
+
+  const [localUpvote, setLocalUpvote] = useState(false);
+  const [localDownvote, setLocalDownvote] = useState(false);
   const [upcount, setUpcount] = useState(agreeCount);
   const [downcount, setDowncount] = useState(disagreeCount);
 
-  // دالة تحديث التفاعلات في localStorage
-  const updatePermanentReactions = (id: string, type: 'upvote' | 'downvote', action: 'set' | 'remove') => {
+  const initializedForPost = useRef<string | null>(null);
+  const isBrowser = typeof window !== 'undefined';
+
+  const readStoredReaction = (id: string): ReactionType | null => {
+    if (!isBrowser) return null;
     try {
-      const key = 'permenet_reactions';
-      const stored = localStorage.getItem(key);
-      let reactions = stored ? JSON.parse(stored) : [];
-
-      if (action === 'set') {
-        const existingIndex = reactions.findIndex((r: any) => r.id === id);
-        if (existingIndex !== -1) {
-          reactions[existingIndex].type = type;
-        } else {
-          reactions.push({ id, type });
-        }
-      } else if (action === 'remove') {
-        reactions = reactions.filter((r: any) => r.id !== id);
-      }
-
-      localStorage.setItem(key, JSON.stringify(reactions));
-    } catch (err) {
-      console.error('Failed to update localStorage:', err);
+      const stored = window.localStorage.getItem(LS_KEY);
+      if (!stored) return null;
+      const reactions: Array<{ id: string; type: ReactionType }> = JSON.parse(stored);
+      const existing = reactions.find(r => r.id === id);
+      return existing ? existing.type : null;
+    } catch {
+      return null;
     }
   };
 
-  useEffect(() => {
+  const writeStoredReaction = (id: string, type: ReactionType | null) => {
+    if (!isBrowser) return;
     try {
-      const stored = localStorage.getItem('permenet_reactions');
-      if (stored) {
-        const reactions = JSON.parse(stored);
-        const existing = reactions.find((r: { id: string; type: string }) => r.id === postId);
-        if (existing) {
-          if (existing.type === 'upvote') setLoacalUpvote(true);
-          if (existing.type === 'downvote') setLoacalDownvote(true);
+      const stored = window.localStorage.getItem(LS_KEY);
+      let reactions: Array<{ id: string; type: ReactionType }> = stored ? JSON.parse(stored) : [];
+      if (type === null) {
+        reactions = reactions.filter(r => r.id !== id);
+      } else {
+        const idx = reactions.findIndex(r => r.id === id);
+        if (idx !== -1) reactions[idx].type = type;
+        else reactions.push({ id, type });
+      }
+      window.localStorage.setItem(LS_KEY, JSON.stringify(reactions));
+    } catch {
+      // ignore
+    }
+  };
+
+  // إعادة ضبط الحالة عند تغيّر postId أو وصول أرقام جديدة من الخادم
+  useEffect(() => {
+    setUpcount(agreeCount);
+    setDowncount(disagreeCount);
+    setLocalUpvote(false);
+    setLocalDownvote(false);
+    initializedForPost.current = null;
+  }, [postId, agreeCount, disagreeCount]);
+
+  // تهيئة اللون + تصحيح العدادات مرة واحدة لكل postId
+  useEffect(() => {
+    if (!isBrowser) return;
+    if (initializedForPost.current === postId) return;
+
+    const stored = readStoredReaction(postId); // 'upvote' | 'downvote' | null
+
+    // لوّن الأزرار بناءً على المخزن أو agreed
+    let effective: ReactionType | null = null;
+    if (stored) effective = stored;
+    else if (agreed === true) effective = 'upvote';
+    else if (agreed === false) effective = 'downvote';
+    else effective = null;
+
+    setLocalUpvote(effective === 'upvote');
+    setLocalDownvote(effective === 'downvote');
+
+    // تصحيح العدادات:
+    // - إذا stored موجود و agreed === null => +1 للعداد الموافق (تفاعل محلي غير محتسب خادماً).
+    // - إذا stored موجود و agreed موجود ومختلف => تحويل: +1 للجديد -1 للقديم.
+    if (stored) {
+      if (agreed === null) {
+        if (stored === 'upvote') setUpcount(prev => prev + 1);
+        else setDowncount(prev => prev + 1);
+      } else {
+        const serverType: ReactionType = agreed ? 'upvote' : 'downvote';
+        if (serverType !== stored) {
+          // حول الفرق بين المخزن والمحسوب من الخادم
+          if (stored === 'upvote') {
+            setUpcount(prev => prev + 1);
+            setDowncount(prev => Math.max(0, prev - 1));
+          } else {
+            setDowncount(prev => prev + 1);
+            setUpcount(prev => Math.max(0, prev - 1));
+          }
         }
       }
-    } catch (err) {
-      console.error('Error parsing permenet_reactions:', err);
     }
-  }, [postId]);
+    // إذا لا يوجد stored ويوجد agreed => لا تعديل لأن الخادم يعكس حالتك بالفعل.
+
+    initializedForPost.current = postId;
+  }, [postId, isBrowser, agreed]);
 
   const handleShare = () => {
     setShowSharePanel(true);
@@ -90,16 +144,16 @@ const InteractionButtons: React.FC<InteractionButtonsProps> = ({
 
     switch (platform) {
       case 'twitter':
-        url = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent('شاهد هذا المنشور الرائع')}`;
+        url = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(' STUvoice \n منشور من')}`;
         break;
       case 'facebook':
         url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
         break;
       case 'whatsapp':
-        url = `https://wa.me/?text=${encodeURIComponent(`شاهد هذا المنشور الرائع: ${shareUrl}`)}`;
+        url = `https://wa.me/?text=${encodeURIComponent(`\n STUvoice منشور من ${shareUrl}`)}`;
         break;
       case 'telegram':
-        url = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent('شاهد هذا المنشور الرائع')}`;
+        url = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent('\n STUvoice منشور من')}`;
         break;
       case 'copy':
         navigator.clipboard.writeText(shareUrl)
@@ -124,57 +178,93 @@ const InteractionButtons: React.FC<InteractionButtonsProps> = ({
     if (onShare) onShare();
   };
 
-  const handleReport = () => {
-    if (onReport) {
-      onReport();
-      setAlertMessage('تم الإبلاغ عن المنشور بنجاح');
-    } else {
-      setAlertMessage("شكراً لحفاظك على سلامة المنصة 🌹، سيتم مراجعة الإبلاغ");
+const handleUpvote = () => {
+  console.log('--- بدء handleUpvote ---');
+  console.log('الحالة الحالية:', { agreed, localUpvote, localDownvote, upcount, downcount });
+
+  // إذا كان هناك تفاعل إيجابي (سواء من الخادم أو المحلي)
+  if (agreed === true || localUpvote) {
+    console.log('حالة إلغاء التفاعل الإيجابي');
+    
+    // إعادة تعيين الحالة المحلية أولاً
+    setLocalUpvote(false);
+    setUpcount(prev => Math.max(0, prev - 1));
+    
+    // إذا كان التفاعل من الخادم (agreed === true) نرسل طلب إلغاء
+    if (agreed === true) {
+      onAgree(); // إلغاء التفاعل في الخادم
     }
-    setAlertType('info');
-    setShowAlert(true);
-  };
-
-  const handleUpvote = () => {
-    if (loacalUpvote) {
-      console.log("trigered");
-      setLoacalUpvote(false);
-      setUpcount(prev => prev - 1);
-      updatePermanentReactions(postId, 'upvote', 'remove');
-      onAgree();
-    } else {
-      setLoacalUpvote(true);
-      setUpcount(prev => prev + 1);
-      updatePermanentReactions(postId, 'upvote', 'set');
-
-      if (loacalDownvote) {
-        setLoacalDownvote(false);
-        setDowncount(prev => prev - 1);
-      }
-
-      onAgree();
+    
+    // إذا كان التفاعل محلياً فقط (localUpvote) نمسحه من التخزين
+    if (localUpvote) {
+      writeStoredReaction(postId, null);
     }
-  };
+    
+    console.log('الحالة بعد الإلغاء:', { localUpvote: false, upcount: upcount - 1 });
+    return;
+  }
 
-  const handleDownvote = () => {
-    if (loacalDownvote) {
-      setLoacalDownvote(false);
-      setDowncount(prev => prev - 1);
-      updatePermanentReactions(postId, 'downvote', 'remove');
-      onDisagree();
-    } else {
-      setLoacalDownvote(true);
-      setDowncount(prev => prev + 1);
-      updatePermanentReactions(postId, 'downvote', 'set');
+  console.log('حالة إضافة تفاعل إيجابي جديد');
+  
+  // إلغاء أي تفاعل سلبي موجود أولاً
+  if (agreed === false || localDownvote) {
+    console.log('إزالة التفاعل السلبي الموجود');
+    setLocalDownvote(false);
+    setDowncount(prev => Math.max(0, prev - 1));
+  }
 
-      if (loacalUpvote) {
-        setLoacalUpvote(false);
-        setUpcount(prev => prev - 1);
-      }
+  // إضافة التفاعل الجديد
+  setLocalUpvote(true);
+  setUpcount(prev => prev + 1);
+  writeStoredReaction(postId, 'upvote');
+  onAgree(); // إعلام الخادم بالتفاعل الجديد
+  
+  console.log('الحالة النهائية:', { localUpvote: true, localDownvote: false, upcount: upcount + 1, downcount: localDownvote ? downcount - 1 : downcount });
+};
 
-      onDisagree();
+const handleDownvote = () => {
+  console.log('--- بدء handleDownvote ---');
+  console.log('الحالة الحالية:', { agreed, localUpvote, localDownvote, upcount, downcount });
+
+  // إذا كان هناك تفاعل سلبي (سواء من الخادم أو المحلي)
+  if (agreed === false || localDownvote) {
+    console.log('حالة إلغاء التفاعل السلبي');
+    
+    // إعادة تعيين الحالة المحلية أولاً
+    setLocalDownvote(false);
+    setDowncount(prev => Math.max(0, prev - 1));
+    
+    // إذا كان التفاعل من الخادم (agreed === false) نرسل طلب إلغاء
+    if (agreed === false) {
+      onDisagree(); // إلغاء التفاعل في الخادم
     }
-  };
+    
+    // إذا كان التفاعل محلياً فقط (localDownvote) نمسحه من التخزين
+    if (localDownvote) {
+      writeStoredReaction(postId, null);
+    }
+    
+    console.log('الحالة بعد الإلغاء:', { localDownvote: false, downcount: downcount - 1 });
+    return;
+  }
+
+  console.log('حالة إضافة تفاعل سلبي جديد');
+  
+  // إلغاء أي تفاعل إيجابي موجود أولاً
+  if (agreed === true || localUpvote) {
+    console.log('إزالة التفاعل الإيجابي الموجود');
+    setLocalUpvote(false);
+    setUpcount(prev => Math.max(0, prev - 1));
+  }
+
+  // إضافة التفاعل الجديد
+  setLocalDownvote(true);
+  setDowncount(prev => prev + 1);
+  writeStoredReaction(postId, 'downvote');
+  onDisagree(); // إعلام الخادم بالتفاعل الجديد
+  
+  console.log('الحالة النهائية:', { localUpvote: false, localDownvote: true, upcount: localUpvote ? upcount - 1 : upcount, downcount: downcount + 1 });
+};
 
   return (
     <>
@@ -194,13 +284,7 @@ const InteractionButtons: React.FC<InteractionButtonsProps> = ({
         </div>
 
         <div className="flex items-center space-x-3 md:space-x-4">
-          <button 
-            onClick={handleReport}
-            className="p-1 rounded-full text-gray-500 hover:bg-gray-100 transition-colors"
-            title="إبلاغ"
-          >
-            <FaFlag size={12} />
-          </button>
+          <ReportComponent id={postId} username={userId} type="p" />
 
           <button 
             onClick={handleShare}
@@ -213,7 +297,7 @@ const InteractionButtons: React.FC<InteractionButtonsProps> = ({
           <div className="flex items-center">
             <button 
               onClick={handleUpvote}
-              className={`p-1 rounded-full ${loacalUpvote ? 'bg-green-50 text-green-600' : 'text-gray-500'} hover:bg-green-50 transition-colors`}
+              className={`p-1 rounded-full ${localUpvote ? 'bg-green-50 text-green-600' : 'text-gray-500'} hover:bg-green-50 transition-colors`}
               title="أعجبني"
             >
               <FaArrowUp size={12} />
@@ -224,7 +308,7 @@ const InteractionButtons: React.FC<InteractionButtonsProps> = ({
           <div className="flex items-center">
             <button 
               onClick={handleDownvote}
-              className={`p-1 rounded-full ${loacalDownvote ? 'bg-red-50 text-red-600' : 'text-gray-500'} hover:bg-red-50 transition-colors`}
+              className={`p-1 rounded-full ${localDownvote ? 'bg-red-50 text-red-600' : 'text-gray-500'} hover:bg-red-50 transition-colors`}
               title="لم يعجبني"
             >
               <FaArrowDown size={12} />
@@ -234,7 +318,6 @@ const InteractionButtons: React.FC<InteractionButtonsProps> = ({
         </div>
       </div>
 
-      {/* لوحة المشاركة */}
       {showSharePanel && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl w-full max-w-md animate-scale-in">

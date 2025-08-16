@@ -75,6 +75,7 @@ const PostComponent: React.FC<PostProps> = ({ id, userInfo, opinion, poll ,creat
         {poll && <PollComponent poll={poll} id={id} />}
         <InteractionButtons
           postId={id}
+          userId={userInfo.id}
           onAgree={handleAgree}
           onDisagree={handleDisagree}
           agreeCount={localCounts.agree}

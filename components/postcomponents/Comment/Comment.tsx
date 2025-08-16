@@ -6,7 +6,7 @@ import { useState } from 'react';
 import Alert from '../../Alert';
 import CommentReplies from './CommentReplies';
 import { TextExpander } from '../../TextExpander';
-
+import ReportComponent from '@/components/ReportComponent';
 interface CommentProps {
   comment: {
     id: string;
@@ -33,13 +33,10 @@ const Comment = ({
   usersData,
   onAddReply
 }: CommentProps) => {
-  const [showReportAlert, setShowReportAlert] = useState(false);
   // const [userVote, setUserVote] = useState<'up' | 'down' | null>(null);
   const [showReplies, setShowReplies] = useState(false);
 
-  const handleReport = () => {
-    setShowReportAlert(true);
-  };
+
 
   // const handleLike = () => {
   //   if (userVote === 'up') {
@@ -74,15 +71,6 @@ const Comment = ({
 
   return (
     <div className="border-b pb-4 mb-4 relative">
-      {showReportAlert && (
-        <Alert
-          message="شكراً 🌹، سيتم مراجعة الإبلاغ من قبل الإدارة واتخاذ الإجراء المناسب. شكراً لحفاظك على سلامة المنصة 😊"
-          type="success"
-          autoDismiss={5000}
-          onDismiss={() => setShowReportAlert(false)}
-        />
-      )}
-
       {/* الصف العلوي: التاريخ ومعلومات المستخدم */}
       <div className="flex justify-between items-start">
         <span className="text-xs text-gray-500">
@@ -132,21 +120,13 @@ const Comment = ({
         >
           <FaArrowDown className="ml-1" />
         </button> */}
-        <button
-          onClick={handleReport}
-          className="flex items-center hover:text-gray-600"
-          title="الإبلاغ عن التعليق"
-        >
-          <FaFlag className="mr-2" />
-          <span className="text-xs mr-1">إبلاغ</span>
-        </button>
+        <ReportComponent id={comment.id} username={userInfo.id} type="c" />
 
         <button
           onClick={toggleReplies}
-          className="flex items-center text-gray-500 hover:text-blue-600"
-        >
-          <FaReply className="m-2" />
-          <span className="text-xs">{comment.repliesCount || 0} ردود</span>
+          className="flex items-center text-gray-500 hover:text-blue-600">
+          <FaReply size={12} />
+          <span className="text-xs ml-2">{comment.repliesCount || 0} ردود</span>
         </button>
       </div>
 

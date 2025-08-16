@@ -7,6 +7,7 @@ import Comment from './Comment';
 import { UserInfo, PostProps } from '../types';
 import Link from 'next/link';
 import CommentRulesAlert from './CommentRulesAlert';
+import { getUserDataFromStorage } from '../../../client_helpers/userStorage';
 import { postComment } from '@/client_helpers/sendcomment';
 
 interface CommentType {
@@ -51,14 +52,23 @@ const PostWithComments = ({ postData, initialCommentsData }: PostWithCommentsPro
   const commentInputRef = useRef<HTMLDivElement>(null);
 
   // معلومات المستخدم الحالي
-  const currentUser = {
-    id: 'currentUser',
-    iconName: 'user',
-    iconColor: '#ffffff',
-    bgColor: '#3b82f6',
-    fullName: 'أنت',
-    study: ''
+const [currentUser, setCurrentUser] = useState<UserInfo>({
+  id: 'currentUser',
+  iconName: 'user',
+  iconColor: '#ffffff',
+  bgColor: '#3b82f6',
+  fullName: 'أنت',
+  study: ''
+});
+useEffect(() => {
+  const loadCurrentUser = () => {
+    const userData = getUserDataFromStorage();
+    if (userData) {
+      setCurrentUser(userData);
+    }
   };
+  loadCurrentUser();
+}, []);
 
   useEffect(() => {
     const closedPermanently = localStorage.getItem('commentAlertClosed') === 'true';
@@ -148,6 +158,27 @@ const PostWithComments = ({ postData, initialCommentsData }: PostWithCommentsPro
     setTimeout(() => setIsAnimating(false), 300);
   };
 
+const handleAddComment = () => {
+  if (newComment.trim()) {
+    const comment: CommentType = {
+      id: Date.now().toString(),
+      userId: currentUser.id,
+      text: newComment,
+      likes: 0,
+      timestamp: 'الآن',
+      userLiked: false,
+      repliesCount: 0
+    };
+    
+    setComments([comment, ...comments]);
+    setUsers(prev => ({...prev, [currentUser.id]: currentUser}));
+    setNewComment('');
+    
+    if (textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }
+};
   const handleAddComment = async () => {
     
     if (newComment.trim()) {

@@ -5,6 +5,8 @@ import { FaDatabase, FaAlignLeft} from 'react-icons/fa';
 import { UserInfo } from '../types/types';
 import UserProfileComponent from './UserProfileComponent';
 import LoadingSpinner from './LoadingSpinner';
+import { getUserDataFromStorageAll } from '../client_helpers/userStorageAll';
+
 const TabbedContainer = () => {
     const [activeTab, setActiveTab] = useState<'data' | 'posts'>('data');
     const [indicatorStyle, setIndicatorStyle] = useState({ left: '0%', width: '50%' });
@@ -12,17 +14,10 @@ const TabbedContainer = () => {
     const tabsRef = useRef<HTMLDivElement>(null);
 
     // تحميل بيانات المستخدم
-    React.useEffect(() => {
-        const storedData = localStorage.getItem('userInfo');
-        if (storedData) {
-        try {
-            const parsed: UserInfo = JSON.parse(storedData);
-            setUserData(parsed);
-        } catch (err) {
-            console.error('فشل في قراءة بيانات المستخدم:', err);
-        }
-        }
-    }, []);
+     React.useEffect(() => {
+    const data = getUserDataFromStorageAll();
+    setUserData(data);
+  }, []);
 
     // تحديث موضع المؤشر عند تغيير التبويب
     useEffect(() => {

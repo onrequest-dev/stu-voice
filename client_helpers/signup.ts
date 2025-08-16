@@ -20,6 +20,20 @@ export async function signupUser(
     const data = await response.json();
 
     if (response.ok) {
+      // تخزين معلومات المستخدم في التخزين المحلي عند النجاح
+      const userInfo = {
+        id: username,
+        fullName: '',
+        gender: 'male' as const,
+        education: {
+          university: '',
+          faculty: '',
+          department: '',
+          level: ''
+        }
+      };
+      localStorage.setItem('userInfo', JSON.stringify(userInfo));
+      console.log(userInfo);
       // نجاح التسجيل
       return { success: true, message: data.message || 'User created successfully' };
     } else {

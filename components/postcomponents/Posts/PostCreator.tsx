@@ -21,6 +21,7 @@ interface PostCreatorProps {
 
 const PostCreator: React.FC<PostCreatorProps> = ({ onSubmit, userInfo }) => {
   // الحالات الأساسية
+  console.log(userInfo);
   const [activeTab, setActiveTab] = useState<'opinion' | 'poll' | 'both'>('opinion');
   const [opinionText, setOpinionText] = useState('');
   const [pollQuestion, setPollQuestion] = useState('');
@@ -36,9 +37,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ onSubmit, userInfo }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitProgress, setSubmitProgress] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
-
   const durationOptions = [1, 2, 3, 5, 7, 10, 14, 21, 30];
-
   useEffect(() => {
     const checkIfMobile = () => {
       setIsMobile(window.innerWidth < 768);
@@ -209,12 +208,6 @@ const PostCreator: React.FC<PostCreatorProps> = ({ onSubmit, userInfo }) => {
       )}
       
       <div className='text-right'>
-        <div className="w-full px-4">
-          <div className="w-full max-w-screen mx-auto">
-            <UserInfoComponent userInfo={userInfo} />
-          </div>
-        </div>
-        
         <div className="flex border-b border-gray-200 mb-6">
           <button
             onClick={() => handleTabChange('opinion')}

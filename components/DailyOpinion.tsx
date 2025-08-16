@@ -5,7 +5,7 @@ import { IoMdSend } from 'react-icons/io';
 import { AiOutlineArrowUp, AiOutlineArrowDown } from 'react-icons/ai';
 import Comment from './postcomponents/Comment/Comment';
 import { UserInfo } from './postcomponents/types';
-
+import { getUserDataFromStorage } from '../client_helpers/userStorage';
 interface DailyOpinionProps {
   opinion: {
     id: string;
@@ -36,14 +36,42 @@ const DailyOpinion = ({ opinion, initialComments }: DailyOpinionProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  const currentUser: UserInfo = {
-    id: 'current-user',
-    fullName: 'أنت',
-    iconName: 'user',
-    iconColor: '#ffffff',
-    bgColor: '#3b82f6',
-    study: 'طالب'
+const [currentUser, setCurrentUser] = useState<UserInfo>({
+  id: 'loading-user',
+  fullName: 'جار التحميل...',
+  iconName: 'user',
+  iconColor: '#cccccc',
+  bgColor: '#f0f0f0',
+  study: ''
+});
+
+useEffect(() => {
+  const loadUserData = () => {
+    const userData = getUserDataFromStorage();
+    if (userData) {
+      setCurrentUser({
+        id: userData.id,
+        fullName: userData.fullName,
+        iconName: userData.iconName,
+        iconColor: userData.iconColor,
+        bgColor: userData.bgColor,
+        study: userData.study
+      });
+    } else {
+      // قيم افتراضية إذا لم توجد بيانات مستخدم
+      setCurrentUser({
+        id: 'guest-' + Math.random().toString(36).substr(2, 9),
+        fullName: 'زائر',
+        iconName: 'user',
+        iconColor: '#3b82f6',
+        bgColor: '#ffffff',
+        study: 'زائر'
+      });
+    }
   };
+
+  loadUserData();
+}, []);
 
   // إنشاء بيانات المستخدمين (usersData)
   const usersData = {
@@ -80,22 +108,22 @@ const DailyOpinion = ({ opinion, initialComments }: DailyOpinionProps) => {
     };
   }, []);
 
-  const handleAddComment = () => {
-    if (newComment.trim()) {
-      const comment = {
-        id: Date.now().toString(),
-        text: newComment,
-        likes: 0,
-        timestamp: 'الآن',
-        userInfo: currentUser,
-        userLiked: false
-      };
-      
-      setComments([...comments, comment]);
-      setNewComment('');
-      inputRef.current?.focus();
-    }
+const handleAddComment = () => {
+  if (!newComment.trim() || !currentUser) return;
+
+  const comment = {
+    id: Date.now().toString(),
+    text: newComment,
+    likes: 0,
+    timestamp: 'الآن',
+    userInfo: currentUser,
+    userLiked: false
   };
+  
+  setComments([...comments, comment]);
+  setNewComment('');
+  inputRef.current?.focus();
+};
 
   const handleLike = (commentId: string) => {
     setComments(comments.map(comment => {
@@ -244,7 +272,7 @@ const DailyOpinion = ({ opinion, initialComments }: DailyOpinionProps) => {
       )}
 
       {/* Comment Input */}
-      <div className="fixed bottom-1 left-0 right-0 bg-white pb-1 pl-3 pr-3">
+      <div className="fixed bottom-0 left-0 right-0 bg-white pb-1 pl-3 pr-3">
         <div className="flex items-center gap-2 max-w-md mx-auto">
           <input
             ref={inputRef}
