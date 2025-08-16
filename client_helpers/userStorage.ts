@@ -51,3 +51,16 @@ const getStudyInfo = (education?: UserEducation): string => {
   return education.level === 'middle' ? 'تعليم أساسي' : 
          education.level === 'high' ? 'تعليم ثانوي' : '';
 };
+
+export const rutID = (): string | null => {
+  try {
+    const storedData = localStorage.getItem('userInfo');
+    if (!storedData) return null;
+
+    const parsedData = JSON.parse(storedData) as MainUserInfo;
+    return parsedData.id || null;
+  } catch (error) {
+    console.error('فشل قراءة معرف المستخدم من التخزين:', error);
+    return null;
+  }
+};

@@ -6,7 +6,7 @@
     import Alert from '../../Alert';
     import { UserInfo, ReplyType } from '../types';
     import { TextExpander } from '../../TextExpander';
-
+    import ReportComponent from '@/components/ReportComponent';
     interface CommentRepliesProps {
     comment: {
         id: string;
@@ -145,10 +145,6 @@
         setReplyingTo(null);
     };
 
-    const handleReport = () => {
-        setShowReportAlert(true);
-    };
-
     const calculateContainerHeight = () => {
         if (keyboardHeight > 0) {
         return `calc(100vh - ${keyboardHeight}px - 60px)`;
@@ -262,13 +258,7 @@
                                 <FaReply size={10} />
                                 <span>رد</span>
                             </button>
-                            <button 
-                                onClick={handleReport}
-                                className="flex items-center text-gray-500 text-xs gap-1"
-                            >
-                                <FaFlag size={10} />
-                                <span>إبلاغ</span>
-                            </button>
+                            <ReportComponent id={comment.id} username={userInfo.id} type="c" />
                             </div>
                         </div>
                         </div>

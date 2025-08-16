@@ -5,9 +5,13 @@ import {
   FaTimes, FaTwitter, FaFacebook, FaWhatsapp, FaTelegram, FaLink
 } from 'react-icons/fa';
 import Alert from '../../Alert';
+import ReportComponent from '@/components/ReportComponent';
+
+
 
 interface InteractionButtonsProps {
   postId: string;
+  userId:string;
   onAgree: () => void;
   onDisagree: () => void;
   onShare?: () => void;
@@ -21,10 +25,10 @@ interface InteractionButtonsProps {
 
 const InteractionButtons: React.FC<InteractionButtonsProps> = ({
   postId,
+  userId,
   onAgree,
   onDisagree,
   onShare,
-  onReport,
   agreeCount,
   disagreeCount,
   readersCount,
@@ -90,16 +94,16 @@ const InteractionButtons: React.FC<InteractionButtonsProps> = ({
 
     switch (platform) {
       case 'twitter':
-        url = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent('شاهد هذا المنشور الرائع')}`;
+        url = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(' STUvoice \n منشور من')}`;
         break;
       case 'facebook':
         url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
         break;
       case 'whatsapp':
-        url = `https://wa.me/?text=${encodeURIComponent(`شاهد هذا المنشور الرائع: ${shareUrl}`)}`;
+        url = `https://wa.me/?text=${encodeURIComponent(`\n STUvoice منشور من ${shareUrl}`)}`;
         break;
       case 'telegram':
-        url = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent('شاهد هذا المنشور الرائع')}`;
+        url = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent('\n STUvoice منشور من')}`;
         break;
       case 'copy':
         navigator.clipboard.writeText(shareUrl)
@@ -122,17 +126,6 @@ const InteractionButtons: React.FC<InteractionButtonsProps> = ({
     window.open(url, '_blank', 'noopener,noreferrer');
     setShowSharePanel(false);
     if (onShare) onShare();
-  };
-
-  const handleReport = () => {
-    if (onReport) {
-      onReport();
-      setAlertMessage('تم الإبلاغ عن المنشور بنجاح');
-    } else {
-      setAlertMessage("شكراً لحفاظك على سلامة المنصة 🌹، سيتم مراجعة الإبلاغ");
-    }
-    setAlertType('info');
-    setShowAlert(true);
   };
 
   const handleUpvote = () => {
@@ -194,13 +187,7 @@ const InteractionButtons: React.FC<InteractionButtonsProps> = ({
         </div>
 
         <div className="flex items-center space-x-3 md:space-x-4">
-          <button 
-            onClick={handleReport}
-            className="p-1 rounded-full text-gray-500 hover:bg-gray-100 transition-colors"
-            title="إبلاغ"
-          >
-            <FaFlag size={12} />
-          </button>
+          <ReportComponent id={postId} username={userId} type="p" />
 
           <button 
             onClick={handleShare}

@@ -29,7 +29,6 @@ export default function PostPage({ params }: { params: { id: string } }) {
             durationInDays: -1, 
           }
         }}
-
       />
     </div>
   );
