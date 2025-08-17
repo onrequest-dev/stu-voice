@@ -168,7 +168,7 @@ const handleAddComment = () => {
       userLiked: false,
       repliesCount: 0
     };
-    
+    console.log(comment.id);
     setComments([comment, ...comments]);
     setUsers(prev => ({...prev, [currentUser.id]: currentUser}));
     setNewComment('');
