@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
       comment_replied_to_id: comment_replied_to_id,
       commenter_username: jwt_user.user_name,
     })
-    .select()
+    .select("id")
     .single();
         if(error){
         console.log(error)

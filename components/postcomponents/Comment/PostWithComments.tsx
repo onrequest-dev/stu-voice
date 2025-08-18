@@ -171,6 +171,16 @@ useEffect(() => {
         userLiked: false,
         repliesCount: 0
       };
+      try{
+    const result = await postComment(
+      {
+        content : newComment,
+        id : postData.id,
+        
+      }
+    )
+    comment.id = (result as any).post.id
+  }catch{console.log("error")}
       
       setComments([comment, ...comments]);
       setUsers(prev => ({...prev, [currentUser.id]: currentUser}));
@@ -180,19 +190,11 @@ useEffect(() => {
         textareaRef.current.focus();
       }
     }
-    try{
-    const result = await postComment(
-      {
-        content : newComment,
-        id : postData.id,
-        
-      }
-    )
-  }catch{console.log("error")}
+    
   };
 
   const handleAddReply = async (replyText: string, parentCommentId: string, repliedToUserId?: string) => {
-    const reply: ReplyType = {
+    let reply: ReplyType = {
       id: Date.now().toString(),
       userId: currentUser.id,
       text: repliedToUserId 
@@ -201,6 +203,16 @@ useEffect(() => {
       timestamp: 'الآن',
       repliedToUserId
     };
+    try{
+      console.log(parentCommentId)
+      const result = await postComment({
+        content : replyText,
+        id : postData.id,
+        comment_replied_to_id : parentCommentId
+      })
+      reply.id = (result as any).post.id;
+      
+    }catch{console.log("error")}
     
     setComments(comments.map(comment => 
       comment.id === parentCommentId
@@ -211,14 +223,7 @@ useEffect(() => {
           }
         : comment
     ));
-    try{
-      console.log(parentCommentId)
-      const result = await postComment({
-        content : replyText,
-        id : postData.id,
-        comment_replied_to_id : parentCommentId
-      })
-    }catch{console.log("error")}
+    
   };
 
   const handleLike = (commentId: string) => {
@@ -321,6 +326,7 @@ return (
                 const user = users[comment.userId];
                 return (
                   <Comment
+                    postid ={postData.id}
                     key={comment.id}
                     comment={{
                       ...comment,

@@ -7,7 +7,7 @@ type PostPageProps = {
 };
 
 // نوع البيانات الراجعة من RPC fetch_comments_with_users
-type CommentWithUser = {
+export type CommentWithUser = {
   comment_id: number;
   content: string;
   created_at: string;

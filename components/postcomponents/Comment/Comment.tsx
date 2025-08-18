@@ -7,7 +7,9 @@ import Alert from '../../Alert';
 import CommentReplies from './CommentReplies';
 import { TextExpander } from '../../TextExpander';
 import ReportComponent from '@/components/ReportComponent';
+import { getcomments } from '@/client_helpers/getcomments';
 interface CommentProps {
+  postid? : string|number
   comment: {
     id: string;
     text: string;
@@ -31,7 +33,8 @@ const Comment = ({
   // onDislike, 
   currentUser,
   usersData,
-  onAddReply
+  onAddReply,
+  postid
 }: CommentProps) => {
   // const [userVote, setUserVote] = useState<'up' | 'down' | null>(null);
   const [showReplies, setShowReplies] = useState(false);
@@ -66,6 +69,8 @@ const Comment = ({
 
   const toggleReplies = () => {
     //////////////////////////////////////////////////////////حج هادي هون التعليقات الفرغية بس حطلك شي شغلة بين ما يحملوا
+    getcomments({input_post_id:postid?.toString()||"",input_comment_replied_to_id:comment.id.toString()})
+    .then(result=>console.log(result))
     setShowReplies(!showReplies);
   };
 
