@@ -190,28 +190,7 @@ useEffect(() => {
     )
   }catch{console.log("error")}
   };
-const handleAddComment = () => {
-  if (newComment.trim()) {
-    const comment: CommentType = {
-      id: Date.now().toString(),
-      userId: currentUser.id,
-      text: newComment,
-      likes: 0,
-      timestamp: 'الآن',
-      userLiked: false,
-      repliesCount: 0
-    };
-    console.log(comment.id);
-    setComments([comment, ...comments]);
-    setUsers(prev => ({...prev, [currentUser.id]: currentUser}));
-    setNewComment('');
-    
-    if (textareaRef.current) {
-      textareaRef.current.focus();
-    }
-  }
-};
-
+  
   const handleAddReply = async (replyText: string, parentCommentId: string, repliedToUserId?: string) => {
     const reply: ReplyType = {
       id: Date.now().toString(),

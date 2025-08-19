@@ -1,13 +1,15 @@
 'use client';
 import React, { useState } from 'react';
-import { FaFlag } from 'react-icons/fa';
+import { FaFlag, FaSpinner } from 'react-icons/fa';
 import Alert from './Alert';
 import { rutID } from '@/client_helpers/userStorage';
+
 interface ReportComponentProps {
   id: string;
   username: string;
   type: 'p' | 'c'; // 'p' for post, 'c' for comment
 }
+
 const userId = rutID();
 
 const ReportComponent: React.FC<ReportComponentProps> = ({ id, username, type }) => {
@@ -15,6 +17,7 @@ const ReportComponent: React.FC<ReportComponentProps> = ({ id, username, type })
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const [otherText, setOtherText] = useState('');
   const [showAlert, setShowAlert] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false); // حالة جديدة للتحكم في الأنيميشن
 
   const reportOptions = [
     'إساءة الألفاظ',
@@ -38,46 +41,50 @@ const ReportComponent: React.FC<ReportComponentProps> = ({ id, username, type })
     });
   };
 
-const handleSubmit = async () => {
-  const reportData = {
-    'المُبلِغ': userId || "غير معروف",
-    'المُبلَغ عنه': username,
-    'النوع': type === 'p' ? 'منشور' : 'تعليق',
-    'المعرف': id,
-    'الأسباب': selectedOptions,
-    'نص إضافي': otherText || 'لا يوجد',
-    'رابط': `https://stu-voice.vercel.app/posts/${type === 'p' ? id : `comment/${id}`}`
-  };
-
-  try {
-    const messageText = Object.entries(reportData)
-      .map(([key, value]) => `*${key}:* ${Array.isArray(value) ? value.join(', ') : value}`)
-      .join('\n');
+  const handleSubmit = async () => {
+    setIsSubmitting(true); // بدء الأنيميشن
     
-    const response = await fetch(
-      `https://api.telegram.org/bot${process.env.NEXT_PUBLIC_TELEGRAM_BOT_TOKEN}/sendMessage`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: process.env.NEXT_PUBLIC_TELEGRAM_CHAT_ID,
-          text: `📢 *بلاغ جديد*\n\n${messageText}`,
-          parse_mode: 'Markdown'
-        })
-      }
-    );
+    const reportData = {
+      'المُبلِغ': userId || "غير معروف",
+      'المُبلَغ عنه': username,
+      'النوع': type === 'p' ? 'منشور' : 'تعليق',
+      'المعرف': id,
+      'الأسباب': selectedOptions,
+      'نص إضافي': otherText || 'لا يوجد',
+      'رابط': `https://stu-voice.vercel.app/posts/${type === 'p' ? id : `comment/${id}`}`
+    };
 
-    if (!response.ok) throw new Error('فشل في إرسال البلاغ');
+    try {
+      const messageText = Object.entries(reportData)
+        .map(([key, value]) => `*${key}:* ${Array.isArray(value) ? value.join(', ') : value}`)
+        .join('\n');
+      
+      const response = await fetch(
+        `https://api.telegram.org/bot${process.env.NEXT_PUBLIC_TELEGRAM_BOT_TOKEN}/sendMessage`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: process.env.NEXT_PUBLIC_TELEGRAM_CHAT_ID,
+            text: `📢 *بلاغ جديد*\n\n${messageText}`,
+            parse_mode: 'Markdown'
+          })
+        }
+      );
 
-    setShowReportPanel(false);
-    setShowAlert(true);
-    setSelectedOptions([]);
-    setOtherText('');
-  } catch (error) {
-    console.error('حدث خطأ أثناء إرسال البلاغ:', error);
-    setShowAlert(true);
-  }
-};
+      if (!response.ok) throw new Error('فشل في إرسال البلاغ');
+
+      setShowReportPanel(false);
+      setShowAlert(true);
+      setSelectedOptions([]);
+      setOtherText('');
+    } catch (error) {
+      console.error('حدث خطأ أثناء إرسال البلاغ:', error);
+      setShowAlert(true);
+    } finally {
+      setIsSubmitting(false); // إيقاف الأنيميشن بغض النظر عن النتيجة
+    }
+  };
 
   const handleClosePanel = () => {
     setShowReportPanel(false);
@@ -154,14 +161,18 @@ const handleSubmit = async () => {
               </button>
               <button
                 onClick={handleSubmit}
-                disabled={selectedOptions.length === 0 || (selectedOptions.includes('أخرى') && !otherText)}
-                className={`px-4 py-2 text-sm rounded-md ${
+                disabled={selectedOptions.length === 0 || (selectedOptions.includes('أخرى') && !otherText) || isSubmitting}
+                className={`px-4 py-2 text-sm rounded-md flex items-center justify-center min-w-[80px] ${
                   selectedOptions.length === 0 || (selectedOptions.includes('أخرى') && !otherText)
                     ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     : 'bg-red-500 text-white hover:bg-red-600'
                 }`}
               >
-                إبلاغ
+                {isSubmitting ? (
+                  <FaSpinner className="animate-spin" />
+                ) : (
+                  'إبلاغ'
+                )}
               </button>
             </div>
           </div>

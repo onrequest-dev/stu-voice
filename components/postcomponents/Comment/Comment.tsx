@@ -35,9 +35,6 @@ const Comment = ({
 }: CommentProps) => {
   // const [userVote, setUserVote] = useState<'up' | 'down' | null>(null);
   const [showReplies, setShowReplies] = useState(false);
-
-
-
   // const handleLike = () => {
   //   if (userVote === 'up') {
   //     setUserVote(null);
