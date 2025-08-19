@@ -47,6 +47,7 @@ export async function POST(request: NextRequest) {
     });
 
   if (commentsError) {
+    console.log(errors)
     return NextResponse.json({ error: INVALID_REQUEST },
         { status: 400 })
   }

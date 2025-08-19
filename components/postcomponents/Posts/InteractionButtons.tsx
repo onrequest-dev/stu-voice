@@ -6,7 +6,6 @@ import {
 } from 'react-icons/fa';
 import Alert from '../../Alert';
 import ReportComponent from '@/components/ReportComponent';
-import { boolean } from 'zod';
 
 interface InteractionButtonsProps {
   postId: string;

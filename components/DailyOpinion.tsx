@@ -1,18 +1,16 @@
 'use client';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, KeyboardEvent } from 'react';
 import { FaRegComment, FaArrowUp } from 'react-icons/fa';
 import { IoMdSend } from 'react-icons/io';
-import { AiOutlineArrowUp, AiOutlineArrowDown } from 'react-icons/ai';
 import Comment from './postcomponents/Comment/Comment';
 import { UserInfo } from './postcomponents/types';
 import { getUserDataFromStorage } from '../client_helpers/userStorage';
+import styles from '../ScrollableArea.module.css';
 interface DailyOpinionProps {
   opinion: {
     id: string;
     type: 'ترفيهي' | 'أكاديمي' | 'اجتماعي';
     text: string;
-    agreeCount: number;
-    disagreeCount: number;
     readersCount: number;
   };
   initialComments: {
@@ -28,52 +26,47 @@ interface DailyOpinionProps {
 const DailyOpinion = ({ opinion, initialComments }: DailyOpinionProps) => {
   const [comments, setComments] = useState(initialComments);
   const [newComment, setNewComment] = useState('');
-  const [userReaction, setUserReaction] = useState<'agree' | 'disagree' | null>(null);
-  const [showScrollButton, setShowScrollButton] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
-  
+
   const commentsEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-const [currentUser, setCurrentUser] = useState<UserInfo>({
-  id: 'loading-user',
-  fullName: 'جار التحميل...',
-  iconName: 'user',
-  iconColor: '#cccccc',
-  bgColor: '#f0f0f0',
-  study: ''
-});
+  const [currentUser, setCurrentUser] = useState<UserInfo>({
+    id: 'loading-user',
+    fullName: 'جار التحميل...',
+    iconName: 'user',
+    iconColor: '#cccccc',
+    bgColor: '#f0f0f0',
+    study: ''
+  });
 
-useEffect(() => {
-  const loadUserData = () => {
-    const userData = getUserDataFromStorage();
-    if (userData) {
-      setCurrentUser({
-        id: userData.id,
-        fullName: userData.fullName,
-        iconName: userData.iconName,
-        iconColor: userData.iconColor,
-        bgColor: userData.bgColor,
-        study: userData.study
-      });
-    } else {
-      // قيم افتراضية إذا لم توجد بيانات مستخدم
-      setCurrentUser({
-        id: 'guest-' + Math.random().toString(36).substr(2, 9),
-        fullName: 'زائر',
-        iconName: 'user',
-        iconColor: '#3b82f6',
-        bgColor: '#ffffff',
-        study: 'زائر'
-      });
-    }
-  };
+  useEffect(() => {
+    const loadUserData = () => {
+      const userData = getUserDataFromStorage();
+      if (userData) {
+        setCurrentUser({
+          id: userData.id,
+          fullName: userData.fullName,
+          iconName: userData.iconName,
+          iconColor: userData.iconColor,
+          bgColor: userData.bgColor,
+          study: userData.study
+        });
+      } else {
+        setCurrentUser({
+          id: 'guest-' + Math.random().toString(36).substr(2, 9),
+          fullName: 'زائر',
+          iconName: 'user',
+          iconColor: '#3b82f6',
+          bgColor: '#ffffff',
+          study: 'زائر'
+        });
+      }
+    };
 
-  loadUserData();
-}, []);
+    loadUserData();
+  }, []);
 
-  // إنشاء بيانات المستخدمين (usersData)
   const usersData = {
     [currentUser.id]: currentUser,
     ...initialComments.reduce((acc, comment) => {
@@ -83,47 +76,56 @@ useEffect(() => {
   };
 
   useEffect(() => {
-    commentsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [comments]);
+    if (comments.length > initialComments.length) {
+      setTimeout(() => {
+        commentsEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 100);
+    }
+  }, [comments, initialComments.length]);
 
   useEffect(() => {
     const handleScroll = () => {
-      if (contentRef.current) {
-        const { scrollTop, scrollHeight, clientHeight } = contentRef.current;
-        const progress = (scrollTop / (scrollHeight - clientHeight)) * 100;
-        setScrollProgress(progress);
-        setShowScrollButton(scrollTop > 100);
+      if (containerRef.current) {
+        const { scrollTop } = containerRef.current;
       }
     };
 
-    const contentElement = contentRef.current;
-    if (contentElement) {
-      contentElement.addEventListener('scroll', handleScroll);
+    const container = containerRef.current;
+    if (container) {
+      container.addEventListener('scroll', handleScroll);
+      handleScroll();
     }
 
     return () => {
-      if (contentElement) {
-        contentElement.removeEventListener('scroll', handleScroll);
+      if (container) {
+        container.removeEventListener('scroll', handleScroll);
       }
     };
   }, []);
 
-const handleAddComment = () => {
-  if (!newComment.trim() || !currentUser) return;
+  const handleAddComment = () => {
+    if (!newComment.trim() || !currentUser) return;
 
-  const comment = {
-    id: Date.now().toString(),
-    text: newComment,
-    likes: 0,
-    timestamp: 'الآن',
-    userInfo: currentUser,
-    userLiked: false
+    const comment = {
+      id: Date.now().toString(),
+      text: newComment,
+      likes: 0,
+      timestamp: 'الآن',
+      userInfo: currentUser,
+      userLiked: false
+    };
+
+    setComments([...comments, comment]);
+    setNewComment('');
+    inputRef.current?.focus();
   };
-  
-  setComments([...comments, comment]);
-  setNewComment('');
-  inputRef.current?.focus();
-};
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleAddComment();
+    }
+  };
 
   const handleLike = (commentId: string) => {
     setComments(comments.map(comment => {
@@ -139,154 +141,107 @@ const handleAddComment = () => {
     }));
   };
 
-  const handleDislike = (commentId: string) => {
-    setComments(comments.map(comment => {
-      if (comment.id === commentId) {
-        const wasLiked = comment.userLiked;
-        return {
-          ...comment,
-          likes: wasLiked ? comment.likes - 1 : comment.likes,
-          userLiked: false
-        };
-      }
-      return comment;
-    }));
-  };
-
-  const handleReaction = (reaction: 'agree' | 'disagree') => {
-    setUserReaction(userReaction === reaction ? null : reaction);
-  };
-
   const handleAddReply = (replyText: string, parentCommentId: string) => {
-    // يمكنك تنفيذ هذه الوظيفة حسب احتياجاتك
-    console.log('تمت إضافة رد:', replyText, 'للتعليق:', parentCommentId);
+    if (!replyText.trim() || !currentUser) return;
+
+    const reply = {
+      id: Date.now().toString(),
+      text: replyText,
+      likes: 0,
+      timestamp: 'الآن',
+      userInfo: currentUser,
+      userLiked: false,
+      parentId: parentCommentId
+    };
+
+    setComments([...comments, reply]);
   };
 
   const scrollToTop = () => {
-    if (contentRef.current) {
-      contentRef.current.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      });
-      
-      let progress = scrollProgress;
-      const animateScroll = () => {
-        progress -= 2;
-        setScrollProgress(progress > 0 ? progress : 0);
-        if (progress > 0) {
-          requestAnimationFrame(animateScroll);
-        }
-      };
-      requestAnimationFrame(animateScroll);
-    }
+    containerRef.current?.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
   };
 
   return (
-    <div className="flex flex-col h-screen relative">
-      {/* Content */}
-      <div ref={contentRef} className="flex-1 overflow-y-auto">
-        <div className="p-4">
-          {/* Opinion Card */}
-          <div className="bg-white rounded-lg shadow p-4 mb-4">
-            {/* Opinion Type */}
-            <div className="flex justify-between items-center mb-3">
-              <span className={`text-xs px-3 py-1 rounded-full ${
-                opinion.type === 'ترفيهي' ? 'bg-purple-100 text-purple-800' :
-                opinion.type === 'أكاديمي' ? 'bg-blue-100 text-blue-800' :
-                'bg-green-100 text-green-800'
-              }`}>
-                {opinion.type}
-              </span>
-              <span className="text-sm text-gray-500">
-                {opinion.readersCount} قارئ
-              </span>
-            </div>
+    <div className="flex flex-col h-[calc(100vh-80px)] max-w-2xl mx-auto px-4">
+      {/* Opinion Card */}
+      <div className="bg-white rounded-lg p-4 shadow-sm mt-4">
+        <div className="flex justify-between items-center mb-3">
+          <span className={`text-xs px-3 py-1 rounded-full ${
+            opinion.type === 'ترفيهي' ? 'bg-purple-100 text-purple-800' :
+            opinion.type === 'أكاديمي' ? 'bg-blue-100 text-blue-800' :
+            'bg-green-100 text-green-800'
+          }`}>
+            {opinion.type}
+          </span>
+          <span className="text-sm text-gray-500">
+            {opinion.readersCount} قارئ
+          </span>
+        </div>
 
-            {/* Opinion Text */}
-            <p className="text-gray-800 text-right text-lg mb-4">
-              {opinion.text}
-            </p>
-          </div>
+        <p className="text-gray-800 text-right text-lg mb-2">
+          {opinion.text}
+        </p>
+      </div>
 
-          {/* Comments Section */}
-          <div className="mt-6">
-            <div className="flex justify-end items-center mb-4">
-              <h2 className="text-lg font-semibold text-gray-800 flex items-center">
-                <FaRegComment className="ml-2" />
-                التعليقات ({comments.length})
-              </h2>
-            </div>
+      {/* Comments Section */}
+      <div 
+        ref={containerRef}
+        className={`mb-2 overflow-y-auto ${styles.scrollContainer}`}
+      >
+        <div className="flex justify-between items-center mb-4 mt-4">
+          <h2 className="text-lg font-semibold text-gray-800 flex items-center">
+            <FaRegComment className="ml-2" />
+            التعليقات ({comments.length})
+          </h2>
+        </div>
 
-            {/* Comments List */}
-            <div className="space-y-4">
-              {comments.map(comment => (
-                <Comment
-                  key={comment.id}
-                  comment={{
-                    id: comment.id,
-                    text: comment.text,
-                    likes: comment.likes,
-                    timestamp: comment.timestamp,
-                    repliesCount: 0 // يمكنك تغيير هذا حسب احتياجاتك
-                  }}
-                  userInfo={comment.userInfo}
-                  onLike={() => handleLike(comment.id)}
-                  onDislike={() => handleDislike(comment.id)}
-                  currentUser={currentUser}
-                  usersData={usersData}
-                  onAddReply={handleAddReply}
-                  charLimit={170}
-                />
-              ))}
-              <div ref={commentsEndRef} />
-            </div>
-          </div>
+        <div className="space-y-4 mr-2">
+          {comments.map(comment => (
+            <Comment
+              key={comment.id}
+              comment={{
+                id: comment.id,
+                text: comment.text,
+                likes: comment.likes,
+                timestamp: comment.timestamp,
+                repliesCount: 0
+              }}
+              userInfo={comment.userInfo}
+              onLike={() => handleLike(comment.id)}
+              onDislike={() => console.log('dis')}
+              currentUser={currentUser}
+              usersData={usersData}
+              onAddReply={handleAddReply}
+              charLimit={170}
+            />
+          ))}
+          <div ref={commentsEndRef} className="h-4" />
         </div>
       </div>
 
-      {/* Floating Scroll Button */}
-      {showScrollButton && (
-        <button
-          onClick={scrollToTop}
-          className="fixed left-4 bottom-20 w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center z-10"
-          aria-label="التمرير إلى الأعلى"
-        >
-          <div className="relative w-full h-full">
-            {/* Progress Circle */}
-            <svg className="w-full h-full absolute top-0 left-0 transform -rotate-90">
-              <circle
-                cx="24"
-                cy="24"
-                r="22"
-                fill="none"
-                stroke="#3b82f6"
-                strokeWidth="2"
-                strokeDasharray={2 * Math.PI * 22}
-                strokeDashoffset={2 * Math.PI * 22 * (1 - scrollProgress / 100)}
-              />
-            </svg>
-            {/* Arrow Icon */}
-            <FaArrowUp className="text-gray-700 text-lg absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
-          </div>
-        </button>
-      )}
-
       {/* Comment Input */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white pb-1 pl-3 pr-3">
-        <div className="flex items-center gap-2 max-w-md mx-auto">
+      <div className="border-t border-gray-200 p-2 bg-white">
+        <div className="flex items-center gap-2">
           <input
             ref={inputRef}
             type="text"
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
+            onKeyDown={handleKeyDown}
             placeholder="...اكتب تعليقك"
-            className="flex-1 border border-gray-300 rounded-full py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-right shadow-sm"
-            onKeyDown={(e) => e.key === 'Enter' && handleAddComment()}
+            className="flex-1 border border-gray-300 rounded-full py-2 px-6 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-right shadow-sm"
           />
           <button
             onClick={handleAddComment}
             disabled={!newComment.trim()}
-            className={`p-2 rounded-full ${newComment.trim() ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'} shadow-sm`}
+            className={`p-2 rounded-full ${
+              newComment.trim() 
+                ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                : 'bg-gray-200 text-gray-500'
+            } shadow-sm transition-colors duration-200`}
           >
             <IoMdSend size={20} />
           </button>

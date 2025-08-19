@@ -192,7 +192,7 @@ useEffect(() => {
     }
     
   };
-
+  
   const handleAddReply = async (replyText: string, parentCommentId: string, repliedToUserId?: string) => {
     let reply: ReplyType = {
       id: Date.now().toString(),
@@ -330,11 +330,9 @@ return (
                     key={comment.id}
                     comment={{
                       ...comment,
-                      repliesCount: comment.replies?.length || comment.repliesCount || 0
+                      repliesCount: comment.replies?.length || comment.repliesCount
                     }}
                     userInfo={user}
-                    onLike={() => handleLike(comment.id)}
-                    onDislike={() => handleLike(comment.id)}
                     currentUser={currentUser}
                     usersData={users}
                     onAddReply={handleAddReply}
