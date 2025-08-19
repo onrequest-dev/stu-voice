@@ -21,6 +21,7 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "client_helpers/getfingerprint.js", "components/postcomponents/Posts/InteractionButtons.tsx"],
-  "exclude": ["node_modules"]
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "client_helpers/getfingerprint.js", "components/postcomponents/InteractionButtons.tsx"],
+  "exclude": ["node_modules"],
+  
 }
