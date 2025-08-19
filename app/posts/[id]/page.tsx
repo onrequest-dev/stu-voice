@@ -86,7 +86,6 @@ export default async function PostPage({ params }: PostPageProps) {
     likes: 0, // يمكن تحديثه لاحقًا عند دعم الإعجابات
     repliesCount: row.replies_count || 0,
   }));
-
   // ==== تحويل معلومات المستخدمين إلى خريطة ====
   const users: Record<string, any> = {};
   for (const row of commentsRaw || []) {
@@ -103,6 +102,7 @@ export default async function PostPage({ params }: PostPageProps) {
       };
     }
   }
+
 
   return (
     <div className="container mx-auto py-8">

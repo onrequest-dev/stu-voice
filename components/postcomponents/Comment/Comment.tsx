@@ -6,9 +6,19 @@ import { useState } from 'react';
 import CommentReplies from './CommentReplies';
 import { TextExpander } from '../../TextExpander';
 import ReportComponent from '@/components/ReportComponent';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getcomments } from '@/client_helpers/getcomments';
+
+interface ReplyType {
+  id: string;
+  userId: string;
+  text: string;
+  timestamp: string;
+  repliedToUserId?: string;
+}
+
 interface CommentProps {
-  postid? : string|number
+  postid?: string | number;
   comment: {
     id: string;
     text: string;
@@ -17,62 +27,65 @@ interface CommentProps {
     repliesCount?: number;
   };
   userInfo: UserInfo;
-  onLike: () => void;
-  onDislike: () => void;
-  charLimit?: number;
   currentUser: UserInfo;
   usersData: Record<string, UserInfo>;
-  onAddReply: (replyText: string, parentCommentId: string, repliedToUserId?: string) => void;
+  onAddReply: (replyText: string, parentCommentId: string, repliedToUserId?: string) => Promise<void>;
 }
 
 const Comment = ({ 
   comment, 
   userInfo, 
-  // onLike, 
-  // onDislike, 
   currentUser,
   usersData,
   onAddReply,
   postid
 }: CommentProps) => {
-  // const [userVote, setUserVote] = useState<'up' | 'down' | null>(null);
   const [showReplies, setShowReplies] = useState(false);
+  const queryClient = useQueryClient();
 
+  // مفتاح الاستعلام الفريد للردود
+  const repliesQueryKey = ['commentReplies', comment.id];
 
-
-  // const handleLike = () => {
-  //   if (userVote === 'up') {
-  //     setUserVote(null);
-  //     onDislike();
-  //   } else {
-  //     setUserVote('up');
-  //     onLike();
-  //     if (userVote === 'down') {
-  //       onLike();
-  //     }
-  //   }
-  // };
-
-  // const handleDislike = () => {
-  //   if (userVote === 'down') {
-  //     setUserVote(null);
-  //     onLike();
-  //   } else {
-  //     setUserVote('down');
-  //     onDislike();
-  //     if (userVote === 'up') {
-  //       onDislike();
-  //     }
-  //   }
-  // };
+  // استعلام لجلب الردود مع التخزين المؤقت
+  const { data: repliesData = [], isLoading: loadingReplies, isError } = useQuery<ReplyType[]>({
+    queryKey: repliesQueryKey,
+    queryFn: async (): Promise<ReplyType[]> => {
+      const result = await getcomments({
+        input_post_id: postid?.toString() || "",
+        input_comment_replied_to_id: comment.id.toString()
+      });
+      
+      if (result?.status === 200 && Array.isArray(result.comments)) {
+        return result.comments.map((reply: any) => ({
+          id: reply.comment_id?.toString() || Math.random().toString(),
+          userId: reply.user_id?.toString() || 'unknown',
+          text: reply.content || '',
+          timestamp: reply.created_at ? new Date(reply.created_at).toLocaleString() : 'الآن',
+          repliedToUserId: reply.comment_replied_to_id?.toString()
+        }));
+      }
+      return [];
+    },
+    enabled: showReplies && (comment.repliesCount || 0) > 0,
+    staleTime: 5 * 60 * 1000, // 5 دقائق قبل اعتبار البيانات قديمة
+    gcTime: 5 * 60 * 1000, // 5 دقائق للتخزين المؤقت (استبدل cacheTime بـ gcTime)
+    retry: 2,
+  });
 
   const toggleReplies = () => {
-    //////////////////////////////////////////////////////////حج هادي هون التعليقات الفرغية بس حطلك شي شغلة بين ما يحملوا
-    getcomments({input_post_id:postid?.toString()||"",input_comment_replied_to_id:comment.id.toString()})
-    .then(result=>console.log(result))
     setShowReplies(!showReplies);
   };
 
+  const handleAddReply = async (replyText: string, parentCommentId: string, repliedToUserId?: string) => {
+    try {
+      await onAddReply(replyText, parentCommentId, repliedToUserId);
+      queryClient.invalidateQueries({ queryKey: repliesQueryKey });
+    } catch (error) {
+      console.error('Failed to add reply:', error);
+      throw error;
+    }
+  };
+  console.log("عدد التعليقات :" + comment.repliesCount)
   return (
     <div className="border-b pb-4 mb-4 relative">
       {/* الصف العلوي: التاريخ ومعلومات المستخدم */}
@@ -111,40 +124,24 @@ const Comment = ({
 
       {/* أزرار التفاعل */}
       <div className="flex mt-3 text-gray-500 justify-end gap-3">
-        {/* <button
-          onClick={handleLike}
-          className={`flex items-center ${userVote === 'up' ? 'text-green-600' : 'hover:text-blue-600'}`}
-        >
-          <FaArrowUp className="ml-1" />
-          <span className="text-xs mr-1">{comment.likes}</span>
-        </button>
-        <button
-          onClick={handleDislike}
-          className={`flex items-center ${userVote === 'down' ? 'text-red-600' : 'hover:text-red-600'}`}
-        >
-          <FaArrowDown className="ml-1" />
-        </button> */}
         <ReportComponent id={comment.id} username={userInfo.id} type="c" />
 
         <button
           onClick={toggleReplies}
-          className="flex items-center text-gray-500 hover:text-blue-600">
+          className="flex items-center text-gray-500 hover:text-blue-600"
+          disabled={loadingReplies}
+        >
           <FaReply size={12} />
-          <span className="text-xs ml-2">{comment.repliesCount || 0} ردود</span>
+          <span className="text-xs ml-2">
+            {loadingReplies ? (
+              <span className="inline-block w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></span>
+            ) : (
+              `${comment.repliesCount || 0} ردود`
+            )}
+          </span>
         </button>
       </div>
-
-      {/* زر الرد وعدد الردود */}
-      {/* <div className="flex mt-2 items-center">
-        <button
-          onClick={toggleReplies}
-          className="flex items-center text-gray-500 hover:text-blue-600"
-        >
-          <FaReply className="m-2" />
-          <span className="text-xs">{comment.repliesCount || 0} ردود</span>
-        </button>
-      </div> */}
-
+        
       {/* شريط الردود */}
       {showReplies && (
         <CommentReplies 
@@ -157,10 +154,12 @@ const Comment = ({
             timestamp: comment.timestamp
           }}
           userInfo={userInfo}
+          repliesData={repliesData}
           usersData={usersData}
           onAddReply={onAddReply}
           onClose={() => setShowReplies(false)}
           currentUser={currentUser}
+          loadingReplies={loadingReplies}
         />
       )}
     </div>
