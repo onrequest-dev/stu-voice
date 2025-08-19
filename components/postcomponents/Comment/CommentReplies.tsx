@@ -84,6 +84,10 @@
         }
     }, [replies, keyboardHeight]);
 
+
+
+
+
     const fetchReplies = async () => {
         if (replies.length > 0) return;
         
