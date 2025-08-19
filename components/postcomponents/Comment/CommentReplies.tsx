@@ -37,7 +37,6 @@
     const [loadingReplies, setLoadingReplies] = useState(false);
     const [newReply, setNewReply] = useState('');
     const [replyingTo, setReplyingTo] = useState<UserInfo | null>(null);
-    const [showReportAlert, setShowReportAlert] = useState(false);
     const [keyboardHeight, setKeyboardHeight] = useState(0);
     const replyInputRef = useRef<HTMLTextAreaElement>(null);
     const repliesContainerRef = useRef<HTMLDivElement>(null);
@@ -320,15 +319,6 @@
                         </div>
                     </div>
                 </div>
-
-                {showReportAlert && (
-                <Alert
-                    message="شكراً 🌹، سيتم مراجعة الإبلاغ من قبل الإدارة واتخاذ الإجراء المناسب. شكراً لحفاظك على سلامة المنصة 😊"
-                    type="success"
-                    autoDismiss={5000}
-                    onDismiss={() => setShowReportAlert(false)}
-                />
-                )}
             </div>
         </div>
     );

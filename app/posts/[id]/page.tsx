@@ -7,7 +7,7 @@ type PostPageProps = {
 };
 
 // نوع البيانات الراجعة من RPC fetch_comments_with_users
-type CommentWithUser = {
+export type CommentWithUser = {
   comment_id: number;
   content: string;
   created_at: string;
@@ -76,7 +76,7 @@ export default async function PostPage({ params }: PostPageProps) {
   if (commentsError) {
     console.error('فشل في جلب التعليقات:', commentsError);
   }
-
+  console.log(commentsRaw);
   // ==== تحويل التعليقات إلى الشكل المناسب للمكون ====
   const comments = (commentsRaw || []).map((row) => ({
     id: row.comment_id.toString(),
@@ -86,7 +86,7 @@ export default async function PostPage({ params }: PostPageProps) {
     likes: 0, // يمكن تحديثه لاحقًا عند دعم الإعجابات
     repliesCount: row.replies_count || 0,
   }));
- 
+
   // ==== تحويل معلومات المستخدمين إلى خريطة ====
   const users: Record<string, any> = {};
   for (const row of commentsRaw || []) {
@@ -103,7 +103,7 @@ export default async function PostPage({ params }: PostPageProps) {
       };
     }
   }
-  
+
   return (
     <div className="container mx-auto py-8">
       <PostWithComments
