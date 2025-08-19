@@ -8,6 +8,7 @@ import { UserInfo, PostProps } from '../types';
 import Link from 'next/link';
 import CommentRulesAlert from './CommentRulesAlert';
 import { getUserDataFromStorage } from '../../../client_helpers/userStorage';
+import { postComment } from '@/client_helpers/sendcomment';
 
 interface CommentType {
   id: string;
@@ -142,9 +143,9 @@ useEffect(() => {
     setIsAnimating(true);
     const newState = !commentsOpen;
     
-    if (newState && comments.length === 0) {
-      await fetchComments();
-    }
+    // if (newState && comments.length === 0) {
+    //   await fetchComments();
+    // }
     
     setCommentsOpen(newState);
     
@@ -157,6 +158,38 @@ useEffect(() => {
     setTimeout(() => setIsAnimating(false), 300);
   };
 
+
+  const handleAddComment = async () => {
+    
+    if (newComment.trim()) {
+      const comment: CommentType = {
+        id: Date.now().toString(),
+        userId: currentUser.id,
+        text: newComment,
+        likes: 0,
+        timestamp: 'الآن',
+        userLiked: false,
+        repliesCount: 0
+      };
+      
+      setComments([comment, ...comments]);
+      setUsers(prev => ({...prev, [currentUser.id]: currentUser}));
+      setNewComment('');
+      
+      if (textareaRef.current) {
+        textareaRef.current.focus();
+      }
+    }
+    try{
+    const result = await postComment(
+      {
+        content : newComment,
+        id : postData.id,
+        
+      }
+    )
+  }catch{console.log("error")}
+  };
 const handleAddComment = () => {
   if (newComment.trim()) {
     const comment: CommentType = {
@@ -179,7 +212,7 @@ const handleAddComment = () => {
   }
 };
 
-  const handleAddReply = (replyText: string, parentCommentId: string, repliedToUserId?: string) => {
+  const handleAddReply = async (replyText: string, parentCommentId: string, repliedToUserId?: string) => {
     const reply: ReplyType = {
       id: Date.now().toString(),
       userId: currentUser.id,
@@ -199,6 +232,14 @@ const handleAddComment = () => {
           }
         : comment
     ));
+    try{
+      console.log(parentCommentId)
+      const result = await postComment({
+        content : replyText,
+        id : postData.id,
+        comment_replied_to_id : parentCommentId
+      })
+    }catch{console.log("error")}
   };
 
   const handleLike = (commentId: string) => {

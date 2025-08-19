@@ -12,8 +12,8 @@ import {  z } from "zod";
 
 const PostSchema = z.object({
   content: z.string().min(1).max(5000),
-  id : z.number(),
-  comment_replied_to_id : z.number().optional(),
+  id : z.string(),
+  comment_replied_to_id : z.string().optional(),
 
 });
 
@@ -43,6 +43,7 @@ export async function POST(request: NextRequest) {
   const body = await request.json();
   const {  data, errors } = validateAndSanitize(PostSchema, body);
   if(errors){
+    console.log(errors)
     return NextResponse.json(
       { error: INVALID_REQUEST },
       { status: 400 }
@@ -60,6 +61,7 @@ export async function POST(request: NextRequest) {
     .select()
     .single();
         if(error){
+        console.log(error)
         return NextResponse.json(
         { error: INVALID_REQUEST },
         { status: 400 }
