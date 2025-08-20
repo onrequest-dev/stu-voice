@@ -46,17 +46,21 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
   onReport
 }) => {
     const result1 = extractUsername(text);
-  const bubbleColors = isMine
-    ? {
-        bg: 'bg-green-400 text-white dark:bg-emerald-600',
-        border: 'border-transparent',
-        tailLeft: 'border-r-green-400 dark:border-r-emerald-600', // ذيل يسار
-      }
-    : {
-        bg: 'bg-blue-200 text-neutral-900 dark:bg-neutral-900 dark:text-neutral-100',
-        border: 'border border-neutral-200 dark:border-neutral-700',
-        tailRight: 'border-l-blue-200 dark:border-l-neutral-900 ', // ذيل يمين
-      };
+const bubbleColors = isMine
+  ? {
+      bg: 'bg-blue-600 text-white',
+      bgcap:'bg-blue-500 text-white',
+      border: 'border border-indigo-800/30', // حدود شفافة
+      shadow: 'shadow-lg shadow-indigo-900/50', // ظل خارجي غامق
+      tailLeft: 'border-r-blue-600',
+    }
+  : {
+      bg: 'bg-blue-200 text-neutral-900 dark:bg-slate-800',
+      bgcap:'bg-blue-100 text-neutral-900 dark:bg-slate-800',
+      border: 'border border-blue-800/20 dark:border-slate-700/40',
+      shadow: 'shadow-lg shadow-blue-900/30 dark:shadow-slate-900/50', // ظل خارجي غامق
+      tailRight: 'border-l-blue-200',
+    };
 
   // ترتيب العناصر: رسائلي [Icon][Bubble] بمحاذاة يسار، الآخرين [Bubble][Icon] بمحاذاة يمين
   const containerJustify = isMine ? 'justify-start' : 'justify-end';
@@ -64,7 +68,8 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
 
   return (
     <div className={['w-full flex', containerJustify, className].join(' ')}>
-      <div className={['flex items-end gap-2 max-w-[92%] sm:max-w-[80%]', rowOrder].join(' ')}>
+      {/* التعديل: إضافة min-width للحاوية الداخلية */}
+      <div className={['flex items-end gap-2 min-w-[200px] max-w-[92%] sm:max-w-[80%]', rowOrder].join(' ')}>
         {/* الأيقونة بجانب الفقاعة حسب جهة المرسل */}
         <div className="shrink-0 self-start">
             <Link 
@@ -80,14 +85,13 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
           </Link>
         </div>
 
-        {/* الفقاعة */}
-        <div className="relative group">
+        <div className="relative group min-w-[150px]">
           <div
             className={[
-              'rounded-2xl px-3.5 py-2.5 shadow-sm',
-              'leading-relaxed break-words',
+              'rounded-2xl px-2 py-0.5 shadow-sm',
+              'leading-relaxed break-words min-w-[150px]',
               'transition-colors duration-200',
-              bubbleColors.bg,
+              bubbleColors.bgcap,
               bubbleColors.border,
               bubbleClassName
             ].join(' ')}
@@ -95,14 +99,14 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
             {/* الرأس */}
             <div
               className={[
-                'flex items-start gap-2 mb-1',
+                'flex items-start gap-2',
                 isMine ? 'justify-start' : 'justify-between'
               ].join(' ')}
             >
               {/* عند كون الرسالة ليست لي: اضمن أن الاسم يظهر على يمين الفقاعة بالنسبة لي
                  باستخدام order لمنح الاسم أسبقية على الطرف الأيمن ضمن flex */}
               <div className={['flex flex-col', !isMine ? 'order-2' : 'order-1'].join(' ')}>
-                <span className="font-semibold text-[13px] sm:text-sm leading-5">
+                <span className="font-semibold text-[12px] sm:text-sm leading-5">
                   {user.fullName}
                 </span>
                 <span
@@ -119,7 +123,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
               {!isMine && time && (
                 <span
                   className={[
-                    'text-[10px] sm:text-[11px] whitespace-nowrap mt-0.5',
+                    'text-[10px] sm:text-[11px] whitespace-nowrap ',
                     'text-neutral-400 dark:text-neutral-500',
                     'order-1'
                   ].join(' ')}
@@ -130,8 +134,14 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
             </div>
 
             {/* النص */}
-            <div>
-                <span dir="ltr" className="text-sm sm:text-[15px] text-blue-600" >{result1.username}</span>
+              <div className={[`${!isMine?'mb-2':'mp-0'}`,
+                  'rounded-xl px-3.5 py-1',
+                  'leading-relaxed break-words',
+                  'transition-colors duration-200',
+                  bubbleColors.bg,      
+                  bubbleClassName
+                ].join(' ')}>
+                <span dir="ltr" className="text-sm sm:text-[12px] text-amber-600 mt-0" >{result1.username}</span>
                 <TextExpander
                 text={result1.remainingText}
                 charLimit={textCharLimit}
