@@ -176,7 +176,6 @@ useEffect(() => {
       {
         content : newComment,
         id : postData.id,
-        
       }
     )
     comment.id = (result as any).post.id
