@@ -1,5 +1,6 @@
 import React from 'react';
 import { FaInfoCircle } from 'react-icons/fa';
+import { BsPatchCheckFill } from 'react-icons/bs'; // ✅ أيقونة احترافية
 import CustomIcon from '../CustomIcon';
 import { UserInfo } from '../types';
 import Link from 'next/link';
@@ -16,12 +17,18 @@ const UserInfoComponent: React.FC<UserInfoProps> = ({ userInfo }) => {
     setIsLoading(true);
   };
 
+  const isVerified = userInfo.id === 'stuvoice';
+
   return (
     <div className="flex items-start justify-between w-full py-4 gap-2">
       {/* الجزء الأيسر - الدراسة */}
       <div className="flex-shrink-0 min-w-[40px] ml-4">
         {userInfo.study && (
-          <span className="inline-block text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+          <span
+            className={`inline-block text-xs text-gray-500 px-2 py-1 rounded ${
+              isVerified ? 'bg-blue-500 text-white' : 'bg-gray-100'
+            }`}
+          >
             {userInfo.study}
           </span>
         )}
@@ -33,10 +40,13 @@ const UserInfoComponent: React.FC<UserInfoProps> = ({ userInfo }) => {
           <div className="flex flex-col items-end">
             <Link 
               href={`/showdatauser/${userInfo.id}`} 
-              className="font-medium text-gray-900 text-right break-words whitespace-normal "
+              className="font-medium text-gray-900 text-right break-words whitespace-normal flex flex-row-reverse items-center gap-1"
               onClick={handleLinkClick}
             >
               {userInfo.fullName}
+              {isVerified && (
+                <BsPatchCheckFill className="text-green-500 mx-1" size={14} />
+              )}
             </Link>
             <div className="flex items-center justify-end mt-1">
               <FaInfoCircle className="text-gray-400 ml-1 flex-shrink-0" size={10} />

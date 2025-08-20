@@ -7,7 +7,8 @@ import {
   FaDumbbell, FaBasketballBall, FaTableTennis, FaSwimmingPool, FaRunning, 
   FaBiking, FaFootballBall, FaCarrot, FaAppleAlt, FaHamburger, FaPizzaSlice, 
   FaIceCream, FaMusic, FaPaintBrush, FaPalette, FaCamera, FaCode, FaRobot, 
-  FaGlobe, FaHistory, FaLanguage, FaBrain, FaChess, FaSeedling, FaChartLine 
+  FaGlobe, FaHistory, FaLanguage, FaBrain, FaChess, FaSeedling, FaChartLine, 
+  FaMicrophoneAlt
 } from 'react-icons/fa';
 
 export const getIconByName = (iconName: string) => {
@@ -64,7 +65,8 @@ export const getIconByName = (iconName: string) => {
     'brain': <FaBrain />,
     'chess': <FaChess />,
     'seedling': <FaSeedling />,
-    'chart': <FaChartLine />
+    'chart': <FaChartLine />,
+    "STUVOICE":<FaMicrophoneAlt/>
   };
 
   return iconsMap[iconName] || <FaUserGraduate />;
