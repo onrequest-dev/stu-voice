@@ -141,21 +141,23 @@ const DailyOpinion = ({ opinion, initialComments }: DailyOpinionProps) => {
     }));
   };
 
-  const handleAddReply = (replyText: string, parentCommentId: string) => {
-    if (!replyText.trim() || !currentUser) return;
+  const handleAddReply = async (replyText: string, parentCommentId: string, repliedToUserId?: string) => {
+  if (!replyText.trim() || !currentUser) return;
 
-    const reply = {
-      id: Date.now().toString(),
-      text: replyText,
-      likes: 0,
-      timestamp: 'الآن',
-      userInfo: currentUser,
-      userLiked: false,
-      parentId: parentCommentId
-    };
-
-    setComments([...comments, reply]);
+  const reply = {
+    id: Date.now().toString(),
+    text: replyText,
+    likes: 0,
+    timestamp: 'الآن',
+    userInfo: currentUser,
+    userLiked: false,
+    parentId: parentCommentId
+    // يمكنك لاحقاً استخدام repliedToUserId إن احتجته
   };
+
+  setComments(prevComments => [...prevComments, reply]);
+};
+
 
   const scrollToTop = () => {
     containerRef.current?.scrollTo({
@@ -210,12 +212,12 @@ const DailyOpinion = ({ opinion, initialComments }: DailyOpinionProps) => {
                 repliesCount: 0
               }}
               userInfo={comment.userInfo}
-              onLike={() => handleLike(comment.id)}
-              onDislike={() => console.log('dis')}
+              // onLike={() => handleLike(comment.id)}
+              // onDislike={() => console.log('dis')}
               currentUser={currentUser}
               usersData={usersData}
               onAddReply={handleAddReply}
-              charLimit={170}
+              // charLimit={170}
             />
           ))}
           <div ref={commentsEndRef} className="h-4" />

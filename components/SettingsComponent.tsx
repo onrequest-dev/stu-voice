@@ -14,21 +14,20 @@ import {
   FaHeadset
 } from 'react-icons/fa';
 import LoadingSpinner from './LoadingSpinner';
+import InstallPWA from './InstallPwa';
 
 const SettingsPanel = () => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [isNavigating, setIsNavigating] = useState(false);
+  const [addPwa,setAddPwa] = useState(false);
 
   const toggleNotifications = () => {
     setNotificationsEnabled((prev) => !prev);
   };
 
   const addToHomeScreen = () => {
-    if (typeof window !== 'undefined' && 'BeforeInstallPromptEvent' in window) {
-      alert('اضغط على "إضافة إلى الشاشة الرئيسية" في قائمة المتصفح');
-    } else {
-      alert('هذه الميزة متاحة فقط في المتصفحات المدعومة');
-    }
+    setAddPwa(true);
+    console.log("dhjk")
   };
 
   const handleEditClick = () => {
@@ -45,6 +44,9 @@ const SettingsPanel = () => {
           <LoadingSpinner />
         </div>
       )}
+      {
+        addPwa&&<InstallPWA/>
+      }
 
       <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-4 md:mb-6 text-right">
         الإعدادات
