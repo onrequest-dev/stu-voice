@@ -274,7 +274,7 @@ const handleDownvote = () => {
             <span>{readersCount}</span>
           </div>
           <Link 
-            href={`/posts/${postId}`} 
+            href={`/talk/${postId}`} 
             className="flex items-center text-blue-500 text-xs md:text-sm hover:underline"
           >
             <FaComment className="ml-1 mr-1.5" size={12} />
