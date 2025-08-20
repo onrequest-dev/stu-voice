@@ -1,0 +1,217 @@
+// components/chat/ChatBubble.tsx
+import React from 'react';
+import CustomIcon from '../postcomponents/CustomIcon';
+import { TextExpander } from '../TextExpander';
+import {FaReply } from 'react-icons/fa';
+import ReportComponent from '../ReportComponent';
+import {extractUsername} from '@/client_helpers/extractUsername'
+import Link from 'next/link';
+export interface UserInfo {
+  id: string;
+  iconName: string;
+  iconColor: string;
+  bgColor: string;
+  fullName: string;
+}
+
+export interface ChatBubbleProps {
+  isMine: boolean;            // true إذا كانت رسالتك أنت
+  user: UserInfo;             // معلومات المستخدم المرسل لهذه الفقاعة
+  text: string;               // نص الرسالة
+  time?: string;              // وقت الإرسال (اختياري)
+  className?: string;         // تخصيص للحاوية الخارجية
+  bubbleClassName?: string;   // تخصيص للفقاعة
+  textCharLimit?: number;     // حد الأحرف قبل "المزيد"
+  showTail?: boolean;         // إظهار الذيل
+  onReply?: () => void;       // دالة الرد على الرسالة (جديدة)
+  onReport?: () => void;      // دالة جديدة للإبلاغ عن الرسالة
+}
+
+/**
+ * السلوك:
+ * - isMine=true: الفقاعة تنحاز لليسار، الأيقونة يسار الفقاعة، الذيل يسار، الوقت أسفل النص بمحاذاة نهاية الفقاعة.
+ * - isMine=false: الفقاعة تنحاز لليمين، الأيقونة يمين الفقاعة، الذيل يمين، في العنوان يظهر الاسم على يمين الفقاعة والوقت على يسار السطر نفسه (justify-between).
+ * - study تُعرض كنص ثانٍ صغير أسفل الاسم.
+ */
+const ChatBubble: React.FC<ChatBubbleProps> = ({
+  isMine,
+  user,
+  text,
+  time,
+  className = '',
+  bubbleClassName = '',
+  textCharLimit = 120,
+  showTail = true,
+  onReply,
+  onReport
+}) => {
+    const result1 = extractUsername(text);
+  const bubbleColors = isMine
+    ? {
+        bg: 'bg-green-400 text-white dark:bg-emerald-600',
+        border: 'border-transparent',
+        tailLeft: 'border-r-green-400 dark:border-r-emerald-600', // ذيل يسار
+      }
+    : {
+        bg: 'bg-blue-200 text-neutral-900 dark:bg-neutral-900 dark:text-neutral-100',
+        border: 'border border-neutral-200 dark:border-neutral-700',
+        tailRight: 'border-l-blue-200 dark:border-l-neutral-900 ', // ذيل يمين
+      };
+
+  // ترتيب العناصر: رسائلي [Icon][Bubble] بمحاذاة يسار، الآخرين [Bubble][Icon] بمحاذاة يمين
+  const containerJustify = isMine ? 'justify-start' : 'justify-end';
+  const rowOrder = isMine ? 'flex-row' : 'flex-row-reverse';
+
+  return (
+    <div className={['w-full flex', containerJustify, className].join(' ')}>
+      <div className={['flex items-end gap-2 max-w-[92%] sm:max-w-[80%]', rowOrder].join(' ')}>
+        {/* الأيقونة بجانب الفقاعة حسب جهة المرسل */}
+        <div className="shrink-0 self-start">
+            <Link 
+                href={`/showdatauser/${user.id}`} 
+                className="flex-shrink-0"
+                >
+          <CustomIcon
+            icon={user.iconName}
+            iconColor={user.iconColor}
+            bgColor={user.bgColor}
+            size={12}
+          />
+          </Link>
+        </div>
+
+        {/* الفقاعة */}
+        <div className="relative group">
+          <div
+            className={[
+              'rounded-2xl px-3.5 py-2.5 shadow-sm',
+              'leading-relaxed break-words',
+              'transition-colors duration-200',
+              bubbleColors.bg,
+              bubbleColors.border,
+              bubbleClassName
+            ].join(' ')}
+          >
+            {/* الرأس */}
+            <div
+              className={[
+                'flex items-start gap-2 mb-1',
+                isMine ? 'justify-start' : 'justify-between'
+              ].join(' ')}
+            >
+              {/* عند كون الرسالة ليست لي: اضمن أن الاسم يظهر على يمين الفقاعة بالنسبة لي
+                 باستخدام order لمنح الاسم أسبقية على الطرف الأيمن ضمن flex */}
+              <div className={['flex flex-col', !isMine ? 'order-2' : 'order-1'].join(' ')}>
+                <span className="font-semibold text-[13px] sm:text-sm leading-5">
+                  {user.fullName}
+                </span>
+                <span
+                    className={[
+                      'text-[11px] sm:text-xs',
+                      isMine ? 'text-emerald-50/90' : 'text-neutral-500 dark:text-neutral-400'
+                    ].join(' ')}
+                  >
+                    @{user.id}
+                  </span>
+              </div>
+
+              {/* الوقت في رسائل الآخرين: على الطرف المقابل من الاسم في نفس السطر */}
+              {!isMine && time && (
+                <span
+                  className={[
+                    'text-[10px] sm:text-[11px] whitespace-nowrap mt-0.5',
+                    'text-neutral-400 dark:text-neutral-500',
+                    'order-1'
+                  ].join(' ')}
+                >
+                  {time}
+                </span>
+              )}
+            </div>
+
+            {/* النص */}
+            <div>
+                <span dir="ltr" className="text-sm sm:text-[15px] text-blue-600" >{result1.username}</span>
+                <TextExpander
+                text={result1.remainingText}
+                charLimit={textCharLimit}
+                className="text-sm sm:text-[15px]"
+                buttonClassName={
+                    isMine
+                    ? 'text-white/90 underline-offset-2 lg:text-sm text-xs cursor-pointer hover:underline focus:outline-none'
+                    : 'text-blue-600 dark:text-blue-400 underline-offset-2 lg:text-sm text-xs cursor-pointer hover:underline focus:outline-none'
+                }
+                />
+            </div>
+            {/* الوقت لرسائلي: أسفل النص بمحاذاة نهاية الفقاعة */}
+            {isMine && time && (
+              <div className="mt-1 flex justify-end">
+                <span className="text-[10px] sm:text-[11px] opacity-80">
+                  {time}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* الذيل: يسار لرسائلي، يمين لرسائل الآخرين */}
+          {showTail && (
+            isMine ? (
+              <span
+                aria-hidden="true"
+                className={[
+                  'absolute top-4 -left-2',
+                  'w-0 h-0',
+                  'border-t-[8px] border-b-[8px] border-r-[10px]',
+                  'border-transparent',
+                  bubbleColors.tailLeft
+                ].join(' ')}
+              />
+            ) : (
+              <span
+                aria-hidden="true"
+                className={[
+                  'absolute top-4 -right-2',
+                  'w-0 h-0',
+                  'border-t-[8px] border-b-[8px] border-l-[10px]',
+                  'border-transparent',
+                  bubbleColors.tailRight
+                ].join(' ')}
+              />
+            )
+          )}
+
+          {/* أزرار الرد والإبلاغ - تظهر عند التمرير فوق الرسالة */}
+          {(onReply || onReport) && (
+            <div className={[
+                'absolute -bottom-6 opacity-0 group-hover:opacity-100 transition-opacity',
+                'flex items-center gap-1',
+                isMine ? 'right-0' : 'left-0'
+                ].join(' ')} style={{ transitionDuration: '2000ms' }}>
+              {onReply && (
+                <button
+                  onClick={onReply}
+                  className={[
+                    'flex items-center gap-1 px-2 py-1 rounded-md text-xs',
+                    isMine 
+                      ? 'text-emerald-600 hover:bg-emerald-100 dark:text-emerald-400 dark:hover:bg-emerald-900/30' 
+                      : 'text-blue-600 hover:bg-blue-100 dark:text-blue-400 dark:hover:bg-blue-900/30'
+                  ].join(' ')}
+                  title="الرد على الرسالة"
+                >
+                  <FaReply size={12} />
+                  رد
+                </button>
+              )}
+              
+              {onReport && (
+                  <ReportComponent id={`${123} , النص:${text}`} username={user.id} type="c" />
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ChatBubble;
