@@ -8,7 +8,7 @@ import { TextExpander } from '../../TextExpander';
 import ReportComponent from '@/components/ReportComponent';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getcomments } from '@/client_helpers/getcomments';
-
+import TimeAgo from '@/components/TimeAgo';
 interface ReplyType {
   id: string;
   userId: string;
@@ -91,7 +91,7 @@ const Comment = ({
       {/* الصف العلوي: التاريخ ومعلومات المستخدم */}
       <div className="flex justify-between items-start">
         <span className="text-xs text-gray-500">
-          {comment.timestamp}
+          <TimeAgo timestamp={comment.timestamp} />
         </span>
         <div className="flex items-center gap-3 pb-2">
           <div className="text-right">
