@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
   // 1. جلب المستخدم من قاعدة البيانات
   const { data: existingUser, error: dbError } = await supabase
     .from('users')
-    .select('user_name, hashed_password')
+    .select('user_name, hashed_password,icon,university,level,faculty,gender,info')
     .eq('user_name', username)
     .single();
   if (dbError || !existingUser) {
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
         });
   
     
-    const response = NextResponse.json({ status: 200, message:user_loged_in_successfully});
+    const response = NextResponse.json({ status: 200, message:user_loged_in_successfully,icon:existingUser.icon,university:existingUser.university,level:existingUser.level,faculty:existingUser.faculty,gender:existingUser.gender,info:existingUser.info});
     response.cookies.set("jwt", jwt || "", { path: "/", maxAge: 60 * 60 * 24 * 365 * 20, httpOnly: true });
     return response;
 }
