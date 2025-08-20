@@ -48,8 +48,8 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
     const result1 = extractUsername(text);
 const bubbleColors = isMine
   ? {
-      bg: 'bg-blue-600 text-white',
-      bgcap:'bg-blue-500 text-white',
+      bg: 'bg-blue-500 text-white',
+      bgcap:'bg-blue-600 text-white',
       border: 'border border-indigo-800/30', // حدود شفافة
       shadow: 'shadow-lg shadow-indigo-900/50', // ظل خارجي غامق
       tailLeft: 'border-r-blue-600',
@@ -134,21 +134,21 @@ const bubbleColors = isMine
             </div>
 
             {/* النص */}
-              <div className={[`${!isMine?'mb-2':'mp-0'}`,
-                  'rounded-xl px-3.5 py-1',
+              <div className={[`${!isMine?'mb-2':'mp-0'} py-4`,
+                  'rounded-xl px-4 py-1',
                   'leading-relaxed break-words',
                   'transition-colors duration-200',
                   bubbleColors.bg,      
                   bubbleClassName
                 ].join(' ')}>
-                <span dir="ltr" className="text-sm sm:text-[12px] text-amber-600 mt-0" >{result1.username}</span>
+                <span dir="ltr" className={`text-sm sm:text-[12px] ${isMine?'text-amber-300': 'text-blue-500'} mt-0 font-bold`} >{result1.username}</span>
                 <TextExpander
                 text={result1.remainingText}
                 charLimit={textCharLimit}
                 className="text-sm sm:text-[15px]"
                 buttonClassName={
                     isMine
-                    ? 'text-white/90 underline-offset-2 lg:text-sm text-xs cursor-pointer hover:underline focus:outline-none'
+                    ? 'text-white/90 underline-offset-2 lg:text-sm text-xs cursor-pointer hover:underline focus:outline-none '
                     : 'text-blue-600 dark:text-blue-400 underline-offset-2 lg:text-sm text-xs cursor-pointer hover:underline focus:outline-none'
                 }
                 />

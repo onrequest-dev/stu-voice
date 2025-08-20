@@ -1,6 +1,6 @@
 "use client"
 // components/chat/ChatBoard.tsx
-import React, { useMemo, useRef, useEffect, useState } from 'react';
+import React, {  useRef, useEffect, useState } from 'react';
 import ChatBubble, { UserInfo } from './ChatBubble';
 import CustomIcon from '../postcomponents/CustomIcon';
 import { RiSendPlaneFill } from 'react-icons/ri';
