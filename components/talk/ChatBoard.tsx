@@ -1,8 +1,11 @@
+"use client"
 // components/chat/ChatBoard.tsx
 import React, { useMemo, useRef, useEffect, useState } from 'react';
 import ChatBubble, { UserInfo } from './ChatBubble';
 import CustomIcon from '../postcomponents/CustomIcon';
 import { RiSendPlaneFill } from 'react-icons/ri';
+import { getUserDataFromStorage } from '@/client_helpers/userStorage';
+import { postComment } from '@/client_helpers/sendcomment';
 
 type Message = {
   id: string;
@@ -25,8 +28,9 @@ type Board = {
 };
 
 export interface ChatBoardProps {
+  post_id: string|number;
   board: Board;                    // لوحة واحدة فقط بدلاً من مصفوفة لوحات
-  me: UserInfo;                    // بياناتي لرسائل الإرسال الجديدة
+  me?: UserInfo;                    // بياناتي لرسائل الإرسال الجديدة
   className?: string;              // تخصيص الحاوية الخارجية
   onSend?: (payload: {             // استرجاع الرسالة عند الإرسال (يمكن ربطها بباك-إند)
     boardId: string;
@@ -37,24 +41,42 @@ export interface ChatBoardProps {
     messageId: string;
   }) => void;
   placeholder?: string;            // نص حقل الإدخال
-  maxRows?: number;                // أقصى ارتفاع لحقل النص قبل التمرير
+  maxRows?: number;  
+                // أقصى ارتفاع لحقل النص قبل التمرير
 }
 
 const ChatBoard: React.FC<ChatBoardProps> = ({
   board,  // تغيير من boards إلى board
-  me,
   className = '',
   onSend,
   onReport,
   placeholder = 'اكتب تعليقك…',
   maxRows = 6,
+  post_id
 }) => {
   const [input, setInput] = useState('');
   const [localBoard, setLocalBoard] = useState<Board>(board);
   const [replyingTo, setReplyingTo] = useState<{ user: UserInfo, messageId: string, preview: string } | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLTextAreaElement>(null);
-
+  const [me, setMe] = useState<UserInfo | null>(null);
+  
+    useEffect(() => {
+      const userData = getUserDataFromStorage();
+      if (userData) {
+        setMe(userData);
+      } else {
+        // إذا لم تكن هناك بيانات، يمكنك استخدام بيانات افتراضية
+        setMe({
+          id: 'u_me_1',
+          iconName: 'userCircle',
+          iconColor: '#1d4ed8',
+          bgColor: '#dbeafe',
+          fullName: 'أنا',
+        });
+      }
+    }, []);
+  
   useEffect(() => {
     setLocalBoard(board);
   }, [board]);
@@ -77,7 +99,7 @@ const ChatBoard: React.FC<ChatBoardProps> = ({
     onReport?.({ boardId: localBoard.id, messageId });
   };
 
-  const handleSend = () => {
+  const handleSend = async () => {
     const trimmed = input.trim();
     if (!trimmed) return;
     
@@ -87,6 +109,7 @@ const ChatBoard: React.FC<ChatBoardProps> = ({
     if (replyingTo && !cleanText.startsWith(`@${replyingTo.user.id}`)) {
       cleanText = `@${replyingTo.user.id}\n${cleanText}`;
     }
+    if(!me) return(<div>loading......</div>)
 
     const newMsg: Message = {
       id: `m_${Date.now()}`,
@@ -103,13 +126,13 @@ const ChatBoard: React.FC<ChatBoardProps> = ({
         }
       })
     };
-    
+    postComment({"id":post_id,"content":newMsg.text})
     setLocalBoard((prev) => ({
       ...prev,
       messages: [...prev.messages, newMsg],
     }));
     
-    onSend?.({ boardId: localBoard.id, message: newMsg });
+    // onSend?.({ boardId: localBoard.id, message: newMsg });
     setInput('');
     setReplyingTo(null);
     

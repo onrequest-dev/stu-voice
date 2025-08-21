@@ -1,62 +1,91 @@
-'use client';
-import React, { useEffect, useState } from 'react';
 import ChatBoard from '@/components/talk/ChatBoard';
 import { UserInfo } from '@/components/talk/ChatBubble';
-import { getUserDataFromStorage } from '@/client_helpers/userStorage'; // تأكد من مسار الاستيراد الصحيح
+import { decodeJWT } from '@/lib/decodejwt';
+import { supabase } from '@/lib/supabase';
+import { format } from 'date-fns';
+import { ar } from 'date-fns/locale';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 
-const ChatPage = () => {
-  const [me, setMe] = useState<UserInfo | null>(null);
+type PostPageProps = {
+  params: { id: string };
+};
 
-  useEffect(() => {
-    const userData = getUserDataFromStorage();
-    if (userData) {
-      setMe(userData);
-    } else {
-      // إذا لم تكن هناك بيانات، يمكنك استخدام بيانات افتراضية
-      setMe({
-        id: 'u_me_1',
-        iconName: 'userCircle',
-        iconColor: '#1d4ed8',
-        bgColor: '#dbeafe',
-        fullName: 'أنا',
-      });
-    }
-  }, []);
+type CommentRaw = {
+  comment_id: number;
+  content: string;
+  created_at: string;
+  commenter_username: string;
+  full_name: string;
+  icon_color: string;
+  bg_color: string;
+  icon_component: string;
+};
 
-  const other: UserInfo = {
-    id: 'u_other_1',
-    iconName: 'user',
-    iconColor: '#0f766e',
-    bgColor: '#ccfbf1',
-    fullName: 'أحمد علي',
-  };
+type JwtPayload = {
+  user_name: string;
+  [key: string]: any;
+};
 
-  // لوحة واحدة بدلاً من مصفوفة لوحات
+const getUsernameFromJWT = (): string => {
+  const jwt = cookies().get('jwt')?.value;
+  if (!jwt) redirect('/auth/login');
+
+  const jwt_user = decodeJWT(jwt) as JwtPayload | null;
+  if (!jwt_user || typeof jwt_user === 'string' || !jwt_user.user_name) {
+    redirect('/auth/login');
+  }
+
+  return jwt_user.user_name;
+};
+
+const transformCommentsToMessages = (
+  comments: CommentRaw[],
+  currentUsername: string
+) => {
+  return comments.map((comment) => ({
+    id: `m_${comment.comment_id}`,
+    text: comment.content,
+    time: format(new Date(comment.created_at), 'hh:mm a', { locale: ar }),
+    isMine: comment.commenter_username === currentUsername,
+    user: {
+      id: `${comment.commenter_username}`,
+      iconName: comment.icon_component,
+      iconColor: comment.icon_color,
+      bgColor: comment.bg_color,
+      fullName: comment.full_name,
+    } as UserInfo,
+  }));
+};
+
+const fetch_chat = async (post_id: string): Promise<CommentRaw[]> => {
+  const { data, error } = await supabase.rpc('fetch_comments_with_users', {
+    input_post_id: post_id,
+    input_comment_replied_to_id: null,
+  });
+
+  if (error) {
+    return [];
+  }
+
+  if (!data) return [];
+
+  return data as CommentRaw[];
+};
+
+const ChatPage = async ({ params }: PostPageProps) => {
+  const username = getUsernameFromJWT();
+  const comments = await fetch_chat(params.id);
+  const messages = transformCommentsToMessages(comments, username);
+
   const board = {
     id: 'b1',
     title: 'نقاش عام',
     description: 'مساحة لطرح الأفكار السريعة.',
-    messages: [
-      { id: 'm1', text: 'أهلاً بالجميع!', time: '10:00 ص', isMine: false, user: other },
-      { id: 'm2', text: 'مرحباً أحمد 👋', time: '10:02 ص', isMine: true, user: me ? me : other }, // استخدام بيانات افتراضية إذا كان me null
-      { id: 'm3', text: 'لدينا تحديثات على الواجهة خلال هذا الأسبوع. @شخاخ', time: '10:10 ص', isMine: false, user: other },
-    ],
+    messages,
   };
 
-  if (!me) {
-    return <div>Loading...</div>; // عرض حالة التحميل حتى يتم جلب البيانات
-  }
-
-  return (
-    <ChatBoard
-      board={board}  // تغيير من boards إلى board
-      me={me} // تأكد هنا أن me ليست null
-      onSend={({ boardId, message }) => {
-        // يمكنك هنا الإرسال لخادمك
-        console.log('Sent to board:', boardId, message);
-      }}
-    />
-  );
+  return <ChatBoard board={board}  post_id={params.id}/>;
 };
 
 export default ChatPage;

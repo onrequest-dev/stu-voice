@@ -29,6 +29,7 @@ export async function loginUser(username: string, password: string) {
         level: ''
       }
     };
+    console.table(result.icon)
     
     if (typeof window !== 'undefined') {
       localStorage.setItem('userInfo', JSON.stringify(userInfo));
