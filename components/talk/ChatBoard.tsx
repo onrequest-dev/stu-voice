@@ -169,12 +169,13 @@ const ChatBoard: React.FC<ChatBoardProps> = ({
   }, [replyingTo]);
 
   return (
-    <div className={['h-screen w-full flex flex-col', className].join(' ')}>
+    <div className={['h-screen w-full flex flex-col bg-white', className].join(' ')}>
       <div className="flex-1 flex flex-col">
-        {/* منطقة الرسائل */}
+        {/* منطقة الرسائل مع تمرير عمودي فقط */}
         <div
           ref={listRef}
-          className="flex-1 overflow-y-auto p-4 space-y-6 scroll-smooth bg-white dark:bg-neutral-900" // زيادة التباعد من space-y-3 إلى space-y-6
+          className="flex-1 overflow-y-auto p-4 space-y-6 scroll-smooth bg-white"
+          style={{ maxHeight: 'calc(100vh - 75px)' }}
         >
           {localBoard?.messages?.length ? (
             localBoard.messages.map((msg) => (
@@ -192,78 +193,75 @@ const ChatBoard: React.FC<ChatBoardProps> = ({
           ) : (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
-                <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 dark:bg-neutral-800">
+                <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-slate-100">
                   <CustomIcon icon="chatBubble" iconColor="#64748b" bgColor="transparent" size={18} />
                 </div>
-                <p className="text-slate-600 dark:text-neutral-300 font-medium">لا توجد رسائل بعد</p>
-                <p className="text-sm text-slate-500 dark:text-neutral-400">ابدأ المحادثة بكتابة رسالة أدناه</p>
+                <p className="text-slate-600 font-medium">لا توجد رسائل بعد</p>
+                <p className="text-sm text-slate-500">ابدأ المحادثة بكتابة رسالة أدناه</p>
               </div>
             </div>
           )}
         </div>
 
-        {/* مدخل كتابة رسالة جديدة */}
-        <div className="border-t border-slate-200/70 dark:border-neutral-800 p-4 bg-white dark:bg-neutral-900">
-          {replyingTo && (
-            <div className="mb-2 flex items-center justify-between bg-slate-100 dark:bg-neutral-800 rounded-lg px-3 py-2">
-              <div className="text-sm text-slate-600 dark:text-neutral-300">
-                الرد على <span className="font-medium text-emerald-600 dark:text-emerald-400">@{replyingTo.user.fullName}</span>
-                <span className="text-slate-500 dark:text-neutral-400 mx-2">|</span>
-                <span className="text-slate-500 dark:text-neutral-400">{replyingTo.preview}</span>
+        {/* مدخل كتابة رسالة جديدة - ثابت في الأسفل */}
+        <div className="border-t border-slate-200/70 p-4 bg-white fixed bottom-0 left-0 right-0">
+          <div className="max-w-3xl mx-auto">
+            {replyingTo && (
+              <div className="mb-2 flex items-center justify-between bg-slate-100 rounded-lg px-3 py-2">
+                <div className="text-sm text-slate-600">
+                  الرد على <span className="font-medium text-emerald-600">@{replyingTo.user.fullName}</span>
+                  <span className="text-slate-500 mx-2">|</span>
+                  <span className="text-slate-500">{replyingTo.preview}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setReplyingTo(null)}
+                  className="text-slate-500 hover:text-slate-700"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                    <path fillRule="evenodd" d="M5.47 5.47a.75.75 0 011.06 0L12 10.94l5.47-5.47a.75.75 0 111.06 1.06L13.06 12l5.47 5.47a.75.75 0 11-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 01-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 010-1.06z" clipRule="evenodd" />
+                  </svg>
+                </button>
               </div>
+            )}
+            
+            <div className="flex items-end gap-2 w-full">
+              {/* حقل النص */}
+              <textarea
+                ref={textRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={onKeyDown}
+                rows={1}
+                dir="rtl"
+                className={[
+                  'flex-1 resize-none rounded-xl border',
+                  'border-slate-200',
+                  'bg-white/90',
+                  'px-4 py-3',
+                  'text-sm text-right',
+                  'text-slate-800 placeholder:text-slate-400',
+                  'focus:outline-none focus:ring-2 focus:ring-emerald-500/40'
+                ].join(' ')}
+                placeholder={placeholder}
+                style={{ minHeight: '44px' }}
+              />
               <button
                 type="button"
-                onClick={() => setReplyingTo(null)}
-                className="text-slate-500 hover:text-slate-700 dark:text-neutral-400 dark:hover:text-neutral-200"
+                onClick={handleSend}
+                className={[
+                  'inline-flex items-center justify-center h-11 w-11 rounded-full',
+                  'transition-colors duration-200',
+                  input.trim()
+                  ? 'bg-emerald-500 text-white hover:bg-emerald-600'
+                  : 'bg-slate-200 text-slate-500 cursor-not-allowed'
+                ].join(' ')}
+                aria-label="إرسال"
+                title="إرسال"
+                disabled={!input.trim()}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
-                  <path fillRule="evenodd" d="M5.47 5.47a.75.75 0 011.06 0L12 10.94l5.47-5.47a.75.75 0 111.06 1.06L13.06 12l5.47 5.47a.75.75 0 11-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 01-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 010-1.06z" clipRule="evenodd" />
-                </svg>
+                <RiSendPlaneFill className="w-5 h-5" />
               </button>
-            </div>
-          )}
-          
-          <div className="flex items-end gap-2">
-            {/* حقل النص */}
-            <div className="absolute bottom-4 inset-x-0 flex justify-center">
-                <div className="flex items-center w-full max-w-lg gap-2 m-2">
-                    <textarea
-                    ref={textRef}
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={onKeyDown}
-                    rows={1}
-                    dir="rtl"
-                    className={[
-                        'flex-1 resize-none rounded-xl border',
-                        'border-slate-200 dark:border-neutral-700',
-                        'bg-white/90 dark:bg-neutral-900/80',
-                        'px-4 py-3',
-                        'text-sm text-right',
-                        'text-slate-800 placeholder:text-slate-400',
-                        'dark:text-neutral-100 dark:placeholder:text-neutral-500',
-                        'focus:outline-none focus:ring-2 focus:ring-emerald-500/40'
-                    ].join(' ')}
-                    placeholder={placeholder}
-                    style={{ minHeight: '44px' }}
-                    />
-                    <button
-                    type="button"
-                    onClick={handleSend}
-                    className={[
-                        'inline-flex items-center justify-center h-11 w-11 rounded-full',
-                        'transition-colors duration-200',
-                        input.trim()
-                        ? 'bg-emerald-500 text-white hover:bg-emerald-600'
-                        : 'bg-slate-200 text-slate-500 dark:bg-neutral-800 dark:text-neutral-500 cursor-not-allowed'
-                    ].join(' ')}
-                    aria-label="إرسال"
-                    title="إرسال"
-                    disabled={!input.trim()}
-                    >
-                    <RiSendPlaneFill className="w-5 h-5" />
-                    </button>
-                </div>
             </div>
           </div>
         </div>
