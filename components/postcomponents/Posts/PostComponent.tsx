@@ -72,7 +72,7 @@ const PostComponent: React.FC<PostProps> = ({ id, userInfo, opinion, poll ,creat
       <div className="pb-1">
         <UserInfoComponent userInfo={userInfo} />
         {opinion && <OpinionComponent opinion={opinion} />}
-        {poll && <PollComponent poll={poll} id={id} />}
+        {poll && <PollComponent poll={poll} id={id} created_at={createdAt||""} />}
         <InteractionButtons
           postId={id}
           userId={userInfo.id}

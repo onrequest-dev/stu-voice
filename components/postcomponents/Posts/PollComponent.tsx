@@ -4,7 +4,7 @@ import { FiEye } from 'react-icons/fi';
 import { handelreactionInStorage } from '@/client_helpers/handelreaction';
 import { randomDelay } from '@/client_helpers/delay';
 import { TextExpander } from '../../TextExpander';
-const PollComponent: React.FC<{ poll: Poll, id?: string }> = ({ poll, id }) => {
+const PollComponent: React.FC<{ poll: Poll, id?: string ,created_at:string }> = ({ poll, id,created_at }) => {
   const [selectedPollOption, setSelectedPollOption] = useState<number | null>(null);
   const [votes, setVotes] = useState<number[]>(poll.votes || Array(poll.options.length).fill(0));
   const [hasVoted, setHasVoted] = useState(false);
@@ -16,26 +16,29 @@ const PollComponent: React.FC<{ poll: Poll, id?: string }> = ({ poll, id }) => {
   const [hasAlredyVoted,setHasAlredyVoted] = useState(false);
 
   const calculateTimeRemaining = () => {
-    if (!poll.durationInDays) return;
+  if (!poll.durationInDays || !created_at) return;
 
-    const expiryDate = new Date();
-    expiryDate.setDate(expiryDate.getDate() + poll.durationInDays);
-    const now = new Date();
-    const diff = expiryDate.getTime() - now.getTime();
+  const createdAtDate = new Date(created_at);
+  const expiryDate = new Date(createdAtDate);
+  expiryDate.setDate(expiryDate.getDate() + poll.durationInDays);
 
-    if (diff <= 0) {
-      setIsExpired(true);
-      setTimeRemaining('منتهي');
-      return;
-    }
+  const now = new Date();
+  const diff = expiryDate.getTime() - now.getTime();
 
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  if (diff <= 0) {
+    setIsExpired(true);
+    setTimeRemaining('منتهي');
+    return;
+  }
 
-    setTimeRemaining(
-      [days > 0 ? `${days} يوم` : '', hours > 0 ? `${hours} ساعة` : ''].filter(Boolean).join(' و ') || 'الوقت انتهى'
-    );
-  };
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+
+  setTimeRemaining(
+    [days > 0 ? `${days} يوم` : '', hours > 0 ? `${hours} ساعة` : ''].filter(Boolean).join(' و ') || 'الوقت انتهى'
+  );
+};
+
 
   useEffect(() => {
     calculateTimeRemaining();

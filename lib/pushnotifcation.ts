@@ -18,13 +18,28 @@ webpush.setVapidDetails(
  * @param payload محتوى الإشعار (title, body, ... )
  */
 export async function sendNotificationToUser(
-  userName: string,
-  payload: { title: string; body: string; [key: string]: any }
+  userName: string | string[],
+  payload: {
+    title: string;
+    body: string;
+    icon?: string;
+    badge?: string;
+    image?: string;
+    actions?: { action: string; title: string; icon?: string }[];
+    data?: { url?: string; [key: string]: any };
+    vibrate?: number[];
+    tag?: string;
+    [key: string]: any;
+  }
 ) {
   let query = supabase.from('webpush_subscriptions').select('*');
 
   if (userName !== '*') {
-    query = query.eq('user_name', userName);
+    if (Array.isArray(userName)) {
+      query = query.in('user_name', userName);
+    } else {
+      query = query.eq('user_name', userName);
+    }
   }
 
   const { data: subscriptions, error } = await query;
@@ -35,7 +50,7 @@ export async function sendNotificationToUser(
   }
 
   if (!subscriptions || subscriptions.length === 0) {
-    console.log('No subscriptions found for user:', userName);
+    console.log('No subscriptions found for user(s):', userName);
     return;
   }
 
