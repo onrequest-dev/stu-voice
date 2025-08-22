@@ -59,7 +59,7 @@ const UserProfileViewComponent: React.FC<{ userData?: UserInfo }> = ({ userData 
       </div>
     );
   };
-
+  
   return (
     <div className="relative w-full px-0 sm:px-4 md:px-6 pt-0 md:pt-12 max-w-md mx-auto text-right">
       {/* بطاقة المستخدم المعدلة */}

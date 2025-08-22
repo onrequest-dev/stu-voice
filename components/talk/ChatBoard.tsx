@@ -13,10 +13,10 @@ type Message = {
   time: string;
   isMine: boolean;
   user: UserInfo;
-  replyTo?: {      // إضافة خاصية جديدة للردود
+  replyTo?: {
     user: UserInfo;
     messageId: string;
-    preview?: string; // نص مختصر من الرسالة الأصلية
+    preview?: string;
   };
 };
 
@@ -29,30 +29,33 @@ type Board = {
 
 export interface ChatBoardProps {
   post_id: string|number;
-  board: Board;                    // لوحة واحدة فقط بدلاً من مصفوفة لوحات
-  me?: UserInfo;                    // بياناتي لرسائل الإرسال الجديدة
-  className?: string;              // تخصيص الحاوية الخارجية
-  onSend?: (payload: {             // استرجاع الرسالة عند الإرسال (يمكن ربطها بباك-إند)
+  board: Board;
+  me?: UserInfo;
+  className?: string;
+  onSend?: (payload: {
     boardId: string;
     message: Message;
   }) => void;
-  onReport?: (payload: {           // دالة جديدة للإبلاغ عن الرسالة
+  onReport?: (payload: {
     boardId: string;
     messageId: string;
   }) => void;
-  placeholder?: string;            // نص حقل الإدخال
-  maxRows?: number;  
-                // أقصى ارتفاع لحقل النص قبل التمرير
+  placeholder?: string;
+  maxRows?: number;
+
+  // جديد: محتوى المنشور ليتم عرضه كأول عنصر ضمن نفس قائمة الرسائل
+  postContent?: React.ReactNode;
 }
 
 const ChatBoard: React.FC<ChatBoardProps> = ({
-  board,  // تغيير من boards إلى board
+  board,
   className = '',
   onSend,
   onReport,
   placeholder = 'اكتب تعليقك…',
   maxRows = 6,
-  post_id
+  post_id,
+  postContent
 }) => {
   const [input, setInput] = useState('');
   const [localBoard, setLocalBoard] = useState<Board>(board);
@@ -60,28 +63,27 @@ const ChatBoard: React.FC<ChatBoardProps> = ({
   const listRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLTextAreaElement>(null);
   const [me, setMe] = useState<UserInfo | null>(null);
-  
-    useEffect(() => {
-      const userData = getUserDataFromStorage();
-      if (userData) {
-        setMe(userData);
-      } else {
-        // إذا لم تكن هناك بيانات، يمكنك استخدام بيانات افتراضية
-        setMe({
-          id: 'u_me_1',
-          iconName: 'userCircle',
-          iconColor: '#1d4ed8',
-          bgColor: '#dbeafe',
-          fullName: 'أنا',
-        });
-      }
-    }, []);
-  
+
+  useEffect(() => {
+    const userData = getUserDataFromStorage();
+    if (userData) {
+      setMe(userData);
+    } else {
+      setMe({
+        id: 'u_me_1',
+        iconName: 'userCircle',
+        iconColor: '#1d4ed8',
+        bgColor: '#dbeafe',
+        fullName: 'أنا',
+      });
+    }
+  }, []);
+
   useEffect(() => {
     setLocalBoard(board);
   }, [board]);
 
-  // تمرير إلى آخر الرسائل عند إضافة رسالة
+  // تمرير إلى آخر الرسائل عند تحديث القائمة
   useEffect(() => {
     if (!listRef.current) return;
     const el = listRef.current;
@@ -89,7 +91,6 @@ const ChatBoard: React.FC<ChatBoardProps> = ({
   }, [localBoard]);
 
   const handleReply = (user: UserInfo, messageId: string, text: string) => {
-    // إنشاء معاينة مختصرة للنص (أول 30 حرفًا)
     const preview = text.length > 30 ? text.substring(0, 30) + '...' : text;
     setReplyingTo({ user, messageId, preview });
     setTimeout(() => textRef.current?.focus(), 0);
@@ -102,14 +103,13 @@ const ChatBoard: React.FC<ChatBoardProps> = ({
   const handleSend = async () => {
     const trimmed = input.trim();
     if (!trimmed) return;
-    
+
     let cleanText = trimmed;
 
-    // إذا كنا نرد على رسالة، ننسق النص بشكل مناسب
     if (replyingTo && !cleanText.startsWith(`@${replyingTo.user.id}`)) {
-      cleanText = `@${replyingTo.user.id}\n${cleanText}`;
+      cleanText = ` @${replyingTo.user.id}\n${cleanText}`;
     }
-    if(!me) return(<div>loading......</div>)
+    if (!me) return;
 
     const newMsg: Message = {
       id: `m_${Date.now()}`,
@@ -117,7 +117,6 @@ const ChatBoard: React.FC<ChatBoardProps> = ({
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       isMine: true,
       user: me,
-      // إذا كنا نرد على رسالة، أضف معلومات الرد
       ...(replyingTo && {
         replyTo: {
           user: replyingTo.user,
@@ -126,17 +125,17 @@ const ChatBoard: React.FC<ChatBoardProps> = ({
         }
       })
     };
-    postComment({"id":post_id,"content":newMsg.text})
+
+    postComment({ id: post_id, content: newMsg.text });
+
     setLocalBoard((prev) => ({
       ...prev,
       messages: [...prev.messages, newMsg],
     }));
-    
+
     // onSend?.({ boardId: localBoard.id, message: newMsg });
     setInput('');
     setReplyingTo(null);
-    
-    // إعادة تركيز على الحقل
     setTimeout(() => textRef.current?.focus(), 0);
   };
 
@@ -151,12 +150,12 @@ const ChatBoard: React.FC<ChatBoardProps> = ({
     }
   };
 
-  // ضبط ارتفاع textarea تلقائياً
+  // ضبط ارتفاع textarea تلقائيًا
   useEffect(() => {
     const ta = textRef.current;
     if (!ta) return;
     ta.style.height = 'auto';
-    const lineHeight = 24; // تقريباً
+    const lineHeight = 24;
     const maxHeight = maxRows * lineHeight;
     ta.style.height = Math.min(ta.scrollHeight, maxHeight) + 'px';
   }, [input, maxRows]);
@@ -177,6 +176,13 @@ const ChatBoard: React.FC<ChatBoardProps> = ({
           className="flex-1 overflow-y-auto p-4 space-y-6 scroll-smooth bg-white"
           style={{ maxHeight: 'calc(100vh - 75px)' }}
         >
+          {/* المنشور كأول عنصر داخل نفس قائمة الرسائل */}
+          {postContent && (
+            <div className="w-full">
+              {postContent}
+            </div>
+          )}
+
           {localBoard?.messages?.length ? (
             localBoard.messages.map((msg) => (
               <ChatBubble
@@ -188,18 +194,22 @@ const ChatBoard: React.FC<ChatBoardProps> = ({
                 showTail={true}
                 onReply={() => handleReply(msg.user, msg.id, msg.text)}
                 onReport={() => handleReport(msg.id)}
+                messgid={msg.id}
               />
             ))
           ) : (
-            <div className="flex items-center justify-center h-full">
-              <div className="text-center">
-                <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-slate-100">
-                  <CustomIcon icon="chatBubble" iconColor="#64748b" bgColor="transparent" size={18} />
+            // إن لم توجد رسائل، نظهر الفراغ فقط. لا نعرض شاشة "لا توجد رسائل" لأن لدينا منشور بالأعلى
+            !postContent ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center">
+                  <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-slate-100">
+                    <CustomIcon icon="chatBubble" iconColor="#64748b" bgColor="transparent" size={18} />
+                  </div>
+                  <p className="text-slate-600 font-medium">لا توجد رسائل بعد</p>
+                  <p className="text-sm text-slate-500">ابدأ المحادثة بكتابة رسالة أدناه</p>
                 </div>
-                <p className="text-slate-600 font-medium">لا توجد رسائل بعد</p>
-                <p className="text-sm text-slate-500">ابدأ المحادثة بكتابة رسالة أدناه</p>
               </div>
-            </div>
+            ) : null
           )}
         </div>
 
@@ -215,7 +225,7 @@ const ChatBoard: React.FC<ChatBoardProps> = ({
                 </div>
                 <button
                   type="button"
-                  onClick={() => setReplyingTo(null)}
+                  onClick={() => { setReplyingTo(null); setInput(' '); }}
                   className="text-slate-500 hover:text-slate-700"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
@@ -224,9 +234,8 @@ const ChatBoard: React.FC<ChatBoardProps> = ({
                 </button>
               </div>
             )}
-            
+
             <div className="flex items-end gap-2 w-full">
-              {/* حقل النص */}
               <textarea
                 ref={textRef}
                 value={input}
@@ -253,8 +262,8 @@ const ChatBoard: React.FC<ChatBoardProps> = ({
                   'inline-flex items-center justify-center h-11 w-11 rounded-full',
                   'transition-colors duration-200',
                   input.trim()
-                  ? 'bg-emerald-500 text-white hover:bg-emerald-600'
-                  : 'bg-slate-200 text-slate-500 cursor-not-allowed'
+                    ? 'bg-emerald-500 text-white hover:bg-emerald-600'
+                    : 'bg-slate-200 text-slate-500 cursor-not-allowed'
                 ].join(' ')}
                 aria-label="إرسال"
                 title="إرسال"

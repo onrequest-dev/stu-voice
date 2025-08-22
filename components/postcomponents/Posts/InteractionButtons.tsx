@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { 
-  FaArrowUp, FaArrowDown, FaEye, FaComment, FaShare,
+  FaArrowUp, FaArrowDown, FaEye, FaComments, FaShare,
   FaTimes, FaTwitter, FaFacebook, FaWhatsapp, FaTelegram, FaLink
 } from 'react-icons/fa';
 import Alert from '../../Alert';
@@ -270,28 +270,29 @@ const handleDownvote = () => {
       <div className="flex justify-between items-center px-3 py-4 md:px-4 md:py-6">
         <div className="flex items-center space-x-4 md:space-x-6">
           <div className="flex items-center text-gray-500 text-xs md:text-sm">
-            <FaEye className="ml-1 mr-1.5" size={12} />
-            <span>{readersCount}</span>
+            {/* <FaEye className="ml-1 mr-1.5" size={12} />
+            <span>{readersCount}</span> */}
+          
+          <button 
+            onClick={handleShare}
+            className="p-1 rounded-full text-blue-500 hover:bg-blue-100 transition-colors"
+            title="مشاركة">
+            <FaShare size={12} />
+          </button>
           </div>
-          <Link 
-            href={`/talk/${postId}`} 
-            className="flex items-center text-blue-500 text-xs md:text-sm hover:underline"
-          >
-            <FaComment className="ml-1 mr-1.5" size={12} />
-            <span>{commentsCount}</span>
-          </Link>
+          <ReportComponent id={postId} username={userId} type="p" />
         </div>
 
         <div className="flex items-center space-x-3 md:space-x-4">
-          <ReportComponent id={postId} username={userId} type="p" />
+          {/* <ReportComponent id={postId} username={userId} type="p" /> */}
 
-          <button 
-            onClick={handleShare}
-            className="p-1 rounded-full text-gray-500 hover:bg-gray-100 transition-colors"
-            title="مشاركة"
+            <Link 
+            href={`/talk/${postId}`} 
+            className="flex items-center rounded-xl text-blue-500 hover:bg-blue-100 text-xs md:text-sm"
           >
-            <FaShare size={12} />
-          </button>
+            <FaComments className="ml-1 mr-1.5" size={14} />
+            <span className="text-[12px] mr-1">المناقشة</span>
+          </Link>
 
           <div className="flex items-center">
             <button 
