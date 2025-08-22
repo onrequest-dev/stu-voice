@@ -25,6 +25,7 @@ export interface ChatBubbleProps {
   showTail?: boolean;         // إظهار الذيل
   onReply?: () => void;       // دالة الرد على الرسالة (جديدة)
   onReport?: () => void;      // دالة جديدة للإبلاغ عن الرسالة
+  messgid: string;
 }
 
 /**
@@ -43,7 +44,8 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
   textCharLimit = 120,
   showTail = true,
   onReply,
-  onReport
+  onReport,
+  messgid
 }) => {
     const result1 = extractUsername(text);
 const bubbleColors = isMine
@@ -53,13 +55,21 @@ const bubbleColors = isMine
       border: 'border border-indigo-800/30', // حدود شفافة
       shadow: 'shadow-lg shadow-indigo-900/50', // ظل خارجي غامق
       tailLeft: 'border-r-blue-600',
+      usernameColor: 'text-emerald-50/90',
+      textColor: 'text-white',
+      replyColor: 'text-emerald-600 hover:bg-emerald-100',
+      timeColor: 'text-white opacity-80'
     }
   : {
-      bg: 'bg-blue-200 text-neutral-900 dark:bg-slate-800',
-      bgcap:'bg-blue-100 text-neutral-900 dark:bg-slate-800',
-      border: 'border border-blue-800/20 dark:border-slate-700/40',
-      shadow: 'shadow-lg shadow-blue-900/30 dark:shadow-slate-900/50', // ظل خارجي غامق
+      bg: 'bg-blue-200 text-neutral-900',
+      bgcap:'bg-blue-100 text-neutral-900',
+      border: 'border border-blue-800/20',
+      shadow: 'shadow-lg shadow-blue-900/30',
       tailRight: 'border-l-blue-200',
+      usernameColor: 'text-neutral-500',
+      textColor: 'text-neutral-900',
+      replyColor: 'text-blue-600 hover:bg-blue-100',
+      timeColor: 'text-neutral-600'
     };
 
   // ترتيب العناصر: رسائلي [Icon][Bubble] بمحاذاة يسار، الآخرين [Bubble][Icon] بمحاذاة يمين
@@ -106,13 +116,13 @@ const bubbleColors = isMine
               {/* عند كون الرسالة ليست لي: اضمن أن الاسم يظهر على يمين الفقاعة بالنسبة لي
                  باستخدام order لمنح الاسم أسبقية على الطرف الأيمن ضمن flex */}
               <div className={['flex flex-col', !isMine ? 'order-2' : 'order-1'].join(' ')}>
-                <span className="font-semibold text-[12px] sm:text-sm leading-5">
+                <span className="font-semibold text-[10px] sm:text-sm leading-5">
                   {user.fullName}
                 </span>
                 <span
                     className={[
                       'text-[11px] sm:text-xs',
-                      isMine ? 'text-emerald-50/90' : 'text-neutral-500 dark:text-neutral-400'
+                      bubbleColors.usernameColor
                     ].join(' ')}
                   >
                     @{user.id}
@@ -124,7 +134,7 @@ const bubbleColors = isMine
                 <span
                   className={[
                     'text-[10px] sm:text-[11px] whitespace-nowrap ',
-                    'text-neutral-400 dark:text-neutral-500',
+                    'text-neutral-600',
                     'order-1'
                   ].join(' ')}
                 >
@@ -135,7 +145,7 @@ const bubbleColors = isMine
 
             {/* النص */}
               <div className={[`${!isMine?'mb-2':'mp-0'}`,
-                  'rounded-xl px-3.5 py-1',
+                  'rounded-xl px-3.5',
                   'leading-relaxed break-words',
                   'transition-colors duration-200',
                   bubbleColors.bg,      
@@ -145,18 +155,18 @@ const bubbleColors = isMine
                 <TextExpander
                 text={result1.remainingText}
                 charLimit={textCharLimit}
-                className="text-sm sm:text-[15px]"
+                className="text-sm sm:text-[13px]"
                 buttonClassName={
                     isMine
                     ? 'text-white/90 underline-offset-2 lg:text-sm text-xs cursor-pointer hover:underline focus:outline-none'
-                    : 'text-blue-600 dark:text-blue-400 underline-offset-2 lg:text-sm text-xs cursor-pointer hover:underline focus:outline-none'
+                    : 'text-blue-600 underline-offset-2 lg:text-sm text-xs cursor-pointer hover:underline focus:outline-none'
                 }
                 />
             </div>
             {/* الوقت لرسائلي: أسفل النص بمحاذاة نهاية الفقاعة */}
             {isMine && time && (
-              <div className="mt-1 flex justify-end">
-                <span className="text-[10px] sm:text-[11px] opacity-80">
+              <div className="flex justify-end">
+                <span className={["text-[10px] sm:text-[11px]", bubbleColors.timeColor].join(' ')}>
                   {time}
                 </span>
               </div>
@@ -202,9 +212,7 @@ const bubbleColors = isMine
                   onClick={onReply}
                   className={[
                     'flex items-center gap-1 px-2 py-1 rounded-md text-xs',
-                    isMine 
-                      ? 'text-emerald-600 hover:bg-emerald-100 dark:text-emerald-400 dark:hover:bg-emerald-900/30' 
-                      : 'text-blue-600 hover:bg-blue-100 dark:text-blue-400 dark:hover:bg-blue-900/30'
+                    bubbleColors.replyColor
                   ].join(' ')}
                   title="الرد على الرسالة"
                 >
@@ -214,7 +222,7 @@ const bubbleColors = isMine
               )}
               
               {onReport && (
-                  <ReportComponent id={`${123} , النص:${text}`} username={user.id} type="c" />
+                  <ReportComponent id={`${messgid} , النص:${text}`} username={user.id} type="c" />
               )}
             </div>
           )}

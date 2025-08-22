@@ -97,7 +97,7 @@ const ReportComponent: React.FC<ReportComponentProps> = ({ id, username, type })
       {/* زر الإبلاغ */}
       <button
         onClick={handleReport}
-        className="p-1 rounded-full text-gray-500 hover:bg-gray-100 transition-colors"
+        className="p-1 rounded-full text-red-400 hover:bg-red-100 transition-colors"
         title="الإبلاغ"
       >
         <FaFlag size={12}/>
@@ -105,7 +105,7 @@ const ReportComponent: React.FC<ReportComponentProps> = ({ id, username, type })
 
       {/* لوحة الإبلاغ */}
       {showReportPanel && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000] p-4">
           <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-xl text-right">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-medium">

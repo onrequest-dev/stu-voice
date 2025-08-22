@@ -6,7 +6,7 @@ import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-
+import PostComponent from '@/components/postcomponents/Posts/PostComponent';
 type PostPageProps = {
   params: { id: string };
 };
@@ -84,8 +84,33 @@ const ChatPage = async ({ params }: PostPageProps) => {
     description: 'مساحة لطرح الأفكار السريعة.',
     messages,
   };
-
-  return <ChatBoard board={board}  post_id={params.id}/>;
+  const post = {
+  id: "post_54321",
+  userInfo: {
+    id: "user_98765",
+    iconName: "academicCap",
+    iconColor: "#10b981",
+    bgColor: "#d1fae5",
+    fullName: "سارة عبدالله",
+    study: "خريجة علوم حاسوب من جامعة الأميرة نورة"
+  },
+  opinion: null,
+  poll: {
+    question: "ما هو أفضل إطار عمل جافاسكريبت من وجهة نظرك؟",
+    options: ["React", "Vue", "Angular", "Svelte"], // مصفوفة نصوص وليس كائنات
+    votes: [45, 30, 20, 15], // اختياري ولكن يجب أن يكون مصفوفة أعداد
+    durationInDays: 14 // مطلوب حسب التعريف
+  },
+  createdAt: "2023-10-18T09:15:00Z"
+};
+  return <ChatBoard board={board}  post_id={params.id}   postContent={
+    <PostComponent
+      id={post.id}
+      userInfo={post.userInfo}
+      opinion={post.opinion}
+      poll={post.poll}
+      createdAt={post.createdAt}
+    />}/>;
 };
 
 export default ChatPage;
