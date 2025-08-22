@@ -144,7 +144,7 @@ const bubbleColors = isMine
             </div>
 
             {/* النص */}
-              <div className={[`${!isMine?'mb-2':'mp-0'} py-4`,
+              <div className={[`${!isMine?'mb-2':'mp-0'} py-0.5`,
                   'rounded-xl px-4',
                   'leading-relaxed break-words',
                   'transition-colors duration-200',
