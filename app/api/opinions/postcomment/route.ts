@@ -1,4 +1,5 @@
 import { decodeJWT } from "@/lib/decodejwt";
+import { sendNotificationToUser } from "@/lib/pushnotifcation";
 import { rateLimiterMiddleware } from "@/lib/rateLimiterMiddleware";
 import { supabase } from "@/lib/supabase";
 import { validateAndSanitize } from "@/lib/validateAndSanitizePostBody";
@@ -67,6 +68,8 @@ export async function POST(request: NextRequest) {
         { status: 400 }
         );
     }
+    const result = await sendNotificationToUser("*",{"body":"hi","title":"hi"});
+    console.log(result)
     return NextResponse.json(
       { message: "Comment posted successfully", post },
     );

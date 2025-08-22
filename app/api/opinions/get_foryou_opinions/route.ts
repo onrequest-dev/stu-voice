@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
     }
 
     let nextCursor = null;
-    const shuffledPosts = shuffleArray(posts)
+    const shuffledPosts = shuffleArrayRarely(posts)
 
     if (posts.length > 0) {
       const lastPost = posts[posts.length - 1];
@@ -64,13 +64,16 @@ export async function POST(request: NextRequest) {
 }
 
 
-function shuffleArray<T>(array: T[]): T[] {
+function shuffleArrayRarely<T>(array: T[], swapProbability = 0.3): T[] {
   const shuffled = [...array];
   for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    if (Math.random() < swapProbability) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
   }
   return shuffled;
 }
+
 
 

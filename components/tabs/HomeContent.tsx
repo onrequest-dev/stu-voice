@@ -9,6 +9,7 @@ import RefreshAlert from "../RefreshAlert"
 import { FaWifi, FaSync, FaNewspaper } from 'react-icons/fa';
 import Link from "next/link";
 import useVoteSync from "@/hooks/useVoteSync";
+import Addnotification from "../Addnotification";
 
 type Post = PostProps & {
   userInfo: UserInfo & { 
@@ -121,7 +122,9 @@ const {
 
 
   return (
+    
     <div className="pb-12">
+      <Addnotification/>
       <div className="max-w-2xl mx-auto space-y-6 scroll-smooth">
         {status === 'pending' && (
           <>
