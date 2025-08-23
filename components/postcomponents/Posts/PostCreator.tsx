@@ -21,7 +21,6 @@ interface PostCreatorProps {
 
 const PostCreator: React.FC<PostCreatorProps> = ({ onSubmit, userInfo }) => {
   // الحالات الأساسية
-  console.log(userInfo);
   const [activeTab, setActiveTab] = useState<'opinion' | 'poll' | 'both'>('opinion');
   const [opinionText, setOpinionText] = useState('');
   const [pollQuestion, setPollQuestion] = useState('');

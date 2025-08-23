@@ -203,7 +203,7 @@ const bubbleColors = isMine
           {/* أزرار الرد والإبلاغ - تظهر عند التمرير فوق الرسالة */}
           {(onReply || onReport) && (
             <div className={[
-                'absolute -bottom-6 opacity-0 group-hover:opacity-100 transition-opacity',
+                'absolute -bottom-9 transition-opacity mb-4',
                 'flex items-center gap-1',
                 isMine ? 'right-0' : 'left-0'
                 ].join(' ')} style={{ transitionDuration: '2000ms' }}>
