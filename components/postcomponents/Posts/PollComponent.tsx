@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Poll } from '../types';
 import { FiEye } from 'react-icons/fi';
-import { handelreactionInStorage } from '@/client_helpers/handelreaction';
+import { handelreactionInStorage } from '@/client_helpers/handelvotereactions';
 import { randomDelay } from '@/client_helpers/delay';
 import { TextExpander } from '../../TextExpander';
 const PollComponent: React.FC<{ poll: Poll, id?: string ,created_at:string }> = ({ poll, id,created_at }) => {
@@ -61,9 +61,9 @@ const PollComponent: React.FC<{ poll: Poll, id?: string ,created_at:string }> = 
       const foundVote = storedVotes.find((v: {id:number, type:string}) => v.id === parseInt(id));
 
       if (foundVote) {
-        setHasAlredyVoted(true);
         const optionIndex = poll.options.findIndex(opt => opt === foundVote.type);
         if (optionIndex !== -1) {
+          setHasAlredyVoted(true);
           setSelectedPollOption(optionIndex);
           setHasVoted(true);
           setShowResults(true);

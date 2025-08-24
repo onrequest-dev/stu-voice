@@ -62,7 +62,7 @@ const MainInterface = ({ children }: { children?: React.ReactNode }) => {
       id: 'opinions', 
       icon: <FaComments size={20} />, 
       title: 'الرأي اليومي', 
-      href: '/taps/OpinionsContent',
+      href: '/DailyOpinion',
       component: OpinionsContent
     },
     { 

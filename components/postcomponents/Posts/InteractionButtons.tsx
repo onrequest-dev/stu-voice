@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { 
-  FaArrowUp, FaArrowDown, FaEye, FaComments, FaShare,
+  FaArrowUp, FaArrowDown, FaComments, FaShare,
   FaTimes, FaTwitter, FaFacebook, FaWhatsapp, FaTelegram, FaLink
 } from 'react-icons/fa';
 import Alert from '../../Alert';
@@ -20,6 +20,7 @@ interface InteractionButtonsProps {
   commentsCount?: number;
   // true: عمل upvote، false: downvote، null: لا يوجد تفاعل مسجل على الخادم
   agreed: boolean | null;
+  showDiscussIcon?: boolean;
 }
 
 type ReactionType = 'upvote' | 'downvote';
@@ -35,7 +36,8 @@ const InteractionButtons: React.FC<InteractionButtonsProps> = ({
   disagreeCount,
   readersCount,
   commentsCount = 0,
-  agreed
+  agreed,
+  showDiscussIcon=true
 }) => {
   const [showAlert, setShowAlert] = useState(false);
   const [showSharePanel, setShowSharePanel] = useState(false);
@@ -286,13 +288,13 @@ const handleDownvote = () => {
         <div className="flex items-center space-x-3 md:space-x-4">
           {/* <ReportComponent id={postId} username={userId} type="p" /> */}
 
-            <Link 
+            {showDiscussIcon&&<Link 
             href={`/talk/${postId}`} 
             className="flex items-center rounded-xl text-blue-500 hover:bg-blue-100 text-xs md:text-sm"
           >
             <FaComments className="ml-1 mr-1.5" size={14} />
             <span className="text-[12px] mr-1">المناقشة</span>
-          </Link>
+          </Link>}
 
           <div className="flex items-center">
             <button 

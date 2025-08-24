@@ -32,6 +32,7 @@ export async function sendNotificationToUser(
     [key: string]: any;
   }
 ) {
+  console.log("sending to ", userName);
   let query = supabase.from('webpush_subscriptions').select('*');
 
   if (userName !== '*') {
@@ -56,18 +57,27 @@ export async function sendNotificationToUser(
 
   const notificationPayload = JSON.stringify(payload);
 
-  for (const sub of subscriptions) {
-    try {
-      await webpush.sendNotification(
-        {
-          endpoint: sub.endpoint,
-          keys: sub.keys,
-        },
-        notificationPayload
-      );
-      console.log(`Notification sent to ${sub.user_name || 'unknown user'}`);
-    } catch (err) {
-      console.error('Failed to send notification:', err);
-    }
+  const batchSize = 50;  // عدد الإشعارات التي سترسل في نفس الوقت
+
+  for (let i = 0; i < subscriptions.length; i += batchSize) {
+    const batch = subscriptions.slice(i, i + batchSize);
+
+    // نرسل الإشعارات في batch متوازية مع تجاهل أخطاء كل إشعار
+    await Promise.all(
+      batch.map(sub =>
+        webpush.sendNotification(
+          {
+            endpoint: sub.endpoint,
+            keys: sub.keys,
+          },
+          notificationPayload
+        ).catch(err => {
+          console.error('Failed to send notification:', err);
+        })
+      )
+    );
   }
+
+  console.log('All notifications sent.');
 }
+

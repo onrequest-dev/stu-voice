@@ -16,6 +16,7 @@ const bodySchema = z.object({
 });
 
 export async function POST(request: NextRequest) {
+  console.log("here")
   // تحقق تحديد معدل الطلبات (rate limiting)
   const rateLimitResponse = await rateLimiterMiddleware(request);
   if (rateLimitResponse) return rateLimitResponse;
