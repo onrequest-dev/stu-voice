@@ -3,10 +3,10 @@
 import React, {  useRef, useEffect, useState } from 'react';
 import ChatBubble, { UserInfo } from './ChatBubble';
 import CustomIcon from '../postcomponents/CustomIcon';
-import { RiSendPlaneFill } from 'react-icons/ri';
+import { RiSendPlaneFill, RiArrowDropUpLine } from 'react-icons/ri';
 import { getUserDataFromStorage } from '@/client_helpers/userStorage';
 import { postComment } from '@/client_helpers/sendcomment';
-
+import styles from '@/ScrollableArea.module.css';
 type Message = {
   id: string;
   text: string;
@@ -63,6 +63,7 @@ const ChatBoard: React.FC<ChatBoardProps> = ({
   const listRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLTextAreaElement>(null);
   const [me, setMe] = useState<UserInfo | null>(null);
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
     const userData = getUserDataFromStorage();
@@ -89,6 +90,22 @@ const ChatBoard: React.FC<ChatBoardProps> = ({
     const el = listRef.current;
     el.scrollTop = el.scrollHeight;
   }, [localBoard]);
+
+  // التحقق من موضع التمرير لإظهار أو إخفاء زر الصعود للأعلى
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!listRef.current) return;
+      const { scrollTop, scrollHeight, clientHeight } = listRef.current;
+      // إظهار الزر عندما يكون التمرير لأسفل بما يكفي
+      setShowScrollTop(scrollTop > clientHeight * 0.5);
+    };
+
+    const listElement = listRef.current;
+    if (listElement) {
+      listElement.addEventListener('scroll', handleScroll);
+      return () => listElement.removeEventListener('scroll', handleScroll);
+    }
+  }, []);
 
   const handleReply = (user: UserInfo, messageId: string, text: string) => {
     const preview = text.length > 30 ? text.substring(0, 30) + '...' : text;
@@ -167,55 +184,80 @@ const ChatBoard: React.FC<ChatBoardProps> = ({
     }
   }, [replyingTo]);
 
+  // وظيفة للصعود إلى أعلى المحادثة
+  const scrollToTop = () => {
+    if (listRef.current) {
+      listRef.current.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   return (
     <div className={['h-screen w-full flex flex-col bg-white', className].join(' ')}>
       <div className="flex-1 flex flex-col">
         {/* منطقة الرسائل مع تمرير عمودي فقط */}
         <div
           ref={listRef}
-          className="flex-1 overflow-y-auto p-4 space-y-6 scroll-smooth bg-white"
+          className={`flex-1 overflow-y-auto ${styles.scrollContainer} p-4 scroll-smooth bg-white`}
           style={{ maxHeight: 'calc(100vh - 75px)' }}
         >
-          {/* المنشور كأول عنصر داخل نفس قائمة الرسائل */}
-          {postContent && (
-            <div className="w-full">
-              {postContent}
-            </div>
-          )}
-
-          {localBoard?.messages?.length ? (
-            localBoard.messages.map((msg) => (
-              <ChatBubble
-                key={msg.id}
-                isMine={msg.isMine}
-                user={msg.user}
-                text={msg.text}
-                time={msg.time}
-                showTail={true}
-                onReply={() => handleReply(msg.user, msg.id, msg.text)}
-                onReport={() => handleReport(msg.id)}
-                messgid={msg.id}
-              />
-            ))
-          ) : (
-            // إن لم توجد رسائل، نظهر الفراغ فقط. لا نعرض شاشة "لا توجد رسائل" لأن لدينا منشور بالأعلى
-            !postContent ? (
-              <div className="flex items-center justify-center h-full">
-                <div className="text-center">
-                  <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-slate-100">
-                    <CustomIcon icon="chatBubble" iconColor="#64748b" bgColor="transparent" size={18} />
-                  </div>
-                  <p className="text-slate-600 font-medium">لا توجد رسائل بعد</p>
-                  <p className="text-sm text-slate-500">ابدأ المحادثة بكتابة رسالة أدناه</p>
-                </div>
+          {/* محتوى الرسائل داخل حاوية مركزة */}
+          <div className="max-w-2xl mx-auto w-full space-y-4">
+            {/* المنشور كأول عنصر داخل نفس قائمة الرسائل */}
+            {postContent && (
+              <div className="w-full mb-6">
+                {postContent}
               </div>
-            ) : null
-          )}
+            )}
+
+            {localBoard?.messages?.length ? (
+              localBoard.messages.map((msg) => (
+                <div key={msg.id} className="py-2">
+                  <ChatBubble
+                    isMine={msg.isMine}
+                    user={msg.user}
+                    text={msg.text}
+                    time={msg.time}
+                    showTail={true}
+                    onReply={() => handleReply(msg.user, msg.id, msg.text)}
+                    onReport={() => handleReport(msg.id)}
+                    messgid={msg.id}
+                  />
+                </div>
+              ))
+            ) : (
+              // إن لم توجد رسائل، نظهر الفراغ فقط. لا نعرض شاشة "لا توجد رسائل" لأن لدينا منشور بالأعلى
+              !postContent ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center">
+                    <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-slate-100">
+                      <CustomIcon icon="chatBubble" iconColor="#64748b" bgColor="transparent" size={18} />
+                    </div>
+                    <p className="text-slate-600 font-medium">لا توجد رسائل بعد</p>
+                    <p className="text-sm text-slate-500">ابدأ المحادثة بكتابة رسالة أدناه</p>
+                  </div>
+                </div>
+              ) : null
+            )}
+          </div>
         </div>
+
+        {/* زر الصعود للأعلى - يظهر فقط عند التمرير لأسفل */}
+        {showScrollTop && (
+          <button
+            onClick={scrollToTop}
+            className="fixed bottom-24 left-4 z-10 w-8 h-8 rounded-full bg-blue-300 text-white flex items-center justify-center shadow-lg hover:bg-blue-500 transition-colors shadow-gray-400"
+            aria-label="الصعود إلى الأعلى"
+          >
+            <RiArrowDropUpLine className="w-8 h-8" />
+          </button>
+        )}
 
         {/* مدخل كتابة رسالة جديدة - ثابت في الأسفل */}
         <div className="border-t border-slate-200/70 p-4 bg-white fixed bottom-0 left-0 right-0">
-          <div className="max-w-3xl mx-auto">
+          <div className="max-w-2xl mx-auto w-full">
             {replyingTo && (
               <div className="mb-2 flex items-center justify-between bg-slate-100 rounded-lg px-3 py-2">
                 <div className="text-sm text-slate-600">

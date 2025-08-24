@@ -50,20 +50,22 @@ const UserFormComponent: React.FC<{
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    
-    try {
-      await onSubmit(formData);
-      setSubmitSuccess(true);
-      setTimeout(() => setSubmitSuccess(false), 2000);
-    } catch (error) {
-      console.error('Submission error:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setIsSubmitting(true);
+  setSubmitSuccess(false); // إعادة تعيين حالة النجاح
+  
+  try {
+    await onSubmit(formData);
+    setSubmitSuccess(true);
+    setTimeout(() => setSubmitSuccess(false), 2000);
+  } catch (error) {
+    console.error('Submission error:', error);
+    // لا نقوم بتعيين submitSuccess على true هنا
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   const genderClasses = {
     male: {
@@ -109,18 +111,82 @@ const UserFormComponent: React.FC<{
             </div>
         <form onSubmit={handleSubmit}>
           {/* الاسم الكامل */}
-          <div className="mb-3 md:mb-4">
-            <label className={`block mb-1 md:mb-2 text-sm md:text-base font-medium ${currentGender.text}`}>
-              الاسم الكامل
-            </label>
-            <input
-              type="text"
-              className={`w-full p-2 md:p-3 text-sm text-right md:text-base rounded border ${currentGender.border} focus:outline-none focus:ring-2 ${currentGender.focusRing}`}
-              value={formData.fullName}
-              onChange={(e) => handleChange('fullName', e.target.value)}
-              required
-            />
+
+        <div style={{
+          background: 'transparent',
+          color: '#555',
+          padding: '0.4rem 1rem',
+          borderRadius: '4px',
+          marginBottom: '1.5rem',
+          overflow: 'hidden',
+          position: 'relative',
+          fontFamily: 'inherit',
+        }} className='mt-2'>
+          <div style={{
+            animation: 'marqueeLeftToRight 20s linear infinite',
+            whiteSpace: 'nowrap',
+            fontSize: '0.8rem',
+            fontWeight: '300',
+            display: 'inline-block'
+          }}>
+            {/* تكرار المحتوى مرتين لضمان الاستمرارية */}
+            <span style={{ margin: '0 0.8rem', opacity: '0.6' }}>•</span>
+            <span>تنبيه: يمكن تعديل البيانات مرة واحدة فقط كل أسبوع - يرجى التحقق من المعلومات قبل الحفظ</span>
+            <span style={{ margin: '0 0.8rem', opacity: '0.6' }}>•</span>
+            <span>لن تتمكن من التعديل مرة أخرى حتى مرور 7 أيام على آخر تعديل</span>
+            <span style={{ margin: '0 0.8rem', opacity: '0.6' }}>•</span>
+            <span>تأكد من صحة المعلومات المدخلة قبل حفظ التعديلات</span>
+            
+            {/* تكرار المحتوى مرة أخرى */}
+            <span style={{ margin: '0 0.8rem', opacity: '0.6' }}>•</span>
+            <span>تنبيه: يمكن تعديل البيانات مرة واحدة فقط كل أسبوع - يرجى التحقق من المعلومات قبل الحفظ</span>
+            <span style={{ margin: '0 0.8rem', opacity: '0.6' }}>•</span>
+            <span>لن تتمكن من التعديل مرة أخرى حتى مرور 7 أيام على آخر تعديل</span>
+            <span style={{ margin: '0 0.8rem', opacity: '0.6' }}>•</span>
+            <span>تأكد من صحة المعلومات المدخلة قبل حفظ التعديلات</span>
           </div>
+          
+          {/* إضافة أنماط الحركة من اليسار إلى اليمين */}
+          <style>
+            {`
+              @keyframes marqueeLeftToRight {
+                0% { transform: translateX(-50%); }
+                100% { transform: translateX(0%); }
+              }
+            `}
+          </style>
+        </div>
+
+          <div className="mb-3 md:mb-4">
+              <label className={`block mb-1 md:mb-2 text-sm md:text-base font-medium ${currentGender.text}`}>
+                الاسم الكامل
+              </label>
+              <input
+                type="text"
+                className={`w-full p-2 md:p-3 text-sm text-right md:text-base rounded border ${currentGender.border} focus:outline-none focus:ring-2 ${currentGender.focusRing}`}
+                value={formData.fullName}
+                onChange={(e) => {
+                  // السماح فقط بالأحرف العربية والإنجليزية والمسافات
+                  const filteredValue = e.target.value.replace(/[^a-zA-Z\u0600-\u06FF\s]/g, '');
+                  handleChange('fullName', filteredValue);
+                }}
+                onPaste={(e) => {
+                  // منع اللصق أو معالجة المحتوى الملصوق
+                  e.preventDefault();
+                  const pastedText = e.clipboardData.getData('text');
+                  // تصفية النص الملصوق
+                  const filteredText = pastedText.replace(/[^a-zA-Z\u0600-\u06FF\s]/g, '');
+                  handleChange('fullName', filteredText);
+                }}
+                minLength={5}
+                maxLength={40}
+                pattern="[a-zA-Z\u0600-\u06FF\s]{5,40}"
+                required
+              />
+              {formData.fullName && formData.fullName.length < 5 && (
+                <p className="text-red-500 text-xs mt-1">يجب أن يكون الاسم على الأقل 5 أحرف</p>
+              )}
+            </div>
 
           {/* الجنس */}
           <div className="mb-4 md:mb-6">
@@ -210,29 +276,29 @@ const UserFormComponent: React.FC<{
 
           {/* زر الإرسال */}
           <div className="mt-6 md:mt-8">
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className={`w-full py-2 md:py-3 px-4 rounded-lg font-bold text-white transition-all duration-500 flex items-center justify-center ${
-                submitSuccess 
-                  ? 'bg-green-500' 
-                  : isSubmitting 
-                    ? 'opacity-70 ' + currentGender.bgPrimary 
-                    : currentGender.bgPrimary
-              }`}
-            >
-              {submitSuccess ? (
-                <>
-                  <FaCheck className="ml-2" />
-                  تم الحفظ بنجاح
-                </>
-              ) : isSubmitting ? (
-                'جاري الحفظ...'
-              ) : (
-                'حفظ المعلومات'
-              )}
-            </button>
-          </div>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className={`w-full py-2 md:py-3 px-4 rounded-lg font-bold text-white transition-all duration-500 flex items-center justify-center ${
+              isSubmitting 
+                ? 'opacity-70 ' + currentGender.bgPrimary 
+                : currentGender.bgPrimary
+            }`}
+          >
+            {isSubmitting ? (
+              <>
+                {/* أنيميشن التحميل */}
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                جاري الحفظ...
+              </>
+            ) : (
+              'حفظ البيانات'
+            )}
+          </button>
+        </div>
         </form>
       </div>
     </div>
