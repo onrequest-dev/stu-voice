@@ -1,16 +1,31 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import UserFormComponent from "@/components/UserFormComponent";
-import Alert from "@/components/Alert"; // تأكد من المسار الصحيح للمكون
+import Alert from "@/components/Alert";
 import { UserInfo } from "@/types/types";
 
 const Page = () => {
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
-  const [alertType, setAlertType] = useState<'success' | 'error' | 'warning' | 'info'>('error');
+  const [alertType, setAlertType] = useState<'success' | 'error' | 'warning' | 'info'>('info');
+
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const message = searchParams.get('message');
+  const src = searchParams.get('src');
+
+  // عرض alert عند تحميل الصفحة إذا كانت هناك رسالة في الرابط
+  useEffect(() => {
+    if (message) {
+      setAlertMessage(decodeURIComponent(message));
+      setAlertType('info');
+      setShowAlert(true);
+    }
+  }, [message]);
 
   const handleSubmit = async (userData: UserInfo) => {
-    console.log('بيانات المستخدم:', userData);
 
     try {
       const response = await fetch('/api/auth/editinfo', {
@@ -26,21 +41,27 @@ const Page = () => {
       if (response.ok) {
         try {
           localStorage.setItem('userInfo', JSON.stringify(userData));
-          console.log('تم حفظ بيانات المستخدم في localStorage');
-          
-          // عرض تنبيه نجاح (اختياري)
           setAlertMessage('تم تحديث البيانات بنجاح!');
           setAlertType('success');
           setShowAlert(true);
+
+          // تحويل بعد 2 ثانية (تغيير المدة حسب رغبتك)
+          setTimeout(() => {
+            if (src) {
+              if (src.startsWith('http')) {
+                window.location.href = src;
+              } else {
+                router.push(src);
+              }
+            }
+          }, 300);
         } catch (error) {
-          console.error('فشل حفظ بيانات المستخدم في localStorage', error);
-          setAlertMessage('فشل حفظ البيانات محلياً');
           setAlertType('error');
           setShowAlert(true);
         }
       } else {
         console.error('فشل الطلب: ', data);
-        setAlertMessage(data.message || ' لم يتم تحديث البيانات عليك الانتظار اسبوع من آخر تعديل قمت به' );
+        setAlertMessage(data.message || ' لم يتم تحديث البيانات عليك الانتظار اسبوع من آخر تعديل قمت به');
         setAlertType('error');
         setShowAlert(true);
       }
