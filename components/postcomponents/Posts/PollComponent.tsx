@@ -1,19 +1,81 @@
 import React, { useState, useEffect } from 'react';
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { Poll } from '../types';
 import { FiEye } from 'react-icons/fi';
 import { handelreactionInStorage } from '@/client_helpers/handelreaction';
 import { randomDelay } from '@/client_helpers/delay';
 import { TextExpander } from '../../TextExpander';
-const PollComponent: React.FC<{ poll: Poll, id?: string }> = ({ poll, id }) => {
+
+const PollComponent: React.FC<{ poll: Poll; id?: string }> = ({ poll, id }) => {
   const [selectedPollOption, setSelectedPollOption] = useState<number | null>(null);
-  const [votes, setVotes] = useState<number[]>(poll.votes || Array(poll.options.length).fill(0));
   const [hasVoted, setHasVoted] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState<string>('');
   const [isExpired, setIsExpired] = useState(false);
-  const totalVotes = votes.reduce((sum, vote) => sum + vote, 0);
-  const [loading, setLoading] = useState(false);
   const [showResults, setShowResults] = useState(false);
-  const [hasAlredyVoted,setHasAlredyVoted] = useState(false);
+  const [hasAlredyVoted, setHasAlredyVoted] = useState(false);
+  
+  const queryClient = useQueryClient();
+  const pollId = id ? parseInt(id) : 0;
+
+  // استعلام لجلب الأصوات مع caching
+  const { data: votesData, isLoading: votesLoading } = useQuery({
+    queryKey: ['pollVotes', pollId],
+    queryFn: async () => {
+      if (!pollId) return { votes: Array(poll.options.length).fill(0) };
+      
+      const response = await fetch('/api/opinions/getvotes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ vote_id: pollId }),
+      });
+      
+      if (!response.ok) throw new Error('Failed to fetch votes');
+      
+      const data = await response.json();
+      const votesArray = Array(poll.options.length).fill(0);
+      
+      data.vote.forEach((vote: any) => {
+        const optionIndex = poll.options.findIndex((opt) => opt === vote.title);
+        if (optionIndex !== -1) {
+          votesArray[optionIndex] = vote.votes_count;
+        }
+      });
+      
+      return { votes: votesArray };
+    },
+    enabled: showResults || isExpired, // فقط عندما نحتاج لعرض النتائج
+    staleTime: 5 * 60 * 1000, // البيانات تبقى "طازجة" لمدة 5 دقائق
+  });
+
+  const votes = votesData?.votes || Array(poll.options.length).fill(0);
+  const totalVotes = votes.reduce((sum, vote) => sum + vote, 0);
+
+  // طفرة لإرسال التصويت
+  const sendVoteMutation = useMutation({
+    mutationFn: async (optionIndex: number) => {
+      await randomDelay(0.5);
+      
+      const response = await fetch('/api/opinions/sendreactions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          votes: [{ id: pollId, type: poll.options[optionIndex] }],
+        }),
+      });
+      
+      if (!response.ok) throw new Error('Failed to send vote');
+      return response.json();
+    },
+    onSuccess: () => {
+      // عند نجاح التصويت، نقوم بإبطال بيانات الأصوات القديمة وإعادة جلبها
+      queryClient.invalidateQueries({ queryKey: ['pollVotes', pollId] });
+      setHasVoted(true);
+      setShowResults(true);
+    },
+    onError: (error) => {
+      console.error('Error sending vote:', error);
+    }
+  });
 
   const calculateTimeRemaining = () => {
     if (!poll.durationInDays) return;
@@ -51,11 +113,11 @@ const PollComponent: React.FC<{ poll: Poll, id?: string }> = ({ poll, id }) => {
       const storedVotesString = localStorage.getItem("votes");
       if (!storedVotesString) return;
 
-      const storedVotes = JSON.parse(storedVotesString); // متوقع مصفوفة من {id:number, type:string}
+      const storedVotes = JSON.parse(storedVotesString);
       if (!Array.isArray(storedVotes)) return;
 
       // ابحث عن تصويت للـ id الحالي
-      const foundVote = storedVotes.find((v: {id:number, type:string}) => v.id === parseInt(id));
+      const foundVote = storedVotes.find((v: {id: number, type: string}) => v.id === parseInt(id));
 
       if (foundVote) {
         setHasAlredyVoted(true);
@@ -64,8 +126,6 @@ const PollComponent: React.FC<{ poll: Poll, id?: string }> = ({ poll, id }) => {
           setSelectedPollOption(optionIndex);
           setHasVoted(true);
           setShowResults(true);
-          // يمكن تحميل الأصوات لتحديث الواجهة
-          loadVotes();
         }
       }
     } catch (error) {
@@ -79,89 +139,22 @@ const PollComponent: React.FC<{ poll: Poll, id?: string }> = ({ poll, id }) => {
   };
 
   const handlePollSelect = async (index: number) => {
-  if (hasVoted || isExpired || loading || !id) return;
+    if (hasVoted || isExpired || votesLoading || !id) return;
 
-  // حفظ التصويت محليًا
-  handelreactionInStorage("votes", id, poll.options[index], "set");
-  setSelectedPollOption(index);
-  setLoading(true);
+    // حفظ التصويت محليًا
+    handelreactionInStorage("votes", id, poll.options[index], "set");
+    setSelectedPollOption(index);
 
-  if (hasAlredyVoted) await randomDelay(2);
-  await randomDelay(0.5);
-
-  let votes_result: Response;
-
-  if (!hasAlredyVoted) {
-    const result = await fetch('/api/opinions/sendreactions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        votes: [{ id: id ? parseInt(id) : 0, type: poll.options[index] }],
-      }),
-    });
-
-    if (!result.ok) {
-      setLoading(false);
-      return;
+    if (hasAlredyVoted) {
+      await randomDelay(2);
     }
-  }
 
-  votes_result = await fetch('/api/opinions/getvotes', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      vote_id: id ? parseInt(id) : 0,
-    }),
-  });
+    // إرسال التصويت
+    sendVoteMutation.mutate(index);
+  };
 
-  if (!votes_result.ok) {
-    setLoading(false);
-    return;
-  }
-
-  const votesData = await votes_result.json();
-
-  const votesArray = Array(poll.options.length).fill(0);
-  votesData.vote.forEach((vote: any) => {
-    const optionIndex = poll.options.findIndex((opt) => opt === vote.title);
-    if (optionIndex !== -1) {
-      votesArray[optionIndex] = vote.votes_count;
-    }
-  });
-
-  setVotes(votesArray);
-  setHasVoted(true);
-  setShowResults(true);
-  setLoading(false);
-};
-
-
-  const loadVotes = async () => {
-    if (!id) return;
-    setLoading(true);
-    try {
-      const votes_result = await fetch('/api/opinions/getvotes', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ vote_id: parseInt(id) }),
-      });
-      if (votes_result.ok) {
-        const votesData = await votes_result.json();
-        const votesArray = Array(poll.options.length).fill(0);
-        votesData.vote.forEach((vote: any) => {
-          const optionIndex = poll.options.findIndex((opt) => opt === vote.title);
-          if (optionIndex !== -1) {
-            votesArray[optionIndex] = vote.votes_count;
-          }
-        });
-        setVotes(votesArray);
-        setShowResults(true);
-      }
-    } catch (error) {
-      console.log("خطأ عند جلب الأصوات");
-    } finally {
-      setLoading(false);
-    }
+  const loadVotes = () => {
+    setShowResults(true);
   };
 
   const renderPollStatus = () => {
@@ -178,16 +171,18 @@ const PollComponent: React.FC<{ poll: Poll, id?: string }> = ({ poll, id }) => {
     );
   };
 
+  const isLoading = votesLoading || sendVoteMutation.isPending;
+
   return (
     <div className="px-3 pt-1 pb-4">
       <h4 className="font-medium text-gray-900 mb-2 text-right text-sm md:text-base">
         <TextExpander 
-                text={poll.question}
-                charLimit={200}
-                className="text-gray-800 text-right text-sm md:text-base"
-                dir="rtl"
-              />
-        </h4>
+          text={poll.question}
+          charLimit={200}
+          className="text-gray-800 text-right text-sm md:text-base"
+          dir="rtl"
+        />
+      </h4>
 
       {renderPollStatus()}
 
@@ -200,13 +195,13 @@ const PollComponent: React.FC<{ poll: Poll, id?: string }> = ({ poll, id }) => {
               ${
                 selectedPollOption === index
                   ? 'border-blue-500 bg-blue-100 text-blue-800 cursor-default'
-                  : isExpired || hasVoted || loading
+                  : isExpired || hasVoted || isLoading
                   ? 'border-gray-200 text-gray-500 cursor-default'
                   : 'border-gray-200 hover:bg-gray-50 text-gray-700 cursor-pointer'
               }
             `}
             dir="rtl"
-            aria-disabled={isExpired || hasVoted || loading}
+            aria-disabled={isExpired || hasVoted || isLoading}
           >
             {/* خلفية النسبة */}
             <div
@@ -223,7 +218,7 @@ const PollComponent: React.FC<{ poll: Poll, id?: string }> = ({ poll, id }) => {
             <div className="relative z-10 flex justify-between items-center">
               <span>{option}</span>
 
-              {loading && selectedPollOption === index ? (
+              {isLoading && selectedPollOption === index ? (
                 <span className="flex items-center space-x-2" dir="ltr">
                   <svg
                     className="animate-spin -ml-1 mr-2 h-5 w-5 text-blue-600"
@@ -260,7 +255,7 @@ const PollComponent: React.FC<{ poll: Poll, id?: string }> = ({ poll, id }) => {
         <div className="text-xs text-gray-500 mt-1">مجموع المصوتين: {totalVotes}</div>
       )}
 
-      {isExpired && !showResults && !loading && poll.options.length > 0 && (
+      {isExpired && !showResults && !isLoading && poll.options.length > 0 && (
         <button
           onClick={loadVotes}
           className="mt-3 p-1 flex items-center justify-center bg-blue-100/30 text-blue-700 text-xs rounded-lg hover:bg-blue-200/50 transition-colors duration-200 shadow-sm hover:shadow-md"
