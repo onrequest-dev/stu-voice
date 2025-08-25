@@ -7,7 +7,7 @@ import { UserInfo } from '../../../types/types';
 const mockUserData: UserInfo = {
   id: '1',
   fullName: 'أحمد محمد',
-  gender: 'male',
+  gender: 'female',
   education: {
     level: 'university',
     university: 'جامعة القاهرة',
@@ -25,7 +25,7 @@ const mockUserData: UserInfo = {
 
 export default function UserProfilePage() {
   return (
-    <div className="container mx-auto p-4 mt-6">
+    <div className="container mx-auto">
       <UserProfileViewComponent userData={mockUserData} />
     </div>
   );

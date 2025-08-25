@@ -5,55 +5,60 @@ import { FiEye } from 'react-icons/fi';
 import { handelreactionInStorage } from '@/client_helpers/handelvotereactions';
 import { randomDelay } from '@/client_helpers/delay';
 import { TextExpander } from '../../TextExpander';
-const PollComponent: React.FC<{ poll: Poll, id?: string ,created_at:string }> = ({ poll, id,created_at }) => {
+
+const PollComponent: React.FC<{ poll: Poll; id?: string; created_at: string }> = ({ poll, id, created_at }) => {
   const [selectedPollOption, setSelectedPollOption] = useState<number | null>(null);
   const [hasVoted, setHasVoted] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState<string>('');
   const [isExpired, setIsExpired] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [hasAlredyVoted, setHasAlredyVoted] = useState(false);
-  
+
   const queryClient = useQueryClient();
   const pollId = id ? parseInt(id) : 0;
 
-  // استعلام لجلب الأصوات مع caching
-  const { data: votesData, isLoading: votesLoading } = useQuery({
+  /** ✅ استعلام جلب الأصوات (مع تخزينها في Cache) */
+  const {
+    data: votesData,
+    isLoading: votesLoading,
+    refetch: refetchVotes,
+  } = useQuery({
     queryKey: ['pollVotes', pollId],
     queryFn: async () => {
       if (!pollId) return { votes: Array(poll.options.length).fill(0) };
-      
+
       const response = await fetch('/api/opinions/getvotes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ vote_id: pollId }),
       });
-      
+
       if (!response.ok) throw new Error('Failed to fetch votes');
-      
+
       const data = await response.json();
       const votesArray = Array(poll.options.length).fill(0);
-      
+
       data.vote.forEach((vote: any) => {
         const optionIndex = poll.options.findIndex((opt) => opt === vote.title);
         if (optionIndex !== -1) {
           votesArray[optionIndex] = vote.votes_count;
         }
       });
-      
+
       return { votes: votesArray };
     },
-    enabled: showResults || isExpired, // فقط عندما نحتاج لعرض النتائج
-    staleTime: 5 * 60 * 1000, // البيانات تبقى "طازجة" لمدة 5 دقائق
+    enabled: showResults || isExpired, // ✅ فقط لما نحتاج النتائج
+    staleTime: 5 * 60 * 1000,
   });
 
   const votes = votesData?.votes || Array(poll.options.length).fill(0);
   const totalVotes = votes.reduce((sum, vote) => sum + vote, 0);
 
-  // طفرة لإرسال التصويت
+  /** ✅ Mutation إرسال التصويت */
   const sendVoteMutation = useMutation({
     mutationFn: async (optionIndex: number) => {
       await randomDelay(0.5);
-      
+
       const response = await fetch('/api/opinions/sendreactions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -61,45 +66,44 @@ const PollComponent: React.FC<{ poll: Poll, id?: string ,created_at:string }> = 
           votes: [{ id: pollId, type: poll.options[optionIndex] }],
         }),
       });
-      
+
       if (!response.ok) throw new Error('Failed to send vote');
       return response.json();
     },
     onSuccess: () => {
-      // عند نجاح التصويت، نقوم بإبطال بيانات الأصوات القديمة وإعادة جلبها
       queryClient.invalidateQueries({ queryKey: ['pollVotes', pollId] });
       setHasVoted(true);
       setShowResults(true);
     },
     onError: (error) => {
       console.error('Error sending vote:', error);
-    }
+    },
   });
 
+  /** ✅ حساب الوقت المتبقي */
   const calculateTimeRemaining = () => {
-  if (!poll.durationInDays || !created_at) return;
+    if (!poll.durationInDays || !created_at) return;
 
-  const createdAtDate = new Date(created_at);
-  const expiryDate = new Date(createdAtDate);
-  expiryDate.setDate(expiryDate.getDate() + poll.durationInDays);
+    const createdAtDate = new Date(created_at);
+    const expiryDate = new Date(createdAtDate);
+    expiryDate.setDate(expiryDate.getDate() + poll.durationInDays);
 
-  const now = new Date();
-  const diff = expiryDate.getTime() - now.getTime();
+    const now = new Date();
+    const diff = expiryDate.getTime() - now.getTime();
 
-  if (diff <= 0) {
-    setIsExpired(true);
-    setTimeRemaining('منتهي');
-    return;
-  }
+    if (diff <= 0) {
+      setIsExpired(true);
+      setTimeRemaining('منتهي');
+      return;
+    }
 
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
 
-  setTimeRemaining(
-    [days > 0 ? `${days} يوم` : '', hours > 0 ? `${hours} ساعة` : ''].filter(Boolean).join(' و ') || 'الوقت انتهى'
-  );
-};
-
+    setTimeRemaining(
+      [days > 0 ? `${days} يوم` : '', hours > 0 ? `${hours} ساعة` : ''].filter(Boolean).join(' و ') || 'الوقت انتهى'
+    );
+  };
 
   useEffect(() => {
     calculateTimeRemaining();
@@ -107,22 +111,21 @@ const PollComponent: React.FC<{ poll: Poll, id?: string ,created_at:string }> = 
     return () => clearInterval(interval);
   }, [poll.durationInDays]);
 
-  // استرجاع التصويت من التخزين المحلي عند تحميل الكومبوننت
+  /** ✅ استرجاع التصويت من localStorage */
   useEffect(() => {
     if (!id) return;
 
     try {
-      const storedVotesString = localStorage.getItem("votes");
+      const storedVotesString = localStorage.getItem('votes');
       if (!storedVotesString) return;
 
       const storedVotes = JSON.parse(storedVotesString);
       if (!Array.isArray(storedVotes)) return;
 
-      // ابحث عن تصويت للـ id الحالي
-      const foundVote = storedVotes.find((v: {id: number, type: string}) => v.id === parseInt(id));
+      const foundVote = storedVotes.find((v: { id: number; type: string }) => v.id === parseInt(id));
 
       if (foundVote) {
-        const optionIndex = poll.options.findIndex(opt => opt === foundVote.type);
+        const optionIndex = poll.options.findIndex((opt) => opt === foundVote.type);
         if (optionIndex !== -1) {
           setHasAlredyVoted(true);
           setSelectedPollOption(optionIndex);
@@ -131,7 +134,7 @@ const PollComponent: React.FC<{ poll: Poll, id?: string ,created_at:string }> = 
         }
       }
     } catch (error) {
-      console.error("خطأ في قراءة التصويت من التخزين المحلي", error);
+      console.error('خطأ في قراءة التصويت من التخزين المحلي', error);
     }
   }, [id, poll.options]);
 
@@ -140,23 +143,24 @@ const PollComponent: React.FC<{ poll: Poll, id?: string ,created_at:string }> = 
     return Math.round((votes / total) * 100);
   };
 
+  /** ✅ معالجة الاختيار */
   const handlePollSelect = async (index: number) => {
     if (hasVoted || isExpired || votesLoading || !id) return;
 
-    // حفظ التصويت محليًا
-    handelreactionInStorage("votes", id, poll.options[index], "set");
+    handelreactionInStorage('votes', id, poll.options[index], 'set');
     setSelectedPollOption(index);
 
     if (hasAlredyVoted) {
       await randomDelay(2);
     }
 
-    // إرسال التصويت
     sendVoteMutation.mutate(index);
   };
 
-  const loadVotes = () => {
+  /** ✅ جلب النتائج حين الضغط */
+  const loadVotes = async () => {
     setShowResults(true);
+    await refetchVotes(); // ✅ إعادة الجلب من الباك اند
   };
 
   const renderPollStatus = () => {
@@ -178,7 +182,7 @@ const PollComponent: React.FC<{ poll: Poll, id?: string ,created_at:string }> = 
   return (
     <div className="px-3 pt-1 pb-4">
       <h4 className="font-medium text-gray-900 mb-2 text-right text-sm md:text-base">
-        <TextExpander 
+        <TextExpander
           text={poll.question}
           charLimit={200}
           className="text-gray-800 text-right text-sm md:text-base"
@@ -228,22 +232,11 @@ const PollComponent: React.FC<{ poll: Poll, id?: string ,created_at:string }> = 
                     fill="none"
                     viewBox="0 0 24 24"
                   >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                    />
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
                   </svg>
                 </span>
-              ) : (hasVoted || (isExpired && showResults)) ? (
+              ) : hasVoted || (isExpired && showResults) ? (
                 <span className="text-xs bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded-full" dir="ltr">
                   {calculatePercentage(votes[index], totalVotes)}%
                 </span>
@@ -263,13 +256,13 @@ const PollComponent: React.FC<{ poll: Poll, id?: string ,created_at:string }> = 
           className="mt-3 p-1 flex items-center justify-center bg-blue-100/30 text-blue-700 text-xs rounded-lg hover:bg-blue-200/50 transition-colors duration-200 shadow-sm hover:shadow-md"
           dir="rtl"
           aria-label="عرض نتائج التصويت"
-          style={{ 
+          style={{
             minWidth: '100px',
-            border: '1px solid rgba(29, 78, 216, 0.2)'
+            border: '1px solid rgba(29, 78, 216, 0.2)',
           }}
         >
           <span className="ml-2 text-xs">نتائج التصويت</span>
-          <FiEye className="ml-0"/>
+          <FiEye className="ml-0" />
         </button>
       )}
     </div>

@@ -168,7 +168,7 @@ const MiddleSchoolView = ({ education, theme }: any) => {
           <span>الصف الدراسي</span>
         </span>
         <span className="font-semibold text-gray-700 truncate max-w-[50%]">
-          {gradeMap[education.grade || ''] || 'غير محدد'}
+          {gradeMap[education.grade || '']}
         </span>
       </div>
 
