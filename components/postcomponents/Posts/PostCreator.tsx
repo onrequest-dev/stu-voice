@@ -251,21 +251,24 @@ const PostCreator: React.FC<PostCreatorProps> = ({ onSubmit, userInfo }) => {
               }`}
             >
               <div className="mb-6">
-                <label htmlFor="opinion" className="block text-sm font-medium text-gray-700 mb-2">
-                  نص الرأي
-                </label>
-                <textarea
-                  id="opinion"
-                  rows={4}
-                  value={opinionText}
-                  onChange={(e) => setOpinionText(e.target.value)}
-                  className={`w-full px-4 py-3 border ${errors.opinion ? 'border-red-300' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-right`}
-                  placeholder="...ما رأيك في "
-                />
-                {errors.opinion && (
-                  <p className="mt-1 text-sm text-red-500">{errors.opinion}</p>
-                )}
-              </div>
+              <label htmlFor="opinion" className="block text-sm font-medium text-gray-700 mb-2">
+                نص الرأي
+              </label>
+              <textarea
+                id="opinion"
+                rows={4}
+                dir="rtl"
+                value={opinionText}
+                onChange={(e) => setOpinionText(e.target.value)}
+                className={`w-full px-4 py-3 border ${
+                  errors.opinion ? 'border-red-300' : 'border-gray-300'
+                } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-right`}
+                placeholder="ما رأيك في ..."
+              />
+              {errors.opinion && (
+                <p className="mt-1 text-sm text-red-500">{errors.opinion}</p>
+              )}
+            </div>
             </div>
           )}
           
@@ -288,10 +291,11 @@ const PostCreator: React.FC<PostCreatorProps> = ({ onSubmit, userInfo }) => {
                   <input
                     type="text"
                     id="pollQuestion"
+                    dir="rtl"
                     value={pollQuestion}
                     onChange={(e) => setPollQuestion(e.target.value)}
                     className={`w-full px-4 py-3 border ${errors.pollQuestion ? 'border-red-300' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-right`}
-                    placeholder="...ماذا تفضل"
+                    placeholder="ماذا تفضل ..."
                   />
                   {errors.pollQuestion && (
                     <p className="mt-1 text-sm text-red-500">{errors.pollQuestion}</p>

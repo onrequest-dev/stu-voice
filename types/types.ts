@@ -23,6 +23,7 @@ export interface UserInfo {
   fullName: string;
   gender: Gender;
   education: UserEducation;
+  description?:string;
 }
 
 export type Gender = 'male' | 'female';

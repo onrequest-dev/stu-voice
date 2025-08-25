@@ -7,7 +7,7 @@ interface OpinionProps {
   charLimit?: number;
 }
 
-const OpinionComponent: React.FC<OpinionProps> = ({ opinion, charLimit = 200 }) => {
+const OpinionComponent: React.FC<OpinionProps> = ({ opinion, charLimit = 600 }) => {
   return (
     <div className="px-4 pt-2 pb-1 w-full" dir="rtl">
       <TextExpander 

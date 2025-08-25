@@ -1,28 +1,37 @@
 'use client';
 import React from 'react';
-import { FaVenus, FaMars, FaSchool, FaUniversity, FaUserGraduate, FaBook, FaGraduationCap } from 'react-icons/fa';
+import {
+  FaVenus,
+  FaMars,
+  FaSchool,
+  FaUniversity,
+  FaUserGraduate,
+  FaBook,
+  FaGraduationCap
+} from 'react-icons/fa';
 import { UserEducation, UserInfo } from '../types/types';
 import CustomIcon from '../components/postcomponents/CustomIcon';
 import LoadingSpinner from './LoadingSpinner';
 
 const UserProfileViewComponent: React.FC<{ userData?: UserInfo }> = ({ userData }) => {
-  // ثيمات محسّنة للألوان
   const genderThemes = {
     male: {
-      primary: 'from-sky-400 to-blue-500',
       text: 'text-blue-900',
       chipBg: 'bg-blue-100/80',
       chipText: 'text-blue-800',
       iconHex: '#2563EB',
-      iconBg: '#EAF2FF'
+      iconBg: '#EAF2FF',
+      gradient: 'from-sky-400 via-blue-400 to-blue-600',
+      svgColor: '#3B82F6'
     },
     female: {
-      primary: 'from-fuchsia-400 to-pink-500',
-      text: 'text-fuchsia-900',
+      text: 'text-pink-900',
       chipBg: 'bg-pink-100/80',
-      chipText: 'text-fuchsia-800',
+      chipText: 'text-pink-800',
       iconHex: '#DB2777',
-      iconBg: '#FDE2F2'
+      iconBg: '#FDE2F2',
+      gradient: 'from-pink-300 via-pink-400 to-fuchsia-500',
+      svgColor: '#EC4899'
     }
   } as const;
 
@@ -37,56 +46,53 @@ const UserProfileViewComponent: React.FC<{ userData?: UserInfo }> = ({ userData 
     (userData.education.level === 'university' ? 'FaUniversity' : 'FaSchool');
 
   return (
-    <div className="w-full max-w-4xl mx-auto rtl text-right">
-      {/* هيدر ممتد بموجات SVG */}
-      <div className="relative">
-        {/* خلفية متدرجة */}
-        <div className={`w-full h-36 sm:h-44 bg-gradient-to-r ${theme.primary}`} />
+    <div className="relative w-full max-w-3xl mx-auto rtl text-right ">
+      {/* خلفية عليا مزودة برسومات SVG */}
+      <div className="absolute inset-x-0 top-0 h-52 overflow-hidden -z-10">
+        <div className={`w-full h-full bg-gradient-to-r ${theme.gradient} rounded-[10px]`} />
 
-        {/* موجة علوية فاتحة */}
-<svg
-  className="absolute top-10 left-10 w-full"
-  viewBox="0 0 1440 120"
-  preserveAspectRatio="none"
-  aria-hidden="true"
->
-  <path
-    d="M0,0 C300,60 480,-10 720,40 C960,90 1140,20 1440,50 L1440,0 Z"
-    fill="rgba(255, 255, 255, 0.85)"
-  />
-</svg>
+        {/* موجة SVG شفافة */}
+        <svg
+          className="absolute bottom-0 left-0 w-full h-36"
+          viewBox="0 0 1440 120"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+        >
+          <path
+            d="M0,40 C360,100 1080,0 1440,80 L1440,120 L0,120 Z"
+            fill="rgba(255, 255, 255, 0.56)"
+          />
+        </svg>
 
-{/* موجة ظل خفيفة */}
-<svg
-  className="absolute top-20 left-0 w-full"
-  viewBox="0 0 1440 120"
-  preserveAspectRatio="none"
-  aria-hidden="true"
->
-  <path
-    d="M0,10 C280,70 460,0 720,60 C980,110 1200,30 1440,70 L1440,0 Z"
-    fill="rgba(178, 252, 164, 0.85)"
-  />
-</svg>
-
-        {/* شارة الأيقونة الدائرية على يمين الهيدر */}
-        <div className="absolute right-4 sm:right-6 top-10 sm:top-7">
-          <div
-            className="w-16 h-16 sm:w-18 sm:h-18 rounded-full border-4 border-white shadow-xl flex items-center justify-center"
-            style={{ backgroundColor: customBg }}
-          >
-            <CustomIcon icon={iconName} iconColor={customColor} bgColor={customBg} size={22} />
-          </div>
-        </div>
+        {/* دوائر زخرفية */}
+        <svg
+          className="absolute top-8 left-10 w-40 h-40 opacity-20"
+          viewBox="0 0 200 200"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <circle cx="100" cy="100" r="80" fill={theme.svgColor} />
+        </svg>
+        <svg
+          className="absolute top-20 right-16 w-32 h-32 opacity-10"
+          viewBox="0 0 200 200"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <circle cx="100" cy="100" r="80" fill={theme.svgColor} />
+        </svg>
       </div>
 
-      {/* محتوى بطاقة الزيارة بدون إطار، محاذى يميناً */}
-      <div className="px-4 sm:px-6 pt-6 sm:pt-8 pb-10">
-        {/* الاسم + شارة النوع */}
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex-1" />
-          <div className="text-right">
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
+      {/* محتوى الحساب */}
+      <div className="px-4 py-6 sm:py-10 ">
+        {/* رأس (يشبه انستغرام) */}
+        <div className="flex items-center gap-6">
+          {/* صورة شخصية أو أيقونة */}
+          <div className="w-28 h-28 rounded-full border-4 border-white shadow-lg flex items-center justify-center overflow-hidden bg-white/70 backdrop-blur-sm">
+              <CustomIcon icon={iconName} iconColor={customColor} bgColor={customBg} size={38} />
+          </div>
+
+          {/* الاسم + الجنس */}
+          <div className="flex-1">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900">
               {userData.fullName}
             </h1>
             <div
@@ -107,10 +113,18 @@ const UserProfileViewComponent: React.FC<{ userData?: UserInfo }> = ({ userData 
           </div>
         </div>
 
-        {/* معلومات تعليمية أنيقة على شكل بطاقات خفيفة بدون إطار خارجي */}
-        <section className="mt-6 sm:mt-8">
-          <HeaderTitle education={userData.education} theme={theme} />
+        {/* النص التوضيحي (Bio) */}
+        <div className="mt-5 text-gray-800 text-[15px] leading-relaxed whitespace-pre-line break-words overflow-hidden line-clamp-2">
+          {userData.description && userData.description.trim() !== '' ? (
+            userData.description
+          ) : (
+            <span className="text-gray-400">لا يوجد نص توضيحي بعد</span>
+          )}
+        </div>
 
+        {/* قسم المعلومات التعليمية */}
+        <section className="mt-10">
+          <HeaderTitle education={userData.education} theme={theme} />
           <div className="mt-4 grid grid-cols-1 gap-3">
             {userData.education.level === 'middle' && (
               <MiddleSchoolView education={userData.education} theme={theme} />
@@ -128,7 +142,7 @@ const UserProfileViewComponent: React.FC<{ userData?: UserInfo }> = ({ userData 
   );
 };
 
-// عنوان القسم مع شارة مرحلة
+// === المكونات الفرعية كما هي مع بعض اللمسات ===
 const HeaderTitle = ({ education, theme }: { education: UserEducation; theme: any }) => {
   const title =
     education.level === 'university' ? 'المعلومات الأكاديمية' : 'المعلومات الدراسية';
@@ -150,17 +164,8 @@ const HeaderTitle = ({ education, theme }: { education: UserEducation; theme: an
   );
 };
 
-// عناصر صف واحد أنيقة
-const InfoRow = ({
-  icon,
-  label,
-  value
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value?: string;
-}) => (
-  <div className="flex items-center justify-between bg-white/70 backdrop-blur-sm rounded-lg px-3 py-2 shadow-sm ring-1 ring-black/5">
+const InfoRow = ({ icon, label, value }: { icon: React.ReactNode; label: string; value?: string }) => (
+  <div className="flex items-center justify-between bg-white/80 backdrop-blur-md rounded-lg px-3 py-2 shadow-sm ring-1 ring-black/5 hover:shadow-md transition">
     <span className="flex items-center gap-2 text-gray-700 font-medium">
       {icon}
       <span>{label}</span>
@@ -171,8 +176,7 @@ const InfoRow = ({
   </div>
 );
 
-// المراحل
-const MiddleSchoolView = ({ education, theme }: { education: UserEducation; theme: any }) => {
+const MiddleSchoolView = ({ education }: { education: UserEducation; theme: any }) => {
   const gradeMap: Record<string, string> = {
     first: 'الصف السابع',
     second: 'الصف الثامن',
@@ -185,7 +189,6 @@ const MiddleSchoolView = ({ education, theme }: { education: UserEducation; them
         label="الصف الدراسي"
         value={education.grade ? gradeMap[education.grade] || 'غير محدد' : 'غير محدد'}
       />
-
       {education.degreeSeeking && (
         <div className="flex items-center gap-2 bg-amber-50 text-amber-900 rounded-lg px-3 py-2 shadow-sm ring-1 ring-amber-200">
           <FaGraduationCap className="text-amber-600" />
@@ -196,7 +199,7 @@ const MiddleSchoolView = ({ education, theme }: { education: UserEducation; them
   );
 };
 
-const HighSchoolView = ({ education, theme }: { education: UserEducation; theme: any }) => {
+const HighSchoolView = ({ education }: { education: UserEducation; theme: any }) => {
   const gradeMap: Record<string, string> = {
     first: 'الصف العاشر',
     second: 'الصف الحادي عشر',
@@ -219,7 +222,6 @@ const HighSchoolView = ({ education, theme }: { education: UserEducation; theme:
         label="التخصص"
         value={education.track ? trackMap[education.track] || 'غير محدد' : 'غير محدد'}
       />
-
       {education.degreeSeeking && (
         <div className="flex items-center gap-2 bg-emerald-50 text-emerald-900 rounded-lg px-3 py-2 shadow-sm ring-1 ring-emerald-200">
           <FaGraduationCap className="text-emerald-600" />
@@ -230,7 +232,7 @@ const HighSchoolView = ({ education, theme }: { education: UserEducation; theme:
   );
 };
 
-const UniversityView = ({ education, theme }: { education: UserEducation; theme: any }) => {
+const UniversityView = ({ education }: { education: UserEducation; theme: any }) => {
   const yearMap: Record<string, string> = {
     first: 'السنة الأولى',
     second: 'السنة الثانية',
@@ -239,7 +241,6 @@ const UniversityView = ({ education, theme }: { education: UserEducation; theme:
     fifth: 'السنة الخامسة',
     graduate: 'خريج'
   };
-
   return (
     <div className="grid grid-cols-1 gap-3">
       <InfoRow icon={<FaUniversity className="text-gray-500" />} label="الجامعة" value={education.university} />
