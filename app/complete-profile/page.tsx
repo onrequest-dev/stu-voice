@@ -9,12 +9,21 @@ const Page = () => {
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [alertType, setAlertType] = useState<'success' | 'error' | 'warning' | 'info'>('info');
+  const [message,setmessage] = useState<string|null>(null);
+  const [src,setsrc] = useState<string|null>(null);
 
-  const searchParams = useSearchParams();
+
   const router = useRouter();
 
-  const message = searchParams.get('message');
-  const src = searchParams.get('src');
+  
+  useEffect(()=>{
+    const params = new URLSearchParams(window.location.search);
+    const Message = params.get('message');
+    const Src = params.get('src');
+    if(Message) setmessage(Message);
+    if(Src) setsrc(Src);
+
+  },[])
 
   // عرض alert عند تحميل الصفحة إذا كانت هناك رسالة في الرابط
   useEffect(() => {
