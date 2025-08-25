@@ -28,6 +28,7 @@ export interface PostProps {
   opinion?: Opinion | null;
   poll?: Poll | null;
   createdAt?: string;
+  showDiscussIcon?: boolean
 }
 
 export interface ReplyType {

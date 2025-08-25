@@ -9,7 +9,6 @@ export const getUserDataFromStorageAll = (): UserInfo | null => {
     const parsed: UserInfo = JSON.parse(storedData);
     return parsed;
   } catch (err) {
-    console.error('فشل في قراءة بيانات المستخدم:', err);
     return null;
   }
 };

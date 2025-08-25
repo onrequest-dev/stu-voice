@@ -19,7 +19,7 @@ const Addnotification = () => {
     async function registerPush() {
       if ("serviceWorker" in navigator && "PushManager" in window) {
         try {
-          const registration = await navigator.serviceWorker.register("/nsw.js");
+          const registration = await navigator.serviceWorker.register("/sw.js");
           const permission = await Notification.requestPermission();
 
           if (permission !== "granted") {

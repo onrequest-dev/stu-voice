@@ -1,4 +1,5 @@
 import { decodeJWT } from "@/lib/decodejwt";
+import { extractMentions } from "@/lib/extract_mentions";
 import { sendNotificationToUser } from "@/lib/pushnotifcation";
 import { rateLimiterMiddleware } from "@/lib/rateLimiterMiddleware";
 import { supabase } from "@/lib/supabase";
@@ -68,8 +69,12 @@ export async function POST(request: NextRequest) {
         { status: 400 }
         );
     }
-    const result = await sendNotificationToUser("*",{"body":"hi","title":"hi"});
-    console.log(result)
+    const mentions = extractMentions(content);
+    sendNotificationToUser(mentions,{
+      "body":`ذكرك ${jwt_user.user_name} في مناقشة!`
+      ,"title":"لقد تم ذكرك",
+      "data":{"url":`/talk/${id}`},
+    });
     return NextResponse.json(
       { message: "Comment posted successfully", post },
     );

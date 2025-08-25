@@ -30,7 +30,6 @@ export async function POST(request: NextRequest) {
   const body = await request.json();
   const {  data, errors } = validateAndSanitize(subSchema, body);
       if(errors){
-        console.log(errors)
         return NextResponse.json(
           { error: INVALID_REQUEST },
           { status: 400 }
@@ -44,7 +43,6 @@ export async function POST(request: NextRequest) {
         user_name : jwt_user.user_name
       });
       if(subError){
-        console.log(subError)
          return NextResponse.json({ error: INVALID_REQUEST },
         { status: 400 })
       }

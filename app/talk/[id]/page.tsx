@@ -2,7 +2,7 @@ import ChatBoard from '@/components/talk/ChatBoard';
 import { UserInfo } from '@/components/talk/ChatBubble';
 import { decodeJWT } from '@/lib/decodejwt';
 import { supabase } from '@/lib/supabase';
-import { format } from 'date-fns';
+import {  formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
@@ -46,7 +46,10 @@ const transformCommentsToMessages = (
   return comments.map((comment) => ({
     id: `m_${comment.comment_id}`,
     text: comment.content,
-    time: format(new Date(comment.created_at), 'hh:mm a', { locale: ar }),
+    time: formatDistanceToNow(new Date(comment.created_at),{
+      addSuffix: true,  // يعطي "منذ" أو "بعد"
+      locale: ar 
+    }),
     isMine: comment.commenter_username === currentUsername,
     user: {
       id: `${comment.commenter_username}`,
@@ -79,37 +82,60 @@ const ChatPage = async ({ params }: PostPageProps) => {
   const messages = transformCommentsToMessages(comments, username);
 
   const board = {
-    id: 'b1',
+    id: params.id,
     title: 'نقاش عام',
     description: 'مساحة لطرح الأفكار السريعة.',
     messages,
   };
-  const post = {
-  id: "post_54321",
-  userInfo: {
-    id: "user_98765",
-    iconName: "academicCap",
-    iconColor: "#10b981",
-    bgColor: "#d1fae5",
-    fullName: "سارة عبدالله",
-    study: "خريجة علوم حاسوب من جامعة الأميرة نورة"
-  },
-  opinion: null,
-  poll: {
-    question: "ما هو أفضل إطار عمل جافاسكريبت من وجهة نظرك؟",
-    options: ["React", "Vue", "Angular", "Svelte"], // مصفوفة نصوص وليس كائنات
-    votes: [45, 30, 20, 15], // اختياري ولكن يجب أن يكون مصفوفة أعداد
-    durationInDays: 14 // مطلوب حسب التعريف
-  },
-  createdAt: "2023-10-18T09:15:00Z"
-};
+
+  
+  // ==== جلب بيانات المنشور ====
+  const { data: postDataRaw, error: postError } = await supabase
+    .rpc('get_posts_by_id_or_publisher', {
+      target_id: params.id,
+      target_username: null,
+    });
+
+  if (postError) {
+    console.error('حدث خطأ أثناء جلب المنشور:', postError);
+    return <div>حدث خطأ أثناء جلب المنشور.</div>;
+  }
+
+  if (!postDataRaw || postDataRaw.length === 0) {
+    return <div>لم يتم العثور على المنشور.</div>;
+  }
+
+  const post = postDataRaw[0];
+
+  const postData = {
+    id: post.id,
+    userInfo: {
+      id: post.publisher_username,
+      iconName: post.icon?.name || 'graduation',
+      iconColor: post.icon?.color || '#ffffff',
+      bgColor: post.icon?.bgColor || '#3b82f6',
+      fullName: post.publisher_full_name,
+      study: post.faculty,
+    },
+    opinion: {
+      text: post.post,
+      agreeCount: post.upvotes,
+      disagreeCount: post.downvotes,
+      readersCount: 0,
+      commentsCount: 0,
+    },
+    poll: post.poll || null,
+  };
+
+
   return <ChatBoard board={board}  post_id={params.id}   postContent={
     <PostComponent
-      id={post.id}
-      userInfo={post.userInfo}
-      opinion={post.opinion}
-      poll={post.poll}
+      id={postData.id}
+      userInfo={postData.userInfo}
+      opinion={postData.opinion}
+      poll={postData.poll}
       createdAt={post.createdAt}
+      showDiscussIcon={false}
     />}/>;
 };
 

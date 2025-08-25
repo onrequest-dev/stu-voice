@@ -18,13 +18,29 @@ webpush.setVapidDetails(
  * @param payload محتوى الإشعار (title, body, ... )
  */
 export async function sendNotificationToUser(
-  userName: string,
-  payload: { title: string; body: string; [key: string]: any }
+  userName: string | string[],
+  payload: {
+    title: string;
+    body: string;
+    icon?: string;
+    badge?: string;
+    image?: string;
+    actions?: { action: string; title: string; icon?: string }[];
+    data?: { url?: string; [key: string]: any };
+    vibrate?: number[];
+    tag?: string;
+    [key: string]: any;
+  }
 ) {
+  console.log("sending to ", userName);
   let query = supabase.from('webpush_subscriptions').select('*');
 
   if (userName !== '*') {
-    query = query.eq('user_name', userName);
+    if (Array.isArray(userName)) {
+      query = query.in('user_name', userName);
+    } else {
+      query = query.eq('user_name', userName);
+    }
   }
 
   const { data: subscriptions, error } = await query;
@@ -35,24 +51,33 @@ export async function sendNotificationToUser(
   }
 
   if (!subscriptions || subscriptions.length === 0) {
-    console.log('No subscriptions found for user:', userName);
+    console.log('No subscriptions found for user(s):', userName);
     return;
   }
 
   const notificationPayload = JSON.stringify(payload);
 
-  for (const sub of subscriptions) {
-    try {
-      await webpush.sendNotification(
-        {
-          endpoint: sub.endpoint,
-          keys: sub.keys,
-        },
-        notificationPayload
-      );
-      console.log(`Notification sent to ${sub.user_name || 'unknown user'}`);
-    } catch (err) {
-      console.error('Failed to send notification:', err);
-    }
+  const batchSize = 50;  // عدد الإشعارات التي سترسل في نفس الوقت
+
+  for (let i = 0; i < subscriptions.length; i += batchSize) {
+    const batch = subscriptions.slice(i, i + batchSize);
+
+    // نرسل الإشعارات في batch متوازية مع تجاهل أخطاء كل إشعار
+    await Promise.all(
+      batch.map(sub =>
+        webpush.sendNotification(
+          {
+            endpoint: sub.endpoint,
+            keys: sub.keys,
+          },
+          notificationPayload
+        ).catch(err => {
+          console.error('Failed to send notification:', err);
+        })
+      )
+    );
   }
+
+  console.log('All notifications sent.');
 }
+

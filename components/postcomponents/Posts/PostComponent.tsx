@@ -8,7 +8,7 @@ import { PostProps } from '../types';
 import { handelreactionInStorage } from '@/client_helpers/handelreaction';
 
 
-const PostComponent: React.FC<PostProps> = ({ id, userInfo, opinion, poll ,createdAt}) => {
+const PostComponent: React.FC<PostProps> = ({ id, userInfo, opinion, poll ,createdAt,showDiscussIcon=true}) => {
   const [agreed, setAgreed] = useState<boolean | null>(null);
   const [localCounts, setLocalCounts] = useState({
     agree: opinion?.agreeCount || 0,
@@ -72,7 +72,7 @@ const PostComponent: React.FC<PostProps> = ({ id, userInfo, opinion, poll ,creat
       <div className="pb-1">
         <UserInfoComponent userInfo={userInfo} />
         {opinion && <OpinionComponent opinion={opinion} />}
-        {poll && <PollComponent poll={poll} id={id} />}
+        {poll && <PollComponent poll={poll} id={id} created_at={createdAt||""} />}
         <InteractionButtons
           postId={id}
           userId={userInfo.id}
@@ -83,6 +83,7 @@ const PostComponent: React.FC<PostProps> = ({ id, userInfo, opinion, poll ,creat
           readersCount={localCounts.readers}
           commentsCount={localCounts.comments}
           agreed={agreed}
+          showDiscussIcon={showDiscussIcon}
         />
       </div>
         {createdAt && (
