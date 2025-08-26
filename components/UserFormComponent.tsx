@@ -24,7 +24,6 @@ const UserFormComponent: React.FC<{
         const parsed: UserInfo = JSON.parse(storedData);
         setFormData(parsed);
       } catch (err) {
-        console.error('فشل في قراءة بيانات localStorage:', err);
       }
     }
   }
@@ -60,7 +59,6 @@ const handleSubmit = async (e: React.FormEvent) => {
     setSubmitSuccess(true);
     setTimeout(() => setSubmitSuccess(false), 2000);
   } catch (error) {
-    console.error('Submission error:', error);
     // لا نقوم بتعيين submitSuccess على true هنا
   } finally {
     setIsSubmitting(false);

@@ -131,7 +131,6 @@ useEffect(() => {
       setComments(mockData.comments);
       setUsers(prev => ({...prev, ...mockData.users}));
     } catch (error) {
-      console.error('Failed to fetch comments:', error);
     } finally {
       setLoadingComments(false);
     }
@@ -203,7 +202,6 @@ useEffect(() => {
       repliedToUserId
     };
     try{
-      console.log(parentCommentId)
       const result = await postComment({
         content : replyText,
         id : postData.id,

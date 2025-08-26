@@ -32,7 +32,6 @@ export async function sendNotificationToUser(
     [key: string]: any;
   }
 ) {
-  console.log("sending to ", userName);
   let query = supabase.from('webpush_subscriptions').select('*');
 
   if (userName !== '*') {
@@ -46,12 +45,10 @@ export async function sendNotificationToUser(
   const { data: subscriptions, error } = await query;
 
   if (error) {
-    console.error('Error fetching subscriptions:', error);
     return;
   }
 
   if (!subscriptions || subscriptions.length === 0) {
-    console.log('No subscriptions found for user(s):', userName);
     return;
   }
 
@@ -72,12 +69,10 @@ export async function sendNotificationToUser(
           },
           notificationPayload
         ).catch(err => {
-          console.error('Failed to send notification:', err);
         })
       )
     );
   }
 
-  console.log('All notifications sent.');
 }
 

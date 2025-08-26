@@ -55,7 +55,6 @@ if (poll) {
     .from('polls_options')
     .insert(optionsToInsert);
     if (pollError) {
-      console.log(pollError)
       return NextResponse.json({ error: Failed_to_create_post }, { status: 500 });
     }
 }

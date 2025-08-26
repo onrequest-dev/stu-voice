@@ -16,7 +16,6 @@ const bodySchema = z.object({
 });
 
 export async function POST(request: NextRequest) {
-  console.log("here")
   // تحقق تحديد معدل الطلبات (rate limiting)
   const rateLimitResponse = await rateLimiterMiddleware(request);
   if (rateLimitResponse) return rateLimitResponse;
@@ -70,7 +69,6 @@ export async function POST(request: NextRequest) {
       .upsert(upsertData, { onConflict: "post_id,reactor_username" });
 
     if (error) {
-      console.log("Error upserting upvote/downvote:", error);
       return NextResponse.json(
         { error: "Failed to save upvote/downvote reactions" },
         { status: 500 }
@@ -91,7 +89,6 @@ export async function POST(request: NextRequest) {
       .upsert(upsertData, { onConflict: "post_id,reactor_username" });
 
     if (error) {
-      console.log("Error upserting poll reactions:", error);
       return NextResponse.json(
         { error: "Failed to save poll reactions" },
         { status: 500 }

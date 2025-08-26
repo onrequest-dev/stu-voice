@@ -7,8 +7,8 @@ import { NextRequest, NextResponse } from "next/server";
 import createJwt from "@/lib/create_jwt";
 import { getUserIp } from "@/lib/get_userip";
 import { userSchema } from "@/types/zodtypes";
-import { getVotesHistoryFromBackend } from "@/client_helpers/get_vote_history_from_backend";
-import { getReationsHistoryFromBackend } from "@/client_helpers/get_reacions_history_from_backend";
+import { getVotesHistoryFromBackend } from "@/lib/get_vote_history_from_backend";
+import { getReationsHistoryFromBackend } from "@/lib/get_reacions_history_from_backend";
 
 export async function POST(request: NextRequest) {
   const body = await request.json();

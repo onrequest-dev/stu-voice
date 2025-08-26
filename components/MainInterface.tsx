@@ -5,8 +5,7 @@ import {
   FaUser, 
   FaCog, 
   FaComments, 
-  FaPoll, 
-  FaBell, 
+  FaPoll,  
   FaExternalLinkAlt,
   FaBars, 
   FaTimes, 
@@ -23,6 +22,9 @@ import SupportedSitesContent from './tabs/SupportedSitesContent';
 import VotesContent from './tabs/VotesContent';
 import NewPostContent from './tabs/NewPostContent';
 import styles from '../ScrollableArea.module.css';
+import NotificationIcon from './NotificationIcon';
+import { NotificationProvider } from '@/hooks/NotificationContext';
+import SWMessageHandler from '@/hooks/SWMessageHandler';
 interface Tab {
   id: string;
   icon: JSX.Element;
@@ -41,6 +43,16 @@ const MainInterface = ({ children }: { children?: React.ReactNode }) => {
   const mainContentRef = useRef<HTMLDivElement>(null);
   const isLargeScreen = useRef(false);
   const previousPath = useRef<string | null>(null);
+
+
+
+
+
+  //منطق الاشعارات في ال ui 
+
+
+  
+
 
   // قائمة التبويبات مع المكونات المرتبطة
   const tabs: Tab[] = [
@@ -81,7 +93,7 @@ const MainInterface = ({ children }: { children?: React.ReactNode }) => {
     },
     { 
       id: 'notifications', 
-      icon: <FaBell size={20} />, 
+      icon: <NotificationIcon/>, 
       title: 'الإشعارات', 
       href: '/taps/NotificationsContent',
       component: NotificationsContent
@@ -159,6 +171,9 @@ const MainInterface = ({ children }: { children?: React.ReactNode }) => {
   const CurrentComponent = currentTab?.component || HomeContent;
 
   return (
+    <>
+    <NotificationProvider>
+      <SWMessageHandler/>
     <div className={`relative h-screen w-full overflow-hidden transition-colors duration-300 ${
       isMenuOpen && !isLargeScreen.current ? 'bg-gradient-to-br from-blue-50 to-blue-100' : 'bg-white'
     }`}>
@@ -300,8 +315,9 @@ const MainInterface = ({ children }: { children?: React.ReactNode }) => {
         </>
       )}
     </div>
+    </NotificationProvider>
+    </>
   );
 };
 
 export default MainInterface;
-

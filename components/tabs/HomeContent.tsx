@@ -51,7 +51,6 @@ const HomeContent = () => {
       }
 
       const data = await response.json();
-      console.log(data)
       return {
         posts: data.posts.map((post: any) => ({
           id: post.id,

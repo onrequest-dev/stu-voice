@@ -27,7 +27,6 @@ const SettingsPanel = () => {
 
   const addToHomeScreen = () => {
     setAddPwa(true);
-    console.log("dhjk")
   };
 
   const handleEditClick = () => {

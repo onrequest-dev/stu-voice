@@ -31,7 +31,6 @@ export async function POST(request: NextRequest) {
   const body = await request.json();
   const {  data, errors } = validateAndSanitize(BodySchema, body);
     if(errors){
-      console.log(errors)
       return NextResponse.json(
         { error: INVALID_REQUEST },
         { status: 400 }
@@ -47,7 +46,6 @@ export async function POST(request: NextRequest) {
     });
 
   if (commentsError) {
-    console.log(errors)
     return NextResponse.json({ error: INVALID_REQUEST },
         { status: 400 })
   }

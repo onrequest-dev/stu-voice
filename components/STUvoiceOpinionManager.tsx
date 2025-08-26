@@ -22,7 +22,6 @@ const NewPostContent = () => {
         const data = getUserDataFromStorage();
         setUserData(data);
       } catch (error) {
-        console.error('Failed to load user data:', error);
         setUserData(null);
       } finally {
         setIsLoading(false);
@@ -102,7 +101,6 @@ const NewPostContent = () => {
 
       setPosts(prevPosts => [newPost, ...prevPosts]);
     } catch (error) {
-      console.error('Error submitting post:', error);
       alert('فشل في إرسال المنشور. حاول مرة أخرى.');
     }
   };

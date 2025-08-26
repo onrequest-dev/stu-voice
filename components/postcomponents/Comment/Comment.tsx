@@ -81,11 +81,9 @@ const Comment = ({
       await onAddReply(replyText, parentCommentId, repliedToUserId);
       queryClient.invalidateQueries({ queryKey: repliesQueryKey });
     } catch (error) {
-      console.error('Failed to add reply:', error);
       throw error;
     }
   };
-  console.log("عدد التعليقات :" + comment.repliesCount)
   return (
     <div className="border-b pb-4 mb-4 relative">
       {/* الصف العلوي: التاريخ ومعلومات المستخدم */}

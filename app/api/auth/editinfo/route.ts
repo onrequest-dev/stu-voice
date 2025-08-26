@@ -19,15 +19,12 @@ export async function POST(request: NextRequest) {
     if(!jwt) return NextResponse.json({ error: you_need_account_to_edit }, { status: 401 });
 
       const jwt_user = decodeJWT(jwt) as JwtPayload | null;
-      console.log('Decoded JWT:', jwt_user);
-      console.log(!jwt_user)
       if (!jwt_user || typeof jwt_user === 'string' || !jwt_user.user_name) {
     return NextResponse.json({ error: you_need_account_to_edit }, { status: 500 });
       }
     const body = await request.json();
     const { data, error } = sanitizeAndValidateInput(body,UserInfoSchema);
     if (error || !data) {
-      console.log(error)
         return NextResponse.json({ info_not_valid }, { status: 400 });
     }
     const username = jwt_user.user_name
@@ -80,7 +77,6 @@ export async function POST(request: NextRequest) {
       ip: user_ip || "unknown", //
       has_complited_info:true
       });
-      console.log(jwt_edited)
 
     response.cookies.set("jwt", jwt_edited || "", { path: "/", maxAge: 60 * 60 * 24 * 365 * 20, httpOnly: true });
 
