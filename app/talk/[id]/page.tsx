@@ -28,15 +28,18 @@ type JwtPayload = {
   [key: string]: any;
 };
 
-const getUsernameFromJWT = (): string => {
+const getUsernameFromJWT = (post_id:string|number): string => {
   const jwt = cookies().get('jwt')?.value;
-  if (!jwt) redirect('/auth/login');
+  if (!jwt) redirect(`/log-in?redirect=/talk/${post_id}`);
 
   const jwt_user = decodeJWT(jwt) as JwtPayload | null;
   if (!jwt_user || typeof jwt_user === 'string' || !jwt_user.user_name) {
-    redirect('/auth/login');
+    redirect(`/log-in?redirect=/talk/${post_id}`);
   }
-
+  const hasComplitedInfo = jwt_user.has_complited_info;
+  const message = "يرجى استكمال المعلومات قبل الوصول الى الصفحة ";
+  const src = `/talk/${post_id}`
+  if(!hasComplitedInfo||hasComplitedInfo==false) redirect(`/complete-profile?message=${message}&src=${src}`)
   return jwt_user.user_name;
 };
 
@@ -78,7 +81,7 @@ const fetch_chat = async (post_id: string): Promise<CommentRaw[]> => {
 };
 
 const ChatPage = async ({ params }: PostPageProps) => {
-  const username = getUsernameFromJWT();
+  const username = getUsernameFromJWT(params.id);
   const comments = await fetch_chat(params.id);
   const messages = transformCommentsToMessages(comments, username);
 
@@ -167,7 +170,8 @@ const ChatPage = async ({ params }: PostPageProps) => {
   };
 
   console.log(postData.userInfo.iconName);
-  return <ChatBoard board={board}  post_id={params.id}   postContent={
+  return<> 
+  <ChatBoard board={board}  post_id={params.id}   postContent={
     <PostComponent
       id={postData.id}
       userInfo={postData.userInfo}
@@ -176,6 +180,7 @@ const ChatPage = async ({ params }: PostPageProps) => {
       createdAt={post.createdAt}
       showDiscussIcon={false}
     />}/>;
+    </>
 };
 
 export default ChatPage;

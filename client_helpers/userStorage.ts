@@ -15,7 +15,6 @@ export const getUserDataFromStorage = (): PostUserInfo | null => {
     // تحويل البيانات من النوع الأول إلى النوع الثاني
     return transformUserInfo(parsedData);
   } catch (error) {
-    console.error('فشل قراءة بيانات المستخدم من التخزين:', error);
     return null;
   }
 };
@@ -60,7 +59,6 @@ export const rutID = (): string | null => {
     const parsedData = JSON.parse(storedData) as MainUserInfo;
     return parsedData.id || null;
   } catch (error) {
-    console.error('فشل قراءة معرف المستخدم من التخزين:', error);
     return null;
   }
 };

@@ -1,3 +1,5 @@
+import {  UserInfo } from "@/types/types";
+
 export async function loginUser(username: string, password: string) {
   try {
     const response = await fetch("/api/auth/login", {
@@ -18,23 +20,32 @@ export async function loginUser(username: string, password: string) {
     }
 
     // تخزين معلومات المستخدم في التخزين المحلي عند نجاح تسجيل الدخول
-    const userInfo = {
-      id: username,
-      fullName: '',
-      gender: 'male' as const,
-      education: {
-        university: '',
-        faculty: '',
-        department: '',
-        level: ''
+
+    const userInfo:UserInfo = {
+      id:result.username ,
+      fullName: result.fullname,
+      gender:result.gender ,
+      education:{
+        level: result.level,
+          grade:result.info.grade ,
+          track: "",
+          degreeSeeking: result.info.degreeSeeking,
+          university: result.university, 
+          faculty: result.faculty, 
+          specialization: result.info.specialization,
+          year:result.info.year ,
+          studentId: result.info.studentId ,
+          icon: result.icon
       }
     };
-    console.table(result.icon)
-    
+    console.log(userInfo)
     if (typeof window !== 'undefined') {
       localStorage.setItem('userInfo', JSON.stringify(userInfo));
-    }
+      localStorage.setItem('votes', JSON.stringify(result.voteshistory));
+      localStorage.setItem('permenet_reactions', JSON.stringify(result.reactionshistory));
 
+    }
+    
     return {
       success: true,
       message: result.message || "Login successful",

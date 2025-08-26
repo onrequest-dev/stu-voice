@@ -6,6 +6,8 @@ import { Failed_to_update, info_not_valid, User_information_updated_successfully
 import { JwtPayload } from "jsonwebtoken";
 import { NextRequest, NextResponse } from "next/server"
 import { addDays, isBefore } from "date-fns";import { UserInfoSchema } from "@/types/zodtypes";
+import createJwt from "@/lib/create_jwt";
+import { getUserIp } from "@/lib/get_userip";
 
 
 
@@ -25,6 +27,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { data, error } = sanitizeAndValidateInput(body,UserInfoSchema);
     if (error || !data) {
+      console.log(error)
         return NextResponse.json({ info_not_valid }, { status: 400 });
     }
     const username = jwt_user.user_name
@@ -70,6 +73,17 @@ export async function POST(request: NextRequest) {
      if (updateError) {
     return NextResponse.json({ error: Failed_to_update }, { status: 500 });
   }
-  return NextResponse.json({ message: User_information_updated_successfully }, { status: 200 });
+  const response = NextResponse.json({ message: User_information_updated_successfully }, { status: 200 });
+  const user_ip = getUserIp(request);
+  const jwt_edited = createJwt({
+      user_name: jwt_user.user_name,
+      ip: user_ip || "unknown", //
+      has_complited_info:true
+      });
+      console.log(jwt_edited)
+
+    response.cookies.set("jwt", jwt_edited || "", { path: "/", maxAge: 60 * 60 * 24 * 365 * 20, httpOnly: true });
+
+  return response;
     
 }
