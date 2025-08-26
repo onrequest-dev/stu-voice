@@ -3,21 +3,24 @@ import React from 'react';
 import { useState, useRef, useEffect } from 'react';
 import { FaDatabase, FaAlignLeft} from 'react-icons/fa';
 import { UserInfo } from '../types/types';
+import { PostProps } from './postcomponents/types';
 import UserProfileComponent from './UserProfileComponent';
-import LoadingSpinner from './LoadingSpinner';
-import { getUserDataFromStorageAll } from '../client_helpers/userStorageAll';
+import PostComponent from './postcomponents/Posts/PostComponent'; // استيراد مكون المنشور
 
-const TabbedContainer = () => {
+// تحديث الواجهة لتشمل خاصية posts
+interface TabbedContainerProps {
+  userData?: UserInfo | null;
+  posts?: PostProps[]; // خاصية جديدة لمصفوفة المنشورات
+}
+
+const TabbedContainer: React.FC<TabbedContainerProps> = ({ 
+  userData: propUserData, 
+  posts = [] // قيمة افتراضية مصفوفة فارغة
+}) => {
     const [activeTab, setActiveTab] = useState<'data' | 'posts'>('data');
     const [indicatorStyle, setIndicatorStyle] = useState({ left: '0%', width: '50%' });
-    const [userData, setUserData] = React.useState<UserInfo | null>(null);
+    const [userData, setUserData] = React.useState<UserInfo | null>(propUserData || null);
     const tabsRef = useRef<HTMLDivElement>(null);
-
-    // تحميل بيانات المستخدم
-     React.useEffect(() => {
-    const data = getUserDataFromStorageAll();
-    setUserData(data);
-  }, []);
 
     // تحديث موضع المؤشر عند تغيير التبويب
     useEffect(() => {
@@ -29,7 +32,7 @@ const TabbedContainer = () => {
     }, [activeTab]);
 
     if (!userData) {
-        return <div className="text-center py-10"><LoadingSpinner/></div>;
+        return ;
     }
 
     return (
@@ -83,15 +86,31 @@ const TabbedContainer = () => {
                 activeTab === 'posts' ? 'opacity-100' : 'opacity-0 pointer-events-none'
             }`}
             >
-            <div className="h-full overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                <ul className="divide-y divide-gray-100">
-                kl
-                </ul>
+            <div className="h-full overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 p-4">
+                {posts.length > 0 ? (
+                  <div className="space-y-4">
+                    {posts.map((post) => (
+                      <PostComponent 
+                        key={post.id}
+                        id={post.id}
+                        userInfo={post.userInfo}
+                        opinion={post.opinion}
+                        poll={post.poll}
+                        createdAt={post.createdAt}
+                        showDiscussIcon={post.showDiscussIcon}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center h-full text-gray-500">
+                    لا توجد منشورات لعرضها
+                  </div>
+                )}
             </div>
             </div>
         </div>
         </div>
     );
-    };
+};
 
 export default TabbedContainer;

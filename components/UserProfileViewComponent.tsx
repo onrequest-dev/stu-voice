@@ -11,7 +11,7 @@ import {
 } from 'react-icons/fa';
 import { UserEducation, UserInfo } from '../types/types';
 import CustomIcon from '../components/postcomponents/CustomIcon';
-import LoadingSpinner from './LoadingSpinner';
+
 
 const UserProfileViewComponent: React.FC<{ userData?: UserInfo }> = ({ userData }) => {
   const genderThemes = {
@@ -35,7 +35,7 @@ const UserProfileViewComponent: React.FC<{ userData?: UserInfo }> = ({ userData 
     }
   } as const;
 
-  if (!userData) return <LoadingSpinner />;
+  if (!userData) return ;
 
   const theme = genderThemes[userData.gender] || genderThemes.male;
 

@@ -140,7 +140,7 @@ const InteractionButtons: React.FC<InteractionButtonsProps> = ({
   };
 
   const handleSocialShare = (platform: string) => {
-    const shareUrl = `${window.location.origin}/posts/${postId}`;
+    const shareUrl = `${window.location.origin}/talk/${postId}`;
     let url = '';
 
     switch (platform) {

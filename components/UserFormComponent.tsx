@@ -7,14 +7,21 @@ const UserFormComponent: React.FC<{
   onSubmit: (data: UserInfo) => void;
   initialData?: UserInfo;
 }> = ({ onSubmit, initialData }) => {
-  const [formData, setFormData] = useState<UserInfo>(initialData || {
+const [formData, setFormData] = useState<UserInfo>(
+  initialData || {
     id: '',
     fullName: '',
     gender: 'male',
     education: {
-      level: 'middle'
+      level: 'middle',
+      icon: { 
+        component: 'graduation', 
+        color: '#4a5568', 
+        bgColor: '#ffffff' 
+      }
     }
-  });
+  }
+);
 
   useEffect(() => {
   if (!initialData) {
@@ -40,15 +47,15 @@ const UserFormComponent: React.FC<{
     }));
   };
 
-  const handleEducationChange = (field: keyof UserEducation, value: any) => {
-    setFormData(prev => ({
-      ...prev,
-      education: {
-        ...prev.education,
-        [field]: value
-      }
-    }));
-  };
+const handleEducationChange = (field: keyof UserEducation, value: any) => {
+  setFormData(prev => ({
+    ...prev,
+    education: {
+      ...prev.education,
+      [field]: value
+    }
+  }));
+};
 
 const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
@@ -83,11 +90,18 @@ const handleSubmit = async (e: React.FormEvent) => {
       focusRing: 'focus:ring-pink-500'
     }
   };
+const handleIconChange = (iconName: string, color: string, bgColor: string) => {
+  handleEducationChange("icon", {
+    component: iconName,
+    color,
+    bgColor
+  });
+};
   const [iconData, setIconData] = useState({
-  iconName: 'graduation',
-  color: '#4a5568',
-  bgColor: '#ebf8ff'
-});
+    icon: 'graduation',
+    color: '#4a5568',
+    bgColor: '#ffffff'
+  });
   const currentGender = genderClasses[formData.gender];
 
   return (
@@ -95,18 +109,11 @@ const handleSubmit = async (e: React.FormEvent) => {
         <div className={`max-w-2xl mx-auto p-4 md:p-6 rounded-lg shadow-lg transition-all duration-300 ${currentGender.bgSecondary} border ${currentGender.border} mt-12`}>
             {/* تغليف الأيقونة - تم تعديل الموضع هنا */}
             <div className="mx-auto -mt-16 w-16 h-16 md:w-20 md:h-20 rounded-full bg-white shadow-lg flex items-center justify-center border-4 border-white">
-            <IconPicker 
-                onIconChange={(iconName, color, bgColor) => {
-                setIconData({ iconName, color, bgColor });
-                handleEducationChange('icon', {
-                    component: iconName,
-                    color,
-                    bgColor
-                });
-                }}
-                initialIcon={initialData?.education?.icon?.component || 'graduation'}
-                initialColor={initialData?.education?.icon?.color || '#4a5568'}
-                initialBgColor={initialData?.education?.icon?.bgColor || '#ebf8ff'}
+            <IconPicker
+              onIconChange={handleIconChange}
+              initialIcon={formData.education.icon?.component || 'graduation'}
+              initialColor={formData.education.icon?.color || '#4a5568'}
+              initialBgColor={formData.education.icon?.bgColor || '#ffffff'}
             />
             </div>
         <form onSubmit={handleSubmit}>
