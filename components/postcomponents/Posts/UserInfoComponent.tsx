@@ -4,7 +4,7 @@ import { BsPatchCheckFill } from 'react-icons/bs'; // ✅ أيقونة احتر�
 import CustomIcon from '../CustomIcon';
 import { UserInfo } from '../types';
 import Link from 'next/link';
-import LoadingSpinner from '../../LoadingSpinner';
+
 
 interface UserInfoProps {
   userInfo: UserInfo;
@@ -12,12 +12,33 @@ interface UserInfoProps {
 
 const UserInfoComponent: React.FC<UserInfoProps> = ({ userInfo }) => {
   const [isLoading, setIsLoading] = React.useState(false);
+  const disableLinks = userInfo.disableLinks || false;
 
   const handleLinkClick = () => {
-    setIsLoading(true);
+    if (!disableLinks) {
+      setIsLoading(true);
+    }
   };
 
   const isVerified = userInfo.id === 'stuvoice';
+
+  // دالة لتغليف المحتوى برابط أو بدون حسب القيمة
+  const wrapWithLink = (content: React.ReactNode, href: string, key?: string) => {
+    if (disableLinks) {
+      return <div key={key} className="inline-block">{content}</div>;
+    }
+    
+    return (
+      <Link 
+        key={key}
+        href={href} 
+        onClick={handleLinkClick}
+        className="inline-block"
+      >
+        {content}
+      </Link>
+    );
+  };
 
   return (
     <div className="flex items-start justify-between w-full py-4 gap-2">
@@ -38,42 +59,38 @@ const UserInfoComponent: React.FC<UserInfoProps> = ({ userInfo }) => {
       <div className="flex items-start flex-1 min-w-0 mr-1">
         <div className="text-right mr-3 min-w-0 flex-1">
           <div className="flex flex-col items-end">
-            <Link 
-              href={`/showdatauser/${userInfo.id}`} 
-              className="font-medium text-gray-900 text-right break-words whitespace-normal flex flex-row-reverse items-center gap-1"
-              onClick={handleLinkClick}
-            >
-              {userInfo.fullName}
-              {isVerified && (
-                <BsPatchCheckFill className="text-green-500 mx-1" size={14} />
-              )}
-            </Link>
+            {wrapWithLink(
+              <div className="font-medium text-gray-900 text-right break-words whitespace-normal flex flex-row-reverse items-center gap-1">
+                {userInfo.fullName}
+                {isVerified && (
+                  <BsPatchCheckFill className="text-green-500 mx-1" size={14} />
+                )}
+              </div>,
+              `/showdatauser/${userInfo.id}`,
+              'name-link'
+            )}
             <div className="flex items-center justify-end mt-1">
               <FaInfoCircle className="text-gray-400 ml-1 flex-shrink-0" size={10} />
-              <Link 
-                href={`/showdatauser/${userInfo.id}`} 
-                className="text-xs text-gray-500 break-all "
-                onClick={handleLinkClick}
-              >
-                @{userInfo.id}
-              </Link>
+              {wrapWithLink(
+                <span className="text-xs text-gray-500 break-all">
+                  @{userInfo.id}
+                </span>,
+                `/showdatauser/${userInfo.id}`,
+                'id-link'
+              )}
             </div>
           </div>
         </div>
-        <Link 
-          href={`/showdatauser/${userInfo.id}`} 
-          className="flex-shrink-0"
-          onClick={handleLinkClick}
-        >
+        {wrapWithLink(
           <CustomIcon 
             icon={userInfo.iconName}
             iconColor={userInfo.iconColor}
             bgColor={userInfo.bgColor}
-          />
-        </Link>
+          />,
+          `/showdatauser/${userInfo.id}`,
+          'icon-link'
+        )}
       </div>
-
-      {isLoading && <LoadingSpinner />}
     </div>
   );
 };

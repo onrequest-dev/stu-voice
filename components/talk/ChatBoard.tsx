@@ -200,7 +200,7 @@ const ChatBoard: React.FC<ChatBoardProps> = ({
         {/* منطقة الرسائل مع تمرير عمودي فقط */}
         <div
           ref={listRef}
-          className={`flex-1 overflow-y-auto ${styles.scrollContainer} p-4 scroll-smooth bg-white`}
+          className={`flex-1 overflow-y-auto ${styles.scrollContainer} p-2 scroll-smooth bg-white`}
           style={{ maxHeight: 'calc(100vh - 75px)' }}
         >
           {/* محتوى الرسائل داخل حاوية مركزة */}
