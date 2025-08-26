@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
-import { 
-  FaUser, FaGraduationCap, FaSchool, FaUniversity, FaBook, FaBookOpen, 
+import React, { useState, useEffect } from 'react';
+import { FaUser, FaGraduationCap, FaSchool, FaUniversity, FaBook, FaBookOpen, 
   FaUserGraduate, FaChalkboardTeacher, FaAtom, FaFlask, FaCalculator, 
   FaPencilAlt, FaLaptopCode, FaMicroscope, FaMusic, FaPaintBrush, FaGlobe, 
   FaHistory, FaLanguage, FaBrain, FaRunning, FaChess, FaCamera, FaRobot, 
@@ -20,7 +19,6 @@ interface IconPickerProps {
 }
 
 const icons = [
-  // أيقونات تعليمية
   { name: "user", icon: <FaUser /> },
   { name: "graduation", icon: <FaGraduationCap /> },
   { name: "school", icon: <FaSchool /> },
@@ -29,8 +27,6 @@ const icons = [
   { name: "open-book", icon: <FaBookOpen /> },
   { name: "graduate", icon: <FaUserGraduate /> },
   { name: "teacher", icon: <FaChalkboardTeacher /> },
-  
-  // أيقونات علمية
   { name: "atom", icon: <FaAtom /> },
   { name: "flask", icon: <FaFlask /> },
   { name: "calculator", icon: <FaCalculator /> },
@@ -41,8 +37,6 @@ const icons = [
   { name: "rocket", icon: <FaRocket /> },
   { name: "wind", icon: <FaWind /> },
   { name: "solar-panel", icon: <FaSolarPanel /> },
-  
-  // أيقونات طبية
   { name: "stethoscope", icon: <FaStethoscope /> },
   { name: "heartbeat", icon: <FaHeartbeat /> },
   { name: "pills", icon: <FaPills /> },
@@ -52,8 +46,6 @@ const icons = [
   { name: "eye", icon: <FaEye /> },
   { name: "teeth", icon: <FaTeeth /> },
   { name: "allergies", icon: <FaAllergies /> },
-  
-  // أيقونات رياضية
   { name: "weight", icon: <FaWeightHanging /> },
   { name: "dumbbell", icon: <FaDumbbell /> },
   { name: "basketball", icon: <FaBasketballBall /> },
@@ -62,23 +54,17 @@ const icons = [
   { name: "running", icon: <FaRunning /> },
   { name: "biking", icon: <FaBiking /> },
   { name: "football", icon: <FaFootballBall /> },
-  
-  // أيقونات غذائية
   { name: "carrot", icon: <FaCarrot /> },
   { name: "apple", icon: <FaAppleAlt /> },
   { name: "hamburger", icon: <FaHamburger /> },
   { name: "pizza", icon: <FaPizzaSlice /> },
   { name: "ice-cream", icon: <FaIceCream /> },
-  
-  // أيقونات فنية وإبداعية
   { name: "music", icon: <FaMusic /> },
   { name: "paint", icon: <FaPaintBrush /> },
   { name: "palette", icon: <FaPalette /> },
   { name: "camera", icon: <FaCamera /> },
   { name: "code", icon: <FaCode /> },
   { name: "robot", icon: <FaRobot /> },
-  
-  // أيقونات أخرى
   { name: "globe", icon: <FaGlobe /> },
   { name: "history", icon: <FaHistory /> },
   { name: "language", icon: <FaLanguage /> },
@@ -98,6 +84,13 @@ const IconPicker: React.FC<IconPickerProps> = ({
   const [selectedIcon, setSelectedIcon] = useState(initialIcon);
   const [iconColor, setIconColor] = useState(initialColor);
   const [bgColor, setBgColor] = useState(initialBgColor);
+
+  // ✅ تحديث الحالة عندما تتغير القيم القادمة من الأب
+  useEffect(() => {
+    setSelectedIcon(initialIcon);
+    setIconColor(initialColor);
+    setBgColor(initialBgColor);
+  }, [initialIcon, initialColor, initialBgColor]);
 
   const getCurrentIcon = () => {
     const found = icons.find(icon => icon.name === selectedIcon);
@@ -120,12 +113,6 @@ const IconPicker: React.FC<IconPickerProps> = ({
     setBgColor(color);
     onIconChange(selectedIcon, iconColor, color);
   };
-
-  // تقسيم الأيقونات إلى مجموعات كل 5 أيقونات
-  const iconGroups = [];
-  for (let i = 0; i < icons.length; i += 5) {
-    iconGroups.push(icons.slice(i, i + 5));
-  }
 
   return (
     <div className="relative flex justify-center">
@@ -156,7 +143,6 @@ const IconPicker: React.FC<IconPickerProps> = ({
               </button>
             </div>
 
-            {/* شبكة الأيقونات - 5 أيقونات في كل صف */}
             <div className="mb-6 grid grid-cols-5 gap-3">
               {icons.map((item) => (
                 <div 
@@ -180,7 +166,6 @@ const IconPicker: React.FC<IconPickerProps> = ({
               ))}
             </div>
             
-            {/* أداة اختيار الألوان */}
             <div className="space-y-4">
               <div className="flex flex-col items-center">
                 <div 
