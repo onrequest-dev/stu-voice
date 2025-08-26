@@ -16,7 +16,7 @@ const PostComponent: React.FC<PostProps> = ({ id, userInfo, opinion, poll ,creat
     readers: opinion?.readersCount || poll?.votes?.reduce((sum, vote) => sum + vote, 0) || 0,
     comments: opinion?.commentsCount || 0
   });
-
+  // console.log("fj",userInfo)
   const handleAgree = () => {
     // storing reaction 
     

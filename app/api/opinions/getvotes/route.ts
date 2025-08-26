@@ -28,7 +28,6 @@ export async function POST(request: NextRequest) {
   }
   const body = await request.json();
   const { vote_id } = body;
-
   if (!vote_id) {
     return NextResponse.json(
       { error: "مفقود معرف التصويت" },
