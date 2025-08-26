@@ -163,6 +163,7 @@ const handleSubmit = async (e: React.FormEvent) => {
               </label>
               <input
                 type="text"
+                dir="rtl"
                 className={`w-full p-2 md:p-3 text-sm text-right md:text-base rounded border ${currentGender.border} focus:outline-none focus:ring-2 ${currentGender.focusRing}`}
                 value={formData.fullName}
                 onChange={(e) => {
@@ -326,6 +327,7 @@ const MiddleSchoolForm: React.FC<EducationFormProps> = ({ education, onChange, c
     <div className="mb-3 md:mb-4">
       <label className={`block mb-1 md:mb-2 text-sm md:text-base ${currentGender.text}`}>الصف الدراسي</label>
       <select
+        dir="rtl"
         className={`w-full p-2 md:p-3 text-sm text-right md:text-base rounded border ${currentGender.border} focus:outline-none focus:ring-2 ${currentGender.focusRing}`}
         value={education.grade || ''}
         onChange={(e) => onChange('grade', e.target.value)}
@@ -363,6 +365,7 @@ const HighSchoolForm: React.FC<EducationFormProps> = ({ education, onChange, cur
     <div className="mb-3 md:mb-4">
       <label className={`block mb-1 md:mb-2 text-sm md:text-base ${currentGender.text}`}>الصف الدراسي</label>
       <select
+        dir="rtl"
         className={`w-full p-2 md:p-3 text-sm text-right md:text-base rounded border ${currentGender.border} focus:outline-none focus:ring-2 ${currentGender.focusRing}`}
         value={education.grade || ''}
         onChange={(e) => onChange('grade', e.target.value)}
@@ -425,6 +428,7 @@ const UniversityForm: React.FC<EducationFormProps> = ({ education, onChange, cur
       <label className={`block mb-1 md:mb-2 text-sm md:text-base ${currentGender.text}`}>الجامعة</label>
       <input
         type="text"
+        dir="rtl"
         className={`w-full p-2 md:p-3 text-sm text-right md:text-base rounded border ${currentGender.border} focus:outline-none focus:ring-2 ${currentGender.focusRing}`}
         value={education.university || ''}
         onChange={(e) => onChange('university', e.target.value)}
@@ -436,6 +440,7 @@ const UniversityForm: React.FC<EducationFormProps> = ({ education, onChange, cur
       <label className={`block mb-1 md:mb-2 text-sm md:text-base ${currentGender.text}`}>الكلية/الفرع</label>
       <input
         type="text"
+        dir="rtl"
         className={`w-full p-2 md:p-3 text-sm text-right md:text-base rounded border ${currentGender.border} focus:outline-none focus:ring-2 ${currentGender.focusRing}`}
         value={education.faculty || ''}
         onChange={(e) => onChange('faculty', e.target.value)}
@@ -447,6 +452,7 @@ const UniversityForm: React.FC<EducationFormProps> = ({ education, onChange, cur
       <label className={`block mb-1 md:mb-2 text-sm md:text-base ${currentGender.text}`}>التخصص</label>
       <input
         type="text"
+        dir="rtl"
         className={`w-full p-2 md:p-3 text-sm text-right md:text-base rounded border ${currentGender.border} focus:outline-none focus:ring-2 ${currentGender.focusRing}`}
         value={education.specialization || ''}
         onChange={(e) => onChange('specialization', e.target.value)}
@@ -458,6 +464,7 @@ const UniversityForm: React.FC<EducationFormProps> = ({ education, onChange, cur
       <div>
         <label className={`block mb-1 md:mb-2 text-sm md:text-base ${currentGender.text}`}>السنة الدراسية</label>
         <select
+          dir="rtl"
           className={`w-full p-2 md:p-3 text-sm text-right md:text-base rounded border ${currentGender.border} focus:outline-none focus:ring-2 ${currentGender.focusRing}`}
           value={education.year || ''}
           onChange={(e) => onChange('year', e.target.value)}
@@ -479,6 +486,7 @@ const UniversityForm: React.FC<EducationFormProps> = ({ education, onChange, cur
           type="number"
           max="9999"
           min="1000"
+          dir="rtl"
           className={`w-full p-2 md:p-3 text-sm text-right md:text-base rounded border ${currentGender.border} focus:outline-none focus:ring-2 ${currentGender.focusRing}`}
           value={education.studentId || ''}
           onChange={(e) => onChange('studentId', e.target.value)}
