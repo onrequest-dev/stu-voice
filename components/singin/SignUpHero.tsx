@@ -15,6 +15,8 @@ const SignUpHero = () => {
   const [passwordStrength, setPasswordStrength] = useState(0);
   const [showPasswordError, setShowPasswordError] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasInvalidChar, setHasInvalidChar] = useState(false); // حالة جديدة لتتبع المحارف غير الصالحة
 
   // حساب قوة كلمة المرور
   const calculatePasswordStrength = (password: string) => {
@@ -31,6 +33,16 @@ const SignUpHero = () => {
     setPasswordStrength(calculatePasswordStrength(formData.password));
   }, [formData.password]);
 
+  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const originalValue = e.target.value;
+    const cleaned = originalValue.replace(/[^A-Za-z-]/g, '');
+    
+    // التحقق إذا كان هناك محارف غير صالحة تم إدخالها
+    setHasInvalidChar(originalValue !== cleaned);
+    
+    setFormData(prev => ({ ...prev, username: cleaned }));
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -38,15 +50,18 @@ const SignUpHero = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
 
     if (formData.password !== formData.confirmPassword) {
       setAlertMessage('كلمتا المرور غير متطابقتين');
+      setIsLoading(false);
       return;
     }
 
     if (passwordStrength < 3) {
       setShowPasswordError(true);
       setAlertMessage('كلمة المرور ضعيفة. يجب أن تحتوي على الأقل 8 أحرف وتشمل حروفًا كبيرة وأرقامًا');
+      setIsLoading(false);
       return;
     }
 
@@ -67,11 +82,13 @@ const SignUpHero = () => {
       }
     } catch (error) {
       setAlertMessage('حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى');
+    } finally {
+      setIsLoading(false);
     }
   };
-
+  
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-white relative overflow-hidden p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-white relative overflow-hidden p-1">
       {/* عرض رسالة التنبيه إذا كانت موجودة */}
       <Alert 
         message={alertMessage} 
@@ -90,7 +107,7 @@ const SignUpHero = () => {
       {/* البطاقة الرئيسية */}
       <div className="w-full max-w-lg bg-white rounded-2xl shadow-xl z-10 overflow-hidden transition-all duration-300 hover:shadow-2xl">
         {/* قسم الصورة الموسع */}
-        <div className="bg-gradient-to-r from-blue-500 to-blue-600 h-64 flex items-center justify-center relative p-8">
+        <div className="bg-gradient-to-r from-blue-500 to-blue-600 h-48 flex items-center justify-center relative p-4">
           {/* زخارف داخل قسم الصورة */}
           <div className="absolute top-8 left-8 w-20 h-20 bg-white opacity-10 rounded-full"></div>
           <div className="absolute bottom-8 right-8 w-28 h-28 bg-white opacity-15 rounded-full"></div>
@@ -128,13 +145,20 @@ const SignUpHero = () => {
                 type="text"
                 id="username"
                 name="username"
-                value={formData.username}
-                onChange={handleChange}
+                value={formData.username ?? ''}
+                onChange={handleUsernameChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
                 required
-                pattern="[A-Za-z-]+"
-                title="يرجى إدخال أحرف إنجليزية و - فقط"
+                pattern="^[A-Za-z-]+$"
+                title="يرجى إدخال أحرف إنجليزية و- فقط"
+                disabled={isLoading}
               />
+              {/* رسالة تنبيه للمحارف غير الصالحة */}
+              {hasInvalidChar && (
+                <p className="text-sm text-red-600 mt-1">
+                  يُسمح فقط بالأحرف الإنجليزية والشرطة (-)
+                </p>
+              )}
             </div>
 
             {/* حقل كلمة المرور */}
@@ -150,6 +174,7 @@ const SignUpHero = () => {
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
                 required
+                disabled={isLoading}
               />
               {/* شريط قوة كلمة المرور */}
                 <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2 overflow-hidden">
@@ -184,25 +209,42 @@ const SignUpHero = () => {
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
                 required
+                disabled={isLoading}
               />
               {formData.password && formData.confirmPassword && formData.password !== formData.confirmPassword && (
                 <p className="text-sm text-red-600 mt-1">!كلمة المرور غير متطابقة</p>
               )}
             </div>
 
-            {/* زر التسجيل */}
+            {/* زر التسجيل مع حالة التحميل */}
             <button
               type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition duration-300 transform hover:-translate-y-0.5 hover:shadow-md"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition duration-300 transform hover:-translate-y-0.5 hover:shadow-md flex items-center justify-center"
+              disabled={isLoading}
             >
-              تسجيل
+              {isLoading ? (
+                <>
+                  {/* مؤشر التحميل (spinner) */}
+                  <svg className="animate-spin -mr-1 ml-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  جاري إنشاء الحساب
+                </>
+              ) : (
+                'تسجيل'
+              )}
             </button>
           </form>
           
           {/* رابط تسجيل الدخول */}
           <p className="text-center text-sm text-gray-600">
             لديك حساب بالفعل؟{' '}
-            <Link href="/log-in" className="text-blue-600 hover:text-blue-800 font-medium">
+            <Link 
+              href="/log-in" 
+              className="text-blue-600 hover:text-blue-800 font-medium"
+              onClick={(e) => isLoading && e.preventDefault()}
+            >
               سجل الدخول
             </Link>
           </p>

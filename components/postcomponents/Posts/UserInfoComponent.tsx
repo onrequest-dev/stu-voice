@@ -66,7 +66,7 @@ const UserInfoComponent: React.FC<UserInfoProps> = ({ userInfo }) => {
                   <BsPatchCheckFill className="text-green-500 mx-1" size={14} />
                 )}
               </div>,
-              `/showdatauser/${userInfo.id}`,
+              `/showuserdata/${userInfo.id}`,
               'name-link'
             )}
             <div className="flex items-center justify-end mt-1">
@@ -87,7 +87,7 @@ const UserInfoComponent: React.FC<UserInfoProps> = ({ userInfo }) => {
             iconColor={userInfo.iconColor}
             bgColor={userInfo.bgColor}
           />,
-          `/showdatauser/${userInfo.id}`,
+          `/showuserdata/${userInfo.id}`,
           'icon-link'
         )}
       </div>

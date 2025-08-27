@@ -77,13 +77,13 @@ const MainInterface = ({ children }: { children?: React.ReactNode }) => {
       href: '/DailyOpinion',
       component: OpinionsContent
     },
-    { 
-      id: 'votes', 
-      icon: <FaPoll size={20} />, 
-      title: 'تصويت', 
-      href: '/taps/VotesContent',
-      component: VotesContent
-    },
+    // { 
+    //   id: 'votes', 
+    //   icon: <FaPoll size={20} />, 
+    //   title: 'تصويت', 
+    //   href: '/taps/VotesContent',
+    //   component: VotesContent
+    // },
     { 
       id: 'profile', 
       icon: <FaUser size={20} />, 
@@ -225,7 +225,13 @@ const MainInterface = ({ children }: { children?: React.ReactNode }) => {
             {tabs.map((tab) => (
               <div key={tab.id} className="flex flex-col items-center px-2">
                 <button 
-                  onClick={() => handleTabClick(tab.href, tab.isExternal)}
+                  onClick={(e) => {
+                    // تغيير اللون فورًا عند الضغط
+                    e.currentTarget.classList.add('bg-blue-600', 'text-white', 'hover:bg-blue-700');
+                    e.currentTarget.classList.remove('bg-blue-100', 'text-blue-600', 'hover:bg-blue-200');
+                    
+                    handleTabClick(tab.href, tab.isExternal);
+                  }}
                   className={`w-12 h-12 rounded-full flex items-center justify-center shadow-sm hover:scale-110 transition-all ${
                     pathname === tab.href
                       ? 'bg-blue-600 text-white hover:bg-blue-700'

@@ -9,26 +9,34 @@ const LoginPage = () => {
     username: '',
     password: ''
   });
+  const [isLoading, setIsLoading] = useState(false); // حالة التحميل الجديدة
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit =  async(e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const result = await loginUser(formData.username, formData.password);
-    if (result.success) {
-      // setMessage({ text: result.message, type: 'success' });
-      setFormData({ username: '', password: '' }); // مسح النموذج بعد النجاح
-      let redirectUrl = new URLSearchParams(window.location.search).get('redirect');
-      if (redirectUrl) {
-        window.open(redirectUrl, '_blank', 'noopener,noreferrer');
-      } else {
-        window.location.href = '/';
+    setIsLoading(true); // تفعيل حالة التحميل
+    
+    try {
+      const result = await loginUser(formData.username, formData.password);
+      if (result.success) {
+        setFormData({ username: '', password: '' });
+        let redirectUrl = new URLSearchParams(window.location.search).get('redirect');
+        if (redirectUrl) {
+          window.open(redirectUrl, '_blank', 'noopener,noreferrer');
+        } else {
+          window.location.href = '/';
+        }
       }
+    } catch (error) {
+      // console.error('Login error:', error);
+      // يمكنك إضافة رسالة خطأ هنا إذا أردت
+    } finally {
+      setIsLoading(false); // تعطيل حالة التحميل بغض النظر عن النتيجة
     }
-    // إرسال بيانات الدخول إلى الخادم
   };
 
   return (
@@ -102,6 +110,7 @@ const LoginPage = () => {
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
                 required
+                disabled={isLoading} // تعطيل الحقل أثناء التحميل
               />
             </div>
 
@@ -118,22 +127,39 @@ const LoginPage = () => {
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
                 required
+                disabled={isLoading} // تعطيل الحقل أثناء التحميل
               />
             </div>
 
-            {/* زر الدخول */}
+            {/* زر الدخول مع حالة التحميل */}
             <button
               type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition duration-300 transform hover:-translate-y-0.5 hover:shadow-md"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition duration-300 transform hover:-translate-y-0.5 hover:shadow-md flex items-center justify-center"
+              disabled={isLoading} // تعطيل الزر أثناء التحميل
             >
-              دخول
+              {isLoading ? (
+                <>
+                  {/* مؤشر التحميل (spinner) */}
+                  <svg className="animate-spin -mr-1 ml-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  جاري المعالجة
+                </>
+              ) : (
+                'دخول'
+              )}
             </button>
           </form>
 
           {/* رابط التسجيل */}
           <p className="text-center text-sm text-gray-600">
             ليس لديك حساب؟{' '}
-            <Link href="/sign-up" className="text-blue-600 hover:text-blue-800 font-medium">
+            <Link 
+              href="/sign-up" 
+              className="text-blue-600 hover:text-blue-800 font-medium"
+              onClick={(e) => isLoading && e.preventDefault()} // منع الانتقال أثناء التحميل
+            >
               أنشئ حساب جديد
             </Link>
           </p>

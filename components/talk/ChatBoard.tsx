@@ -7,6 +7,7 @@ import { RiSendPlaneFill, RiArrowDropUpLine } from 'react-icons/ri';
 import { getUserDataFromStorage } from '@/client_helpers/userStorage';
 import { postComment } from '@/client_helpers/sendcomment';
 import styles from '@/ScrollableArea.module.css';
+import BackButton from '../BackButton';
 type Message = {
   id: string;
   text: string;
@@ -203,6 +204,10 @@ const ChatBoard: React.FC<ChatBoardProps> = ({
           className={`flex-1 overflow-y-auto ${styles.scrollContainer} p-2 scroll-smooth bg-white`}
           style={{ maxHeight: 'calc(100vh - 75px)' }}
         >
+            {/* زر العودة داخل الحاوية ولكن بموضع ثابت */}
+          <div className="fixed top-4 left-4 z-40"> {/* z-40 لتكون تحت أي عناصر أخرى قد تكون ذات z-index أعلى */}
+            <BackButton />
+          </div>
           {/* محتوى الرسائل داخل حاوية مركزة */}
           <div className="max-w-2xl mx-auto w-full space-y-4">
             {/* المنشور كأول عنصر داخل نفس قائمة الرسائل */}
