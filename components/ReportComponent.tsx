@@ -79,7 +79,6 @@ const ReportComponent: React.FC<ReportComponentProps> = ({ id, username, type })
       setSelectedOptions([]);
       setOtherText('');
     } catch (error) {
-      console.error('حدث خطأ أثناء إرسال البلاغ:', error);
       setShowAlert(true);
     } finally {
       setIsSubmitting(false); // إيقاف الأنيميشن بغض النظر عن النتيجة

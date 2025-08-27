@@ -33,7 +33,6 @@ export default async function PostPage({ params }: PostPageProps) {
     });
 
   if (postError) {
-    console.error('حدث خطأ أثناء جلب المنشور:', postError);
     return <div>حدث خطأ أثناء جلب المنشور.</div>;
   }
 
@@ -74,9 +73,7 @@ export default async function PostPage({ params }: PostPageProps) {
     });
 
   if (commentsError) {
-    console.error('فشل في جلب التعليقات:', commentsError);
   }
-  console.log(commentsRaw);
   // ==== تحويل التعليقات إلى الشكل المناسب للمكون ====
   const comments = (commentsRaw || []).map((row) => ({
     id: row.comment_id.toString(),
@@ -89,7 +86,6 @@ export default async function PostPage({ params }: PostPageProps) {
   // ==== تحويل معلومات المستخدمين إلى خريطة ====
   const users: Record<string, any> = {};
   for (const row of commentsRaw || []) {
-    console.log(row)
     const userId = row.commenter_username;
     if (!users[userId]) {
       users[userId] = {

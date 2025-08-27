@@ -34,7 +34,6 @@ export async function POST(request: NextRequest) {
         });
 
     if (error) {
-      console.error("Supabase error:", error);
       return NextResponse.json({ error: "Failed to fetch posts" }, { status: 500 });
     }
 
@@ -58,7 +57,6 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error("Unexpected error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

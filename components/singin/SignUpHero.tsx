@@ -52,10 +52,7 @@ const SignUpHero = () => {
 
     try {
       const fingerprint = await getClientFingerprint();
-      console.log('Fingerprint data:', fingerprint);
-      const result = await signupUser(formData.username, formData.password, fingerprint);
-      console.log(result);
-      
+      const result = await signupUser(formData.username, formData.password, fingerprint);      
       if (result.success) {
         setFormData({ username: '', password: '', confirmPassword: '' });
         setPasswordStrength(0);
@@ -69,7 +66,6 @@ const SignUpHero = () => {
         setAlertMessage(result.message || 'حدث خطأ أثناء التسجيل. يرجى المحاولة مرة أخرى');
       }
     } catch (error) {
-      console.error('Error during signup:', error);
       setAlertMessage('حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى');
     }
   };

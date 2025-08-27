@@ -42,7 +42,6 @@ const CommentReplies = ({
   const repliesContainerRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  console.log(repliesData.length);
   useEffect(() => {
     setReplies(repliesData);
   }, [repliesData]);

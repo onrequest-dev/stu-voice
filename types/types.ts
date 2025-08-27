@@ -27,3 +27,12 @@ export interface UserInfo {
 }
 
 export type Gender = 'male' | 'female';
+
+// types/NotificationItem.ts
+export interface NotificationItem {
+  id: string;
+  title: string;
+  body: string;
+  timestamp: number;
+  url?: string;
+}

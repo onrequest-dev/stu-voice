@@ -69,13 +69,11 @@ const Page = () => {
           setShowAlert(true);
         }
       } else {
-        console.error('فشل الطلب: ', data);
         setAlertMessage(data.message || ' لم يتم تحديث البيانات عليك الانتظار اسبوع من آخر تعديل قمت به');
         setAlertType('error');
         setShowAlert(true);
       }
     } catch (error) {
-      console.error('حدث خطأ أثناء إرسال البيانات:', error);
       setAlertMessage('حدث خطأ في الاتصال بالخادم');
       setAlertType('error');
       setShowAlert(true);

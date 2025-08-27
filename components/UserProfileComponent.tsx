@@ -32,7 +32,6 @@ const UserProfileComponent: React.FC<{ userData: UserInfo }> = ({ userData }) =>
 
   // دالة لمعالجة تسجيل الخروج
   const handleLogout = () => {
-    console.log('تم تسجيل الخروج');
   };
 
   // دالة لاستعادة أيقونة محسنة باستخدام CustomIcon

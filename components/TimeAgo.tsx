@@ -84,7 +84,6 @@ const TimeAgo = ({ timestamp, className = '' }: TimeAgoProps) => {
           fullDate: formatFullDateTime(past)
         };
       } catch (error) {
-        console.error('Error calculating time ago:', error);
         return { text: '--', fullDate: '--' };
       }
     };

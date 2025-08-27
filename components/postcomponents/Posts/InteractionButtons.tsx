@@ -180,12 +180,12 @@ const InteractionButtons: React.FC<InteractionButtonsProps> = ({
   };
 
 const handleUpvote = () => {
-  console.log('--- بدء handleUpvote ---');
-  console.log('الحالة الحالية:', { agreed, localUpvote, localDownvote, upcount, downcount });
+  // console.log('--- بدء handleUpvote ---');
+  // console.log('الحالة الحالية:', { agreed, localUpvote, localDownvote, upcount, downcount });
 
   // إذا كان هناك تفاعل إيجابي (سواء من الخادم أو المحلي)
   if (agreed === true || localUpvote) {
-    console.log('حالة إلغاء التفاعل الإيجابي');
+    // console.log('حالة إلغاء التفاعل الإيجابي');
     
     // إعادة تعيين الحالة المحلية أولاً
     setLocalUpvote(false);
@@ -201,15 +201,15 @@ const handleUpvote = () => {
       writeStoredReaction(postId, null);
     }
     
-    console.log('الحالة بعد الإلغاء:', { localUpvote: false, upcount: upcount - 1 });
+    // console.log('الحالة بعد الإلغاء:', { localUpvote: false, upcount: upcount - 1 });
     return;
   }
 
-  console.log('حالة إضافة تفاعل إيجابي جديد');
+  // console.log('حالة إضافة تفاعل إيجابي جديد');
   
   // إلغاء أي تفاعل سلبي موجود أولاً
   if (agreed === false || localDownvote) {
-    console.log('إزالة التفاعل السلبي الموجود');
+    // console.log('إزالة التفاعل السلبي الموجود');
     setLocalDownvote(false);
     setDowncount(prev => Math.max(0, prev - 1));
   }
@@ -220,16 +220,16 @@ const handleUpvote = () => {
   writeStoredReaction(postId, 'upvote');
   onAgree(); // إعلام الخادم بالتفاعل الجديد
   
-  console.log('الحالة النهائية:', { localUpvote: true, localDownvote: false, upcount: upcount + 1, downcount: localDownvote ? downcount - 1 : downcount });
+  // console.log('الحالة النهائية:', { localUpvote: true, localDownvote: false, upcount: upcount + 1, downcount: localDownvote ? downcount - 1 : downcount });
 };
 
 const handleDownvote = () => {
-  console.log('--- بدء handleDownvote ---');
-  console.log('الحالة الحالية:', { agreed, localUpvote, localDownvote, upcount, downcount });
+  // console.log('--- بدء handleDownvote ---');
+  // console.log('الحالة الحالية:', { agreed, localUpvote, localDownvote, upcount, downcount });
 
   // إذا كان هناك تفاعل سلبي (سواء من الخادم أو المحلي)
   if (agreed === false || localDownvote) {
-    console.log('حالة إلغاء التفاعل السلبي');
+    // console.log('حالة إلغاء التفاعل السلبي');
     
     // إعادة تعيين الحالة المحلية أولاً
     setLocalDownvote(false);
@@ -245,15 +245,15 @@ const handleDownvote = () => {
       writeStoredReaction(postId, null);
     }
     
-    console.log('الحالة بعد الإلغاء:', { localDownvote: false, downcount: downcount - 1 });
+    // console.log('الحالة بعد الإلغاء:', { localDownvote: false, downcount: downcount - 1 });
     return;
   }
 
-  console.log('حالة إضافة تفاعل سلبي جديد');
+  // console.log('حالة إضافة تفاعل سلبي جديد');
   
   // إلغاء أي تفاعل إيجابي موجود أولاً
   if (agreed === true || localUpvote) {
-    console.log('إزالة التفاعل الإيجابي الموجود');
+    // console.log('إزالة التفاعل الإيجابي الموجود');
     setLocalUpvote(false);
     setUpcount(prev => Math.max(0, prev - 1));
   }
@@ -264,7 +264,7 @@ const handleDownvote = () => {
   writeStoredReaction(postId, 'downvote');
   onDisagree(); // إعلام الخادم بالتفاعل الجديد
   
-  console.log('الحالة النهائية:', { localUpvote: false, localDownvote: true, upcount: localUpvote ? upcount - 1 : upcount, downcount: downcount + 1 });
+  // console.log('الحالة النهائية:', { localUpvote: false, localDownvote: true, upcount: localUpvote ? upcount - 1 : upcount, downcount: downcount + 1 });
 };
 
   return (

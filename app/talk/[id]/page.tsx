@@ -101,7 +101,6 @@ const ChatPage = async ({ params }: PostPageProps) => {
     });
 
   if (postError) {
-    console.error('حدث خطأ أثناء جلب المنشور:', postError);
       return  ( 
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-4">
       <svg className="w-16 h-16 text-red-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -169,7 +168,6 @@ const ChatPage = async ({ params }: PostPageProps) => {
     poll: post.poll || null,
   };
 
-  console.log(postData.userInfo.iconName);
   return<> 
   <ChatBoard board={board}  post_id={params.id}   postContent={
     <PostComponent

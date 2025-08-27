@@ -76,7 +76,6 @@ const PollComponent: React.FC<{ poll: Poll; id?: string; created_at: string }> =
       setShowResults(true);
     },
     onError: (error) => {
-      console.error('Error sending vote:', error);
     },
   });
 
@@ -134,7 +133,6 @@ const PollComponent: React.FC<{ poll: Poll; id?: string; created_at: string }> =
         }
       }
     } catch (error) {
-      console.error('خطأ في قراءة التصويت من التخزين المحلي', error);
     }
   }, [id, poll.options]);
 
