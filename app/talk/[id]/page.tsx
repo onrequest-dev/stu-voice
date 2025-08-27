@@ -152,7 +152,7 @@ const ChatPage = async ({ params }: PostPageProps) => {
     id: post.id,
     userInfo: {
       id: post.publisher_username,
-      iconName: post.icon?.name || 'graduation',
+      iconName: post.icon?.component ,
       iconColor: post.icon?.color || '#ffffff',
       bgColor: post.icon?.bgColor || '#3b82f6',
       fullName: post.publisher_full_name,
@@ -167,7 +167,6 @@ const ChatPage = async ({ params }: PostPageProps) => {
     },
     poll: post.poll || null,
   };
-
   return<> 
   <ChatBoard board={board}  post_id={params.id}   postContent={
     <PostComponent
@@ -175,7 +174,7 @@ const ChatPage = async ({ params }: PostPageProps) => {
       userInfo={postData.userInfo}
       opinion={postData.opinion}
       poll={postData.poll}
-      createdAt={post.createdAt}
+      createdAt={post.created_at}
       showDiscussIcon={false}
     />}/>;
     </>

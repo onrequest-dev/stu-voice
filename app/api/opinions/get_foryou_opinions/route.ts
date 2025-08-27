@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     const {
       cursor_hot_score = null,
       cursor_id = null,
-      page_size = 50,
+      page_size = 20,
       user_preferences = []
     } = await request.json();
 
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
         user_preferences,
         cur_hot_score: cursor_hot_score,
         cur_id: cursor_id,
-        page_size: 50,
+        page_size: 20,
         fresh_ratio: 5 //%
         });
 

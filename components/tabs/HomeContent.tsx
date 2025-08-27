@@ -41,7 +41,7 @@ const HomeContent = () => {
         body: JSON.stringify({
           cursor_hot_score: pageParam?.hot_score ?? null,
           cursor_id: pageParam?.id ?? null,
-          page_size: 50,
+          page_size: 20,
           user_preferences: [],
         }),
       });
