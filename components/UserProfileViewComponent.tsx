@@ -11,7 +11,7 @@ import {
 } from 'react-icons/fa';
 import { UserEducation, UserInfo } from '../types/types';
 import CustomIcon from '../components/postcomponents/CustomIcon';
-
+import PureCSSLoader from './LoadingSpinner'
 
 const UserProfileViewComponent: React.FC<{ userData?: UserInfo }> = ({ userData }) => {
   const genderThemes = {
@@ -35,7 +35,7 @@ const UserProfileViewComponent: React.FC<{ userData?: UserInfo }> = ({ userData 
     }
   } as const;
 
-  if (!userData) return ;
+  if (!userData) return <PureCSSLoader/>;
 
   const theme = genderThemes[userData.gender] || genderThemes.male;
 
@@ -82,8 +82,7 @@ const UserProfileViewComponent: React.FC<{ userData?: UserInfo }> = ({ userData 
       </div>
 
       {/* محتوى الحساب */}
-      <div className="px-4 py-6 sm:py-10 ">
-        {/* رأس (يشبه انستغرام) */}
+      <div className="px-4 py-6 sm:py-10">
         <div className="flex items-center gap-6">
           {/* صورة شخصية أو أيقونة */}
           <div className="w-28 h-28 rounded-full border-4 border-white shadow-lg flex items-center justify-center overflow-hidden bg-white/70 backdrop-blur-sm">
@@ -113,14 +112,7 @@ const UserProfileViewComponent: React.FC<{ userData?: UserInfo }> = ({ userData 
           </div>
         </div>
 
-        {/* النص التوضيحي (Bio) */}
-        <div className="mt-5 text-gray-800 text-[15px] leading-relaxed whitespace-pre-line break-words overflow-hidden line-clamp-2">
-          {userData.description && userData.description.trim() !== '' ? (
-            userData.description
-          ) : (
-            <span className="text-gray-400">لا يوجد نص توضيحي بعد</span>
-          )}
-        </div>
+
 
         {/* قسم المعلومات التعليمية */}
         <section className="mt-10">

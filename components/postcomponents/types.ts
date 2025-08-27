@@ -5,6 +5,7 @@ export interface UserInfo {
   bgColor: string;
   fullName: string;
   study: string;
+  disableLinks?:boolean;
 }
 
 export interface Opinion {
