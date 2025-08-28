@@ -178,7 +178,7 @@ useEffect(() => {
       }
     )
     comment.id = (result as any).post.id
-  }catch{console.log("error")}
+  }catch{}
       
       setComments([comment, ...comments]);
       setUsers(prev => ({...prev, [currentUser.id]: currentUser}));
@@ -209,7 +209,7 @@ useEffect(() => {
       })
       reply.id = (result as any).post.id;
       
-    }catch{console.log("error")}
+    }catch{}
     
     setComments(comments.map(comment => 
       comment.id === parentCommentId

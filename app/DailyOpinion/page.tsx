@@ -9,15 +9,16 @@ const SUPABASE_ANON_KEY = process.env.SUPABASE_KEY!;
 const DailyOpinionPage = async () => {
   // 🧠 استخدم REST API من Supabase
   const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/daily_opinoin_ids?select=daily_opinoin_id&order=created_at.asc&limit=1`,
+    `${SUPABASE_URL}/rest/v1/daily_opinoin_ids?select=daily_opinoin_id&order=created_at.desc&limit=1`,
     {
       headers: {
         apikey: SUPABASE_ANON_KEY,
         Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
       },
-      next: { revalidate: 86400 }, // ← ⚡ كاش لمدة 24 ساعة
+      next: { revalidate: 86400 },
     }
   );
+
 
   if (!res.ok) {
     notFound(); // ❌ خطأ في الاتصال

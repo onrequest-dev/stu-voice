@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { loginUser } from '@/client_helpers/login';
+import Alert from '../Alert';
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
@@ -10,6 +11,9 @@ const LoginPage = () => {
     password: ''
   });
   const [isLoading, setIsLoading] = useState(false); // حالة التحميل الجديدة
+  const [message,setMessage] = useState("");
+  const [alertVisible,setAlertVisible] = useState(false);
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -31,6 +35,8 @@ const LoginPage = () => {
           window.location.href = '/';
         }
       }
+      setMessage(result.message)
+      setAlertVisible(true)
     } catch (error) {
       // console.error('Login error:', error);
       // يمكنك إضافة رسالة خطأ هنا إذا أردت
@@ -40,6 +46,10 @@ const LoginPage = () => {
   };
 
   return (
+    <>
+    {
+      alertVisible&&<Alert message={message} type='error' onDismiss={()=>setAlertVisible(false)}/>
+    }
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-white relative overflow-hidden p-4">
       {/* الزخارف الدائرية الكبيرة */}
       <div className="absolute -top-40 -left-40 w-96 h-96 bg-blue-100 rounded-full opacity-20 -z-10"></div>
@@ -166,6 +176,7 @@ const LoginPage = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

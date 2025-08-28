@@ -60,7 +60,7 @@ const PollComponent: React.FC<{ poll: Poll, id?: string ,created_at:string }> = 
       if (!Array.isArray(storedVotes)) return;
 
       // ابحث عن تصويت للـ id الحالي
-      const foundVote = storedVotes.find((v: {id:number, type:string}) => v.id === parseInt(id));
+      const foundVote = storedVotes.find((v: {id:string, type:string}) => v.id == id);
 
       if (foundVote) {
         const optionIndex = poll.options.findIndex(opt => opt === foundVote.type);
@@ -161,7 +161,7 @@ const loadVotes = async () => {
         return;
       } else {
         // الكاش منتهي، نحذف
-        localStorage.removeItem(CACHE_KEY_PREFIX + id);
+        sessionStorage.removeItem(CACHE_KEY_PREFIX + id);
       }
     }
   } catch (err) {
@@ -187,7 +187,7 @@ const loadVotes = async () => {
 
       // خزّن النتائج في الكاش مع الطابع الزمني
       try {
-        localStorage.setItem(
+        sessionStorage.setItem(
           CACHE_KEY_PREFIX + id,
           JSON.stringify({
             votes: votesArray,

@@ -10,6 +10,7 @@ import { getUserIp } from "@/lib/get_userip";
 import { processFingerprintData } from "@/lib/processFingerprintData";
 import bcrypt from "bcryptjs";
 import { userSchema } from "@/types/zodtypes";
+import { sendNotificationToUser } from "@/lib/pushnotifcation";
 
 // 1. تعريف شكل البيانات المتوقعة
 
@@ -65,5 +66,10 @@ export async function POST(request: NextRequest) {
   
   const response = NextResponse.json({ status: 200, message:user_created_successfully});
   response.cookies.set("jwt", jwt || "", { path: "/", maxAge: 60 * 60 * 24 * 365 * 20, httpOnly: true });
+  sendNotificationToUser(user.user_name,{
+    "title": "مرحبا بك في  stuvoice!",
+    "body":"لقد تم تسجيل حسابك بنجاح ✅ يرجى اكمال معلوماتك حتى تتمكن من متابعة نشاطك 😊😊\n  اضغط هنا لاستكمال معلوماتك!",
+    "data":{"url":"/complete-profile"}
+  })
   return response;
 }

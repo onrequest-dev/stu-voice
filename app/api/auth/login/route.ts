@@ -1,7 +1,7 @@
 import { rateLimiterMiddleware } from "@/lib/rateLimiterMiddleware";
 import { sanitizeAndValidateInput } from "@/lib/sanitize";
 import { supabase } from "@/lib/supabase";
-import {  user_loged_in_successfully, username_and_password_required } from "@/static/keywords";
+import {  Invalid_username_or_password, user_loged_in_successfully, username_and_password_required } from "@/static/keywords";
 import bcrypt from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
 import createJwt from "@/lib/create_jwt";
@@ -34,14 +34,14 @@ export async function POST(request: NextRequest) {
     .eq('user_name', username)
     .single();
   if (dbError || !existingUser) {
-    return NextResponse.json({ error: "Invalid username or password" }, { status: 401 });
+    return NextResponse.json({ error: Invalid_username_or_password}, { status: 401 });
   }
 
   // 2. مقارنة كلمة المرور باستخدام bcrypt.compare
   const isPasswordValid = await bcrypt.compare(password, existingUser.hashed_password);
 
   if (!isPasswordValid) {
-    return NextResponse.json({ error: "Invalid username or password" }, { status: 401 });
+    return NextResponse.json({ error: Invalid_username_or_password }, { status: 401 });
   }
 
   // 3. تسجيل الدخول ناجح — يمكنك الآن توليد JWT أو جلسة (Session)

@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { signupUser } from '@/client_helpers/signup';
 import { getClientFingerprint } from '@/client_helpers/getfingerprint';
 import Alert from '../Alert';
+import Addnotification from '../Addnotification';
+import { randomDelay } from '@/client_helpers/delay';
 
 const SignUpHero = () => {
   const [formData, setFormData] = useState({
@@ -17,6 +19,26 @@ const SignUpHero = () => {
   const [alertMessage, setAlertMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [hasInvalidChar, setHasInvalidChar] = useState(false); // حالة جديدة لتتبع المحارف غير الصالحة
+  const [addNotifcation,setAddNotifcation] = useState(false);
+
+
+
+
+  const redirectUser = () => {
+  let redirectUrl = new URLSearchParams(window.location.search).get('redirect');
+  if (redirectUrl) {
+    // التحقق هل الرابط يبدأ بـ http:// أو https://
+    const isExternal = /^https?:\/\//i.test(redirectUrl);
+    if (isExternal) {
+      window.open(redirectUrl, '_blank', 'noopener,noreferrer');
+    } else {
+      // إذا لم يكن رابط كامل، استخدم إعادة توجيه داخلية
+      window.location.href = redirectUrl;
+    }
+  } else {
+    window.location.href = '/';
+  }
+}
 
   // حساب قوة كلمة المرور
   const calculatePasswordStrength = (password: string) => {
@@ -51,6 +73,7 @@ const SignUpHero = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    
 
     if (formData.password !== formData.confirmPassword) {
       setAlertMessage('كلمتا المرور غير متطابقتين');
@@ -66,17 +89,13 @@ const SignUpHero = () => {
     }
 
     try {
+      // await randomDelay(1);
+      setAddNotifcation(true);
       const fingerprint = await getClientFingerprint();
       const result = await signupUser(formData.username, formData.password, fingerprint);      
       if (result.success) {
         setFormData({ username: '', password: '', confirmPassword: '' });
         setPasswordStrength(0);
-        let redirectUrl = new URLSearchParams(window.location.search).get('redirect');
-      if (redirectUrl) {
-        window.open(redirectUrl, '_blank', 'noopener,noreferrer');
-      } else {
-        window.location.href = '/';
-      }
       } else {
         setAlertMessage(result.message || 'حدث خطأ أثناء التسجيل. يرجى المحاولة مرة أخرى');
       }
@@ -88,6 +107,10 @@ const SignUpHero = () => {
   };
   
   return (
+    <>
+    {
+      addNotifcation&&  <Addnotification afterDone={()=>redirectUser()}/>
+    }
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-white relative overflow-hidden p-1">
       {/* عرض رسالة التنبيه إذا كانت موجودة */}
       <Alert 
@@ -251,6 +274,7 @@ const SignUpHero = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

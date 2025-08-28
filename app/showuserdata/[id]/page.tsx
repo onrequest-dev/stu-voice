@@ -1,109 +1,80 @@
-'use client';
 import UserProfileViewComponent from '../../../components/UserProfileViewComponent';
 import PostComponent from '@/components/postcomponents/Posts/PostComponent';
 import { UserInfo } from '../../../types/types';
 import { PostProps } from '@/components/postcomponents/types';
+import { supabase } from '@/lib/supabase';
+import { transformPost } from '@/client_helpers/transformposttype';
 // بيانات افتراضية للمستخدم
-const mockUserData: UserInfo = {
-  id: '1',
-  fullName: 'يوسف زياد حيش',
-  gender: 'female',
-  education: {
-    level: 'university',
-    university: 'جامعة القاهرة',
-    faculty: 'كلية الهندسة',
-    specialization: 'هندسة البرمجيات',
-    year: 'third',
-    studentId: '20201111',
-    icon: {
-      component: 'FaUserGraduate',
-      color: '#2563EB',
-      bgColor: '#EFF6FF'
-    }
-  },
-  description: "إن الطريق إلى الحقيقة يمر من القلب لا من الرأس فاجعل قلبك لا عقلك دليلك الرئيسي واجه، تحد، وتغلب في نهاية المطاف على النفس بقلبك، إن معرفتك بنفسك ستقودك إلى معرفة الله. حياتك حافلة، مليئة، كاملة، أو هكذا يخيل إليك، حتى يظهر فيها شخص يجعلك تدرك ما كنت تفتقده طوال هذا الوقت.",
-};
+
 
 // بيانات افتراضية للمنشورات
-const mockPosts: PostProps[] = [
-  {
-    id: 'post1',
-    userInfo: {
-      id: '1',
-      iconName: 'FaUser',
-      iconColor: '#ffffff',
-      bgColor: '#3B82F6',
-      fullName: 'يوسف زياد حيش',
-      study: 'هندسة البرمجيات',
-      disableLinks: true
-    },
-    opinion: {
-      text: 'أعتقد أن تطوير مهارات البرمجة أمر ضروري لكل طالب في مجال الهندسة، حيث يساعد ذلك في فتح آفاق جديدة للعمل والابتكار.',
-      agreeCount: 24,
-      disagreeCount: 3,
-      readersCount: 156,
-      commentsCount: 8
-    },
-    poll: null,
-    createdAt: '2023-10-15T14:30:00Z',
-    showDiscussIcon: true
-  },
-  {
-    id: 'post2',
-    userInfo: {
-      id: '1',
-      iconName: 'FaUser',
-      iconColor: '#ffffff',
-      bgColor: '#3B82F6',
-      fullName: 'يوسف زياد حيش',
-      study: 'هندسة البرمجيات',
-      disableLinks: true
-    },
-    opinion: null,
-    poll: {
-      question: 'ما هو أفضل نظام تشغيل للمطورين؟',
-      options: ['Windows', 'macOS', 'Linux', 'أخرى'],
-      votes: [45, 78, 120, 15],
-      durationInDays: 7
-    },
-    createdAt: '2023-10-10T09:15:00Z',
-    showDiscussIcon: false
-  },
-  {
-    id: 'post3',
-    userInfo: {
-      id: '1',
-      iconName: 'FaUser',
-      iconColor: '#ffffff',
-      bgColor: '#3B82F6',
-      fullName: 'يوسف زياد حيش',
-      study: 'هندسة البرمجيات',
-      disableLinks: true
-    },
-    opinion: {
-      text: 'التعليم عن بعد أصبح خيارًا ضروريًا في عصرنا الحالي، لكنه يحتاج إلى تطوير البنية التحتية التقنية لضمان جودة التعلم.',
-      agreeCount: 67,
-      disagreeCount: 12,
-      readersCount: 289,
-      commentsCount: 23
-    },
-    poll: null,
-    createdAt: '2023-10-05T16:45:00Z',
-    showDiscussIcon: true
-  }
-];
 
-export default function UserProfilePage() {
+
+let hasPosts = true
+
+const getUserPosts = async (username:string) => {
+    const isValid = /^[a-zA-Z0-9_]+$/.test(username);
+    if (!isValid) {
+      return new Response("Invalid username", { status: 400 });
+    }
+  
+    const { data: postDataRaw, error: postError } = await supabase
+      .rpc("get_posts_by_id_or_publisher", {
+        target_id: null,
+        target_username: username,
+      });
+      if(postError) {
+        hasPosts = false;
+        return [];
+      }
+      return postDataRaw.map(transformPost) as PostProps;
+
+
+}
+
+const getUserInfo = async (username:string) =>{
+  const {data:result,error} = await supabase
+  .from("users")
+  .select("icon,university,level,faculty,gender,info,last_time_updated,full_name")
+  .eq('user_name', username)
+  .single()
+  if(error) return <div>هذا المستخدم غير موجود </div>
+  const userInfo:UserInfo = {
+      id:username ,
+      fullName: result.full_name,
+      gender:result.gender ,
+      education:{
+        level: result.level,
+          grade:result.info.grade ,
+          track: "",
+          degreeSeeking: result.info.degreeSeeking,
+          university: result.university, 
+          faculty: result.faculty, 
+          specialization: result.info.specialization,
+          year:result.info.year ,
+          studentId: result.info.studentId ,
+          icon: result.icon
+      }
+    };
+    return userInfo;
+}
+
+export default async function UserProfilePage({ params }:{params:{id:string}}) {
+
+  const [userInfo, posts] = await Promise.all([
+    getUserInfo(params.id),
+    getUserPosts(params.id)
+  ]);
   return (
     <div className="container mx-auto my-2 px-1">
-      <UserProfileViewComponent userData={mockUserData} />
+      <UserProfileViewComponent userData={(userInfo as UserInfo)} />
       
       {/* قسم المنشورات */}
       <div className="mt-8 border-t pt-6">
-        <h2 className="text-xl font-bold text-right mb-4">منشورات يوسف</h2>
+        <h2 className="text-xl font-bold text-right mb-4"></h2>
         
         <div className="space-y-4">
-          {mockPosts.map((post) => (
+          {(posts as PostProps[]).map((post) => (
             <PostComponent 
               key={post.id}
               id={post.id}
@@ -116,7 +87,7 @@ export default function UserProfilePage() {
           ))}
         </div>
         
-        {mockPosts.length === 0 && (
+        {(posts as PostProps[]).length === 0 || !hasPosts && (
           <div className="text-center py-8 text-gray-500">
             <p>لا توجد منشورات حتى الآن</p>
           </div>

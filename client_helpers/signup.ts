@@ -33,6 +33,8 @@ export async function signupUser(
         }
       };
       localStorage.setItem('userInfo', JSON.stringify(userInfo));
+      localStorage.removeItem('votes');
+      localStorage.removeItem('permanent_reactions')
       // نجاح التسجيل
       return { success: true, message: data.message || 'User created successfully' };
     } else {
