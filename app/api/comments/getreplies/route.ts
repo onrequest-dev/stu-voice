@@ -4,9 +4,9 @@ import { INVALID_REQUEST, you_need_account_to_post } from "@/static/keywords";
 import { JwtPayload } from "jsonwebtoken";
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
-import { CommentWithUser } from "@/app/posts/[id]/page";
 import { z } from "zod";
 import { validateAndSanitize } from "@/lib/validateAndSanitizePostBody";
+import { CommentWithUser } from "@/types/types";
 
 
 

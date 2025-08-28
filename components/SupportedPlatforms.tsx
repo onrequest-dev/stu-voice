@@ -1,12 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { 
-  FaGraduationCap, 
   FaGlobe, 
-  FaFacebook, 
-  FaTelegram, 
-  FaYoutube, 
-  FaBook, 
   FaLaptopCode 
 } from 'react-icons/fa';
 import Image from 'next/image';
@@ -114,7 +109,7 @@ const SupportedPlatforms: React.FC = () => {
       url: "https://ecl-onrequest.vercel.app/",
       type: "موقع إلكتروني",
       icon: <FaLaptopCode />,
-      image:"/stu-voice.png"
+      image:"/ecl_logo.png"
     },
   ];
 

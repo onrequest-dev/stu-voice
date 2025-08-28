@@ -344,14 +344,14 @@ const isWeakPassword = (pwd: string, s: number) => {
                 />
               </div>
               <label htmlFor="privacyPolicy" className="ms-2 text-sm font-medium text-gray-900">
-                أوافق على{' '}
+                 اوافق على{' '}
                 <Link 
-                  href="/Privacy-Policy" 
+                  href="/privacy-and-terms" 
                   className="text-blue-600 hover:underline"
                   target="_blank"
                   onClick={(e) => isLoading && e.preventDefault()}
                 >
-                  سياسة الخصوصية
+                  سياسة الخصوصية و شروط الاستخدام
                 </Link>
               </label>
             </div>

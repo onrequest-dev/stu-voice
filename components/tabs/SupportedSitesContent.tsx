@@ -1,5 +1,3 @@
-import Link from "next/link";
-import STUvoiceOpinionManager from "../STUvoiceOpinionManager";
 import SupportedPlatforms from "../SupportedPlatforms";
 const SupportedSitesContent = () => {
     return (
