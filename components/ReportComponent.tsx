@@ -51,7 +51,7 @@ const ReportComponent: React.FC<ReportComponentProps> = ({ id, username, type })
       'المعرف': id,
       'الأسباب': selectedOptions,
       'نص إضافي': otherText || 'لا يوجد',
-      'رابط': `https://stu-voice.vercel.app/posts/${type === 'p' ? id : `comment/${id}`}`
+      'رابط': `https://stu-voice.vercel.app/talk/${type === 'p' ? id : `comment/${id}`}`
     };
 
     try {

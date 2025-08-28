@@ -1,11 +1,10 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { 
   FaHome, 
   FaUser, 
   FaCog, 
   FaComments, 
-  FaPoll,  
   FaExternalLinkAlt,
   FaBars, 
   FaTimes, 
@@ -19,12 +18,12 @@ import OpinionsContent from './tabs/OpinionsConten';
 import ProfileContent from './tabs/ProfileContent';
 import SettingsContent from './tabs/SettingsContent';
 import SupportedSitesContent from './tabs/SupportedSitesContent';
-import VotesContent from './tabs/VotesContent';
 import NewPostContent from './tabs/NewPostContent';
 import styles from '../ScrollableArea.module.css';
 import NotificationIcon from './NotificationIcon';
 import { NotificationProvider } from '@/hooks/NotificationContext';
 import SWMessageHandler from '@/hooks/SWMessageHandler';
+
 interface Tab {
   id: string;
   icon: JSX.Element;
@@ -37,25 +36,24 @@ interface Tab {
 const MainInterface = ({ children }: { children?: React.ReactNode }) => {
   const router = useRouter();
   const pathname = usePathname();
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [ready, setReady] = useState(false);
+  const [activeTab, setActiveTab] = useState(pathname);
+
   const menuRef = useRef<HTMLDivElement>(null);
   const tabsContainerRef = useRef<HTMLDivElement>(null);
   const mainContentRef = useRef<HTMLDivElement>(null);
   const isLargeScreen = useRef(false);
   const previousPath = useRef<string | null>(null);
 
+  // تحديث activeTab عند تغيير pathname
+  useEffect(() => {
+    setActiveTab(pathname);
+  }, [pathname]);
 
-
-
-
-  //منطق الاشعارات في ال ui 
-
-
-  
-
-
-  // قائمة التبويبات مع المكونات المرتبطة
-  const tabs: Tab[] = [
+  // قائمة التبويبات مع المكونات المرتبطة (مثبتة بـ useMemo لتجنب إعادة الإنشاء كل رندر)
+  const tabs = useMemo<Tab[]>(() => [
     { 
       id: 'home', 
       icon: <FaHome size={20} />, 
@@ -77,13 +75,6 @@ const MainInterface = ({ children }: { children?: React.ReactNode }) => {
       href: '/DailyOpinion',
       component: OpinionsContent
     },
-    // { 
-    //   id: 'votes', 
-    //   icon: <FaPoll size={20} />, 
-    //   title: 'تصويت', 
-    //   href: '/taps/VotesContent',
-    //   component: VotesContent
-    // },
     { 
       id: 'profile', 
       icon: <FaUser size={20} />, 
@@ -112,29 +103,41 @@ const MainInterface = ({ children }: { children?: React.ReactNode }) => {
       href: '/taps/SupportedSitesContent',
       component: SupportedSitesContent
     },
-  ];
+  ], []);
 
-  const checkScreenSize = () => {
-    isLargeScreen.current = window.innerWidth >= 1024;
-    setIsMenuOpen(isLargeScreen.current);
-  };
-
-  useEffect(() => {
-    checkScreenSize();
-    window.addEventListener('resize', checkScreenSize);
-    return () => window.removeEventListener('resize', checkScreenSize);
+  // تحديث حالة حجم الشاشة فقط عند تغيّرها فعلاً
+  const checkScreenSize = useCallback(() => {
+    const large = window.innerWidth >= 1024;
+    const wasLarge = isLargeScreen.current;
+    isLargeScreen.current = large;
+    if (large !== wasLarge) {
+      // افتح القائمة تلقائياً على الشاشات الكبيرة، واغلقها على الصغيرة
+      setIsMenuOpen(large);
+    }
   }, []);
 
-  const toggleMenu = () => {
-    if (!isLargeScreen.current) {
-      setIsMenuOpen(!isMenuOpen);
-    }
-  };
+  useEffect(() => {
+    // أول تشغيل بعد تحميل العميل
+    checkScreenSize();
+    const onResize = () => checkScreenSize();
+    window.addEventListener('resize', onResize);
+    setReady(true);
+    return () => window.removeEventListener('resize', onResize);
+  }, [checkScreenSize]);
 
-  const handleTabClick = (href: string, isExternal?: boolean) => {
+  const toggleMenu = useCallback(() => {
+    if (!isLargeScreen.current) {
+      setIsMenuOpen(prev => !prev);
+    }
+  }, []);
+
+  const handleTabClick = useCallback((href: string, isExternal?: boolean) => {
     if (!isExternal) {
       // إذا كانت نفس الصفحة الحالية، لا تفعل شيئاً
-      if (pathname === href) return;
+      if (activeTab === href) return;
+      
+      // تحديث التبويب النشط فوراً
+      setActiveTab(href);
       
       // إذا كنا نعود إلى الصفحة السابقة، استخدم replace بدلاً من push
       if (href === previousPath.current) {
@@ -148,180 +151,187 @@ const MainInterface = ({ children }: { children?: React.ReactNode }) => {
     if (!isLargeScreen.current) {
       setIsMenuOpen(false);
     }
-  };
+  }, [activeTab, pathname, router]);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (!isLargeScreen.current && 
-          isMenuOpen && 
-          menuRef.current && 
-          !menuRef.current.contains(event.target as Node) &&
-          mainContentRef.current &&
-          !mainContentRef.current.contains(event.target as Node)) {
-        setIsMenuOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+  const handleClickOutside = useCallback((event: MouseEvent) => {
+    if (!isLargeScreen.current && 
+        isMenuOpen && 
+        menuRef.current && 
+        !menuRef.current.contains(event.target as Node) &&
+        mainContentRef.current &&
+        !mainContentRef.current.contains(event.target as Node)) {
+      setIsMenuOpen(false);
+    }
   }, [isMenuOpen]);
 
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [handleClickOutside]);
+
   // تحديد المكون الحالي بناء على المسار
-  const currentTab = tabs.find(tab => pathname === tab.href);
+  const currentTab = useMemo(
+    () => tabs.find(tab => activeTab === tab.href),
+    [activeTab, tabs]
+  );
   const CurrentComponent = currentTab?.component || HomeContent;
+
+  // حماية من وميض التخطيط الأول قبل معرفة حجم الشاشة
+  if (!ready) {
+    return (
+      <NotificationProvider>
+        <SWMessageHandler />
+        <div className="h-screen w-full bg-white" />
+      </NotificationProvider>
+    );
+  }
 
   return (
     <>
-    <NotificationProvider>
-      <SWMessageHandler/>
-    <div className={`relative h-screen w-full overflow-hidden transition-colors duration-300 ${
-      isMenuOpen && !isLargeScreen.current ? 'bg-gradient-to-br from-blue-50 to-blue-100' : 'bg-white'
-    }`}>
-      
-      <div
-        ref={mainContentRef}
-        className={`absolute top-0 left-0 h-full transition-all duration-500 ease-in-out ${
-          isMenuOpen && !isLargeScreen.current ? 'rounded-r-2xl shadow-xl' : 'rounded-none'
-        }`}
-        style={{
-          width: isLargeScreen.current ? 'calc(100% - 6rem)' : '100%',
-          transformOrigin: 'left center',
-          backgroundColor: 'rgba(255,255,255,0.95)',
-          transform: isMenuOpen && !isLargeScreen.current ? 'perspective(1000px) rotateY(30deg) translateX(0)' : 'none',
-        }}
-      >
-        <div className="h-full"> 
-          <div className="flex justify-between p-4 pb-2">
-            <h1 className="text-2xl font-semibold text-gray-800 relative z-10">
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-400">
-                STUvoice
-              </span>
-            </h1>
-            
-            {!isLargeScreen.current && (
-              <button
-                onClick={toggleMenu}
-                className="p-2 text-blue-600 hover:text-blue-800 relative z-10"
-                aria-label={isMenuOpen ? "إغلاق القائمة" : "فتح القائمة"}
-              >
-                {isMenuOpen ? (
-                  <FaTimes size={20} />
-                ) : (
-                  <FaBars size={20} />
-                )}
-              </button>
-            )}
-          </div>
+      <NotificationProvider>
+        <SWMessageHandler/>
+        <div className={`relative h-screen w-full overflow-hidden transition-colors duration-300 ${
+          isMenuOpen && !isLargeScreen.current ? 'bg-gradient-to-br from-blue-50 to-blue-100' : 'bg-white'
+        }`}>
           
-          <div className={`mb-2 overflow-y-auto ${styles.scrollContainer}`}>
-            {children || <CurrentComponent />}
-          </div>
-        </div>
-      </div>
-
-      {isLargeScreen.current ? (
-        <div className="absolute top-0 right-0 h-full bg-white flex items-center">
-          <div className={`flex flex-col items-center space-y-6 overflow-y-auto ${styles.scrollContainer}`}>
-            {tabs.map((tab) => (
-              <div key={tab.id} className="flex flex-col items-center px-2">
-                <button 
-                  onClick={(e) => {
-                    // تغيير اللون فورًا عند الضغط
-                    e.currentTarget.classList.add('bg-blue-600', 'text-white', 'hover:bg-blue-700');
-                    e.currentTarget.classList.remove('bg-blue-100', 'text-blue-600', 'hover:bg-blue-200');
-                    
-                    handleTabClick(tab.href, tab.isExternal);
-                  }}
-                  className={`w-12 h-12 rounded-full flex items-center justify-center shadow-sm hover:scale-110 transition-all ${
-                    pathname === tab.href
-                      ? 'bg-blue-600 text-white hover:bg-blue-700'
-                      : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
-                  }`}
-                  aria-label={tab.title}
-                >
-                  {tab.icon}
-                </button>
-                <span className="mt-2 text-xs text-gray-700 text-center">{tab.title}</span>
-              </div>
-            ))}
-            {/* رابط موقع المطورين في نهاية القائمة */}
-            <div className="flex flex-col items-center px-2">
-              <a 
-                href="https://hadiiik.github.io/onrequest/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="w-12 h-12 rounded-full flex items-center justify-center shadow-sm hover:scale-110 transition-all bg-purple-100 text-purple-600 hover:bg-purple-200"
-                aria-label="موقع المطورين"
-              >
-                <FaExternalLinkAlt size={20} />
-              </a>
-              <span className="mt-2 text-xs text-gray-700 text-center">موقع المطورين</span>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <>
           <div
-            ref={menuRef}
-            className={`absolute top-0 right-0 h-full w-24 transition-all duration-500 ease-in-out ${
-              isMenuOpen ? 'translate-x-0' : 'translate-x-full'
-            } z-20`}
+            ref={mainContentRef}
+            className={`absolute top-0 left-0 h-full transition-all duration-500 ease-in-out ${
+              isMenuOpen && !isLargeScreen.current ? 'rounded-r-2xl shadow-xl' : 'rounded-none'
+            }`}
+            style={{
+              width: isLargeScreen.current ? 'calc(100% - 6rem)' : '100%',
+              transformOrigin: 'left center',
+              backgroundColor: 'rgba(255,255,255,0.95)',
+              transform: isMenuOpen && !isLargeScreen.current ? 'perspective(1000px) rotateY(30deg) translateX(0)' : 'none',
+            }}
           >
-            <div 
-              ref={tabsContainerRef}
-              className="h-full flex flex-col items-center py-8 space-y-6 overflow-y-auto"
-              style={{
-                touchAction: 'pan-y',
-                scrollbarWidth: 'none',
-                msOverflowStyle: 'none',
-              }}
-            >
-              {tabs.map((tab) => (
-                <div key={tab.id} className="flex flex-col items-center px-2">
-                  <button 
-                    onClick={() => handleTabClick(tab.href, tab.isExternal)}
-                    className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-all ${
-                      pathname === tab.href
-                        ? 'bg-blue-600 text-white hover:bg-blue-700'
-                        : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
-                    }`}
-                    aria-label={tab.title}
-                  >
-                    {tab.icon}
-                  </button>
-                  <span className="mt-2 text-xs text-gray-700 text-center font-medium">
-                    {tab.title}
+            <div className="h-full"> 
+              <div className="flex justify-between p-4 pb-2">
+                <h1 className="text-2xl font-semibold text-gray-800 relative z-10">
+                  <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-400">
+                    STUvoice
                   </span>
-                </div>
-              ))}
-              {/* رابط موقع المطورين في نهاية القائمة */}
-              <div className="flex flex-col items-center px-2 mt-auto">
-                <a 
-                  href="https://hadiiik.github.io/onrequest/" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-all bg-purple-100 text-purple-600 hover:bg-purple-200"
-                  aria-label="موقع المطورين"
-                >
-                  <FaExternalLinkAlt size={20} />
-                </a>
-                <span className="mt-2 text-xs text-gray-700 text-center font-medium">
-                  موقع المطورين
-                </span>
+                </h1>
+                
+                {!isLargeScreen.current && (
+                  <button
+                    onClick={toggleMenu}
+                    className="p-2 text-blue-600 hover:text-blue-800 relative z-10"
+                    aria-label={isMenuOpen ? "إغلاق القائمة" : "فتح القائمة"}
+                  >
+                    {isMenuOpen ? (
+                      <FaTimes size={20} />
+                    ) : (
+                      <FaBars size={20} />
+                    )}
+                  </button>
+                )}
+              </div>
+              
+              <div className={`mb-2 overflow-y-auto ${styles.scrollContainer}`}>
+                {children || (currentTab ? <CurrentComponent key={currentTab.id} /> : <HomeContent key="home" />)}
               </div>
             </div>
           </div>
 
-          {isMenuOpen && (
-            <div 
-              className="absolute inset-0 bg-black bg-opacity-20 z-10"
-              onClick={toggleMenu}
-            />
+          {isLargeScreen.current ? (
+            <div className="absolute top-0 right-0 h-full bg-white flex items-center">
+              <div className={`flex flex-col items-center space-y-6 overflow-y-auto ${styles.scrollContainer}`}>
+                {tabs.map((tab) => (
+                  <div key={tab.id} className="flex flex-col items-center px-2">
+                    <button 
+                      onClick={() => handleTabClick(tab.href, tab.isExternal)}
+                      className={`w-12 h-12 rounded-full flex items-center justify-center shadow-sm hover:scale-110 transition-all ${
+                        activeTab === tab.href
+                          ? 'bg-blue-600 text-white hover:bg-blue-700'
+                          : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
+                      }`}
+                      aria-label={tab.title}
+                    >
+                      {tab.icon}
+                    </button>
+                    <span className="mt-2 text-xs text-gray-700 text-center">{tab.title}</span>
+                  </div>
+                ))}
+                {/* رابط موقع المطورين في نهاية القائمة */}
+                <div className="flex flex-col items-center px-2">
+                  <a 
+                    href="https://hadiiik.github.io/onrequest/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="w-12 h-12 rounded-full flex items-center justify-center shadow-sm hover:scale-110 transition-all bg-purple-100 text-purple-600 hover:bg-purple-200"
+                    aria-label="موقع المطورين"
+                  >
+                    <FaExternalLinkAlt size={20} />
+                  </a>
+                  <span className="mt-2 text-xs text-gray-700 text-center">موقع المطورين</span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div
+                ref={menuRef}
+                className={`absolute top-0 right-0 h-full w-24 transition-all duration-500 ease-in-out ${
+                  isMenuOpen ? 'translate-x-0' : 'translate-x-full'
+                } z-20`}
+              >
+                <div 
+                  ref={tabsContainerRef}
+                  className="h-full flex flex-col items-center py-8 space-y-6 overflow-y-auto"
+                  style={{
+                    touchAction: 'pan-y',
+                    scrollbarWidth: 'none',
+                    msOverflowStyle: 'none',
+                  }}
+                >
+                  {tabs.map((tab) => (
+                    <div key={tab.id} className="flex flex-col items-center px-2">
+                      <button 
+                        onClick={() => handleTabClick(tab.href, tab.isExternal)}
+                        className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-all ${
+                          activeTab === tab.href
+                            ? 'bg-blue-600 text-white hover:bg-blue-700'
+                            : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
+                        }`}
+                        aria-label={tab.title}
+                      >
+                        {tab.icon}
+                      </button>
+                      <span className="mt-2 text-xs text-gray-700 text-center font-medium">
+                        {tab.title}
+                      </span>
+                    </div>
+                  ))}
+                  {/* رابط موقع المطورين في نهاية القائمة */}
+                  <div className="flex flex-col items-center px-2 mt-auto">
+                    <a 
+                      href="https://hadiiik.github.io/onrequest/" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-all bg-purple-100 text-purple-600 hover:bg-purple-200"
+                      aria-label="موقع المطورين"
+                    >
+                      <FaExternalLinkAlt size={20} />
+                    </a>
+                    <span className="mt-2 text-xs text-gray-700 text-center font-medium">
+                      موقع المطورين
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {isMenuOpen && (
+                <div 
+                  className="absolute inset-0 bg-black bg-opacity-20 z-10"
+                  onClick={toggleMenu}
+                />
+              )}
+            </>
           )}
-        </>
-      )}
-    </div>
-    </NotificationProvider>
+        </div>
+      </NotificationProvider>
     </>
   );
 };
