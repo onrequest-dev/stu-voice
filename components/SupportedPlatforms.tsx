@@ -1,114 +1,149 @@
 'use client';
-import React, { useState, useEffect } from 'react';
-import { FaGraduationCap } from 'react-icons/fa';
-
-interface SupportedPlatformProps {
-  icon: React.ReactNode;
+import React, { useState } from 'react';
+import { 
+  FaGraduationCap, 
+  FaGlobe, 
+  FaFacebook, 
+  FaTelegram, 
+  FaYoutube, 
+  FaBook, 
+  FaLaptopCode 
+} from 'react-icons/fa';
+import Image from 'next/image';
+interface Platform {
   name: string;
   description: string;
   url: string;
+  type: string;
+  icon?: React.ReactNode;
   features?: string[];
+  image?: string; // رابط صورة المنصة
 }
 
-const SupportedPlatform: React.FC<SupportedPlatformProps> = ({ 
+const PlatformCard: React.FC<Platform> = ({ 
   icon, 
   name, 
   description, 
-  url 
+  url,
+  type,
+  image
 }) => {
-  const [isRotating, setIsRotating] = useState(false);
-  const [isBlinking, setIsBlinking] = useState(false);
-
-  useEffect(() => {
-    const blinkInterval = setInterval(() => {
-      setIsBlinking(prev => !prev);
-    }, 2000);
-    return () => clearInterval(blinkInterval);
-  }, []);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isClicked, setIsClicked] = useState(false);
 
   const handleClick = () => {
-    if (isRotating) return;
-    
-    setIsRotating(true);
+    setIsClicked(true);
     setTimeout(() => {
       window.open(url, '_blank');
-      setIsRotating(false);
-    }, 1000);
+      setTimeout(() => setIsClicked(false), 600);
+    }, 300);
   };
 
   return (
     <div 
+      className="relative w-80 h-96 perspective-1000 cursor-pointer mb-10 mx-4"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       onClick={handleClick}
-      className="relative w-72 perspective-1000 cursor-pointer"
-      style={{ height: 'fit-content' }} // ارتفاع يتناسب مع المحتوى
     >
-      <div 
-        className={`relative w-full transition-transform duration-1000 ease-in-out ${isRotating ? 'rotate-y-360' : ''}`}
-        style={{
-          transformStyle: 'preserve-3d',
-          transform: isRotating ? 'rotateY(360deg)' : 'rotateY(0)',
-          height: 'fit-content' // ارتفاع يتناسب مع المحتوى
-        }}
-      >
-        {/* الواجهة الأمامية */}
-        <div 
-          className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-6 flex flex-col items-center backface-hidden border-2 border-gray-200 hover:border-blue-300 transition-all duration-300"
-          style={{ 
-            backfaceVisibility: 'hidden',
-            minHeight: '200px' // حد أدنى للارتفاع
-          }}
-        >
-          <div className="text-5xl mb-4 text-blue-600">
-            {icon}
+      {/* تأثير إشعاعي خلف البطاقة */}
+      <div className={`absolute -inset-4 bg-gradient-to-r from-blue-400 to-blue-500 rounded-3xl opacity-20 blur-xl transition-all duration-700 ${isHovered ? 'opacity-30 scale-110' : ''}`}></div>
+      
+      {/* البطاقة الرئيسية */}
+      <div className={`relative w-full h-full transition-all duration-500 ${isHovered ? 'transform scale-105' : ''} ${isClicked ? 'animate-ping' : ''}`}>
+        {/* واجهة البطاقة */}
+        <div className="absolute inset-0 bg-gradient-to-br from-white to-gray-100 rounded-2xl shadow-2xl p-6 flex flex-col items-center justify-between border-4 border-white overflow-hidden">
+          
+          {/* زخرفة SVG علوية */}
+          <svg className="absolute top-0 right-0 w-24 h-24 opacity-10 text-blue-500" viewBox="0 0 100 100">
+            <path d="M0,0 L100,0 L100,100 Z" fill="currentColor" />
+          </svg>
+          
+          {/* زخرفة SVG سفلية */}
+          <svg className="absolute bottom-0 left-0 w-24 h-24 opacity-10 text-blue-400" viewBox="0 0 100 100">
+            <path d="M0,100 L0,0 L100,100 Z" fill="currentColor" />
+          </svg>
+        
+          
+          {/* صورة أو أيقونة */}
+          <div className="relative z-10 text-5xl mt-2 text-blue-600 transition-all duration-500 transform">
+          {image ? (
+            <Image
+              src={image} 
+              alt={name} 
+              width={96} 
+              height={96} 
+              loading="lazy" 
+              className="w-24 h-24 object-cover rounded-full shadow-md"
+            />
+          ) : (
+            icon
+          )}
           </div>
           
-          <h3 className={`text-2xl font-bold mb-2 text-center ${isBlinking ? 'text-blue-500 animate-pulse' : 'text-gray-800'}`}>
-            {name}
-          </h3>
+          {/* محتوى البطاقة */}
+          <div className="flex flex-col items-center justify-center flex-grow z-10">
+            <h3 className="text-2xl font-bold mb-2 text-center text-gray-800 bg-gradient-to-r from-blue-600 to-blue-500 bg-clip-text text-transparent">
+              {name}
+            </h3>
+            
+            <div className="inline-block px-3 py-1 mb-4 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+              {type}
+            </div>
+            
+            <p className="text-gray-600 text-center leading-relaxed">
+              {description}
+            </p>
+          </div>
           
-          <p className="text-gray-600 text-center">
-            {description}
-          </p>
+          {/* زر زيارة المنصة */}
+          <button className={`relative z-10 mt-4 px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full font-semibold shadow-lg transition-all duration-300 transform ${isHovered ? 'scale-110 shadow-xl' : ''}`}>
+            زيارة المنصة
+          </button>
         </div>
-
-        {/* الواجهة الخلفية الشفافة */}
-        <div 
-          className="absolute inset-0 bg-transparent backface-hidden"
-          style={{
-            backfaceVisibility: 'hidden',
-            transform: 'rotateY(180deg)',
-            height: '100%'
-          }}
-        />
       </div>
     </div>
   );
 };
 
 const SupportedPlatforms: React.FC = () => {
-  const platforms = [
+  const platforms: Platform[] = [
     {
       name: "ECL",
-      description: "منصة تدعم طلاب الشهادات وتوفر بحثاً مرناً وتصفحاً وتحميلاً سلساً للملفات ",
+      description: "منصة تدعم طلاب الشهادات وتوفر بحثاً مرناً وتصفحاً وتحميلاً سلساً للملفات",
       url: "https://ecl-onrequest.vercel.app/",
-      icon: <FaGraduationCap />,
-    }
+      type: "موقع إلكتروني",
+      icon: <FaLaptopCode />,
+      image:"/stu-voice.png"
+    },
   ];
+
+  const defaultIcon = <FaGlobe />;
 
   return (
     <div className="min-h-screen py-16 px-4">
-      <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-12"> 
-          <h1 className="text-3xl font-bold text-gray-900 mb-3"> 
-            المنصات المدعومة
+      <div className="max-w-7xl mx-auto">
+        {/* العنوان الرئيسي */}
+        <div className="text-center mb-16">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+            المنصات <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">المدعومة</span>
           </h1>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            اكتشف مجموعة المنصات التعليمية التي نقدمها لدعم مسيرتك التعليمية
+          </p>
         </div>
 
-        <div className="flex flex-wrap justify-center gap-6"> 
+        {/* شبكة البطاقات */}
+        <div className="flex flex-wrap justify-center -mx-4">
           {platforms.map((platform, index) => (
-            <SupportedPlatform
+            <PlatformCard
               key={index}
-              {...platform}
+              name={platform.name}
+              description={platform.description}
+              url={platform.url}
+              type={platform.type}
+              icon={platform.icon || defaultIcon}
+              image={platform.image} 
             />
           ))}
         </div>

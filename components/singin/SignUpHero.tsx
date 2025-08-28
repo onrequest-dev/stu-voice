@@ -17,7 +17,7 @@ const SignUpHero = () => {
   const [alertMessage, setAlertMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [hasInvalidChar, setHasInvalidChar] = useState(false); // حالة جديدة لتتبع المحارف غير الصالحة
-
+  const [acceptedPrivacyPolicy, setAcceptedPrivacyPolicy] = useState(false);
   // حساب قوة كلمة المرور
 const calculatePasswordStrength = (password: string) => {
   if (!password) return 0;
@@ -111,13 +111,29 @@ const calculatePasswordStrength = (password: string) => {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    
+    if (type === 'checkbox') {
+      // معالجة حالة checkbox
+      if (name === 'privacyPolicy') {
+        setAcceptedPrivacyPolicy(checked);
+      }
+    } else {
+      // معالجة حقول الإدخال النصية
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+
+    // التحقق من الموافقة على سياسة الخصوصية
+    if (!acceptedPrivacyPolicy) {
+      setAlertMessage('يجب الموافقة على سياسة الخصوصية أولاً');
+      setIsLoading(false);
+      return;
+    }
 
     if (formData.password !== formData.confirmPassword) {
       setAlertMessage('كلمتا المرور غير متطابقتين');
@@ -139,11 +155,11 @@ const calculatePasswordStrength = (password: string) => {
         setFormData({ username: '', password: '', confirmPassword: '' });
         setPasswordStrength(0);
         let redirectUrl = new URLSearchParams(window.location.search).get('redirect');
-      if (redirectUrl) {
-        window.open(redirectUrl, '_blank', 'noopener,noreferrer');
-      } else {
-        window.location.href = '/';
-      }
+        if (redirectUrl) {
+          window.open(redirectUrl, '_blank', 'noopener,noreferrer');
+        } else {
+          window.location.href = '/';
+        }
       } else {
         setAlertMessage(result.message || 'حدث خطأ أثناء التسجيل. يرجى المحاولة مرة أخرى');
       }
@@ -312,6 +328,32 @@ const isWeakPassword = (pwd: string, s: number) => {
               {formData.password && formData.confirmPassword && formData.password !== formData.confirmPassword && (
                 <p className="text-sm text-red-600 mt-1">!كلمة المرور غير متطابقة</p>
               )}
+            </div>
+            
+            <div className="flex items-start">
+              <div className="flex items-center h-5">
+                <input
+                  id="privacyPolicy"
+                  name="privacyPolicy"
+                  type="checkbox"
+                  checked={acceptedPrivacyPolicy}
+                  onChange={handleChange}
+                  className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300"
+                  required
+                  disabled={isLoading}
+                />
+              </div>
+              <label htmlFor="privacyPolicy" className="ms-2 text-sm font-medium text-gray-900">
+                أوافق على{' '}
+                <Link 
+                  href="/Privacy-Policy" 
+                  className="text-blue-600 hover:underline"
+                  target="_blank"
+                  onClick={(e) => isLoading && e.preventDefault()}
+                >
+                  سياسة الخصوصية
+                </Link>
+              </label>
             </div>
 
             {/* زر التسجيل مع حالة التحميل */}

@@ -5,6 +5,7 @@ import { TextExpander } from '../TextExpander';
 import {FaReply } from 'react-icons/fa';
 import ReportComponent from '../ReportComponent';
 import {extractUsername} from '@/client_helpers/extractUsername'
+import { BsPatchCheckFill } from 'react-icons/bs';
 import Link from 'next/link';
 
 export interface UserInfo {
@@ -36,7 +37,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
   time,
   className = '',
   bubbleClassName = '',
-  textCharLimit = 120,
+  textCharLimit = 220,
   showTail = true,
   onReply,
   onReport,
@@ -70,7 +71,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
 
   const containerJustify = isMine ? 'justify-start' : 'justify-end';
   const rowOrder = isMine ? 'flex-row' : 'flex-row-reverse';
-
+  const isVerified = user.id === 'stuvoice';
   return (
     <div className={['w-full flex', containerJustify, className].join(' ')}>
       <div className={['flex items-end gap-1.5 min-w-[180px] max-w-[92%] sm:max-w-[80%]', rowOrder].join(' ')}>
@@ -81,7 +82,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
               icon={user.iconName}
               iconColor={user.iconColor}
               bgColor={user.bgColor}
-              size={10}
+              size={16}
             />
           </Link>
         </div>
@@ -97,16 +98,21 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
             ].join(' ')}
           >
             {/* الرأس - اسم المستخدم فقط */}
-            <div className="flex items-center justify-between gap-2 mb-0.5">
-              <div className="flex items-center gap-4 truncate">
-                <span className="font-semibold text-xs truncate">
-                  {user.fullName}
-                </span>
-                <span className={['text-[10px]', bubbleColors.usernameColor].join(' ')}>
-                  @{user.id}
-                </span>
-              </div>
+          <div className="flex items-center justify-between gap-2 mb-0.5">
+            <div className="flex items-center gap-2 truncate">
+              {isVerified && (
+                <BsPatchCheckFill className="text-green-500" size={14} />
+              )}
+              <span className="font-semibold text-xs truncate">
+                {user.fullName}
+              </span>
+              <span
+                className={['text-[10px]', bubbleColors.usernameColor].join(' ')}
+              >
+                @{user.id}
+              </span>
             </div>
+          </div>
 
             {/* النص */}
             <div className={[

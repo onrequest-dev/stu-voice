@@ -99,7 +99,7 @@ const MainInterface = ({ children }: { children?: React.ReactNode }) => {
     { 
       id: 'supported-sites', 
       icon: <FaGlobeAmericas size={20} />, 
-      title: 'المواقع التي ندعمها', 
+      title: 'المنصات التي ندعمها', 
       href: '/taps/SupportedSitesContent',
       component: SupportedSitesContent
     },
