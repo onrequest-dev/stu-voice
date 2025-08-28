@@ -5,15 +5,15 @@ import React, { useEffect, useState } from "react";
 import { MdNotificationsActive } from "react-icons/md";
 
 function urlBase64ToUint8Array(base64String: string) {
-  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
   const rawData = atob(base64);
   const outputArray = new Uint8Array(rawData.length);
-  
+
   for (let i = 0; i < rawData.length; ++i) {
     outputArray[i] = rawData.charCodeAt(i);
   }
-  
+
   return outputArray;
 }
 
@@ -54,71 +54,117 @@ const PermissionPrompt: React.FC<PermissionPromptProps> = ({
   );
 };
 
-const Addnotification = ({message = notification_promot,afterDone}:{message?:string,afterDone:()=>void}) => {
+const Addnotification = ({
+  message = notification_promot,
+  afterDone,
+}: {
+  message?: string;
+  afterDone: () => void;
+}) => {
   const [showPrompt, setShowPrompt] = useState(false);
 
   useEffect(() => {
-    // نتحقق من حالة الإذن أولاً
-    if (!("Notification" in window)) return; // الإشعارات غير مدعومة
+    console.log("hi")
+    // تحقق من حالة localStorage أولاً
+    const notifStatus = localStorage.getItem("notification_status");
+    if (notifStatus === "granted") {
+      return; // تم التفعيل مسبقاً، تجاهل
+    }
+    registerPush();
+
+    // نتحقق من حالة إذن الإشعارات
+    // if (!("Notification" in window)) return;
 
     if (Notification.permission === "default") {
-      setShowPrompt(true); // نعرض البرومبت
+      setShowPrompt(true);
     } else if (Notification.permission === "granted") {
-      registerPush();
+      // نحفظ الحالة ونوقف
+      localStorage.setItem("notification_status", "granted");
+      return;
     }
-    // في حال كان مرفوض لا نفعل شيء
+    // لا شيء إذا كان مرفوض
   }, []);
 
   async function registerPush() {
-    if ("serviceWorker" in navigator && "PushManager" in window) {
-      try {
-        const registration = await navigator.serviceWorker.register("/sw.js");
-        const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-        if (!vapidKey) {
-          console.error("VAPID public key is missing!");
-          return;
-        }
+  if ("serviceWorker" in navigator && "PushManager" in window) {
+    try {
+      const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+      if (!vapidKey) {
+        console.error("VAPID public key is missing!");
+        return;
+      }
 
-        const applicationServerKey = urlBase64ToUint8Array(vapidKey);
+      const registration = await navigator.serviceWorker.register("/sw.js");
+      const applicationServerKey = urlBase64ToUint8Array(vapidKey);
 
-        const subscription = await registration.pushManager.subscribe({
+      // ✅ تحقق أولًا إن كان هناك اشتراك سابق
+      let subscription = await registration.pushManager.getSubscription();
+
+      // ❗️ إذا لم يوجد، نقوم بإنشاء اشتراك جديد
+      if (!subscription) {
+        subscription = await registration.pushManager.subscribe({
           userVisibleOnly: true,
           applicationServerKey,
         });
-
-        await fetch("/api/save-subscription", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(subscription),
-        });
-
-        console.log("Push subscription saved successfully!");
-      } catch (error) {
-        console.error("Error during service worker registration or push subscription:", error);
       }
+
+      // ✅ أرسل الاشتراك إلى السيرفر (حتى لو كان سابقًا لتأكيد وجوده في قاعدة البيانات)
+      await fetch("/api/save-subscription", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(subscription),
+      });
+
+      await fetch("/api/auth/confirm_account", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      localStorage.setItem("notification_status", "granted");
+      console.log("Push subscription saved successfully!");
+
+    } catch (error) {
+      localStorage.setItem("notification_status", "granted");
+      console.error("Error during push registration:", error);
     }
   }
+}
+
 
   const handleAccept = async () => {
     setShowPrompt(false);
     const permission = await Notification.requestPermission();
     if (permission === "granted") {
+      localStorage.setItem("notification_status", "granted");
+
+      // تسجيل الاشتراك
       await registerPush();
     } else {
-      console.error("Permission for notifications was denied");
+      console.log("User denied permission");
     }
     afterDone();
   };
 
   const handleDecline = () => {
     setShowPrompt(false);
-    console.log("User declined notification permission");
     afterDone();
   };
 
-  return <>{showPrompt && <PermissionPrompt message={message} onAccept={handleAccept} onDecline={handleDecline} />}</>;
+  return (
+    <>
+      {showPrompt && (
+        <PermissionPrompt
+          message={message}
+          onAccept={handleAccept}
+          onDecline={handleDecline}
+        />
+      )}
+    </>
+  );
 };
 
 export default Addnotification;

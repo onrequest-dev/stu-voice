@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
         endpoint: data.endpoint,
         keys: data.keys,
         user_name : jwt_user.user_name
-      });
+      },{ onConflict: 'user_name, endpoint' });
       if(subError){
          return NextResponse.json({ error: INVALID_REQUEST },
         { status: 400 })

@@ -21,17 +21,12 @@ export const NotificationsContent = () => {
 
   // في بيئة حقيقية، بدلاً من mockNotifications،
   // ستمتلك حالة state تُجلب من قاعدة البيانات.
-  const handleMarkSingle = (id: string) => {
-    // اربطها بدالة السياق لديك لتعليم مفرد كمقروء
-    // مثال: markSingle(id)
-    console.log('mark single as read:', id);
-  };
+
 
   return (
     <div className="px-4 sm:px-6 lg:px-8 py-6 mb-12">
       <SleekNotifications
         notifications={notifications}
-        onMarkAsRead={handleMarkSingle}
         title="مركز الإشعارات"
       />
     </div>

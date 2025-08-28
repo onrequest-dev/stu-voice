@@ -18,4 +18,4 @@ export const Failed_to_create_post = "فشل في إنشاء المنشور";
 export const Post_created_successfully = "تم إنشاء المنشور بنجاح";
 export const INVALID_REQUEST = "طلب سيئ"; 
 export const Invalid_username_or_password = "كلمة المرور خاطئة او اسم المستخدم خاطئ";
-export const notification_promot = "فعّل الإشعارات لتصلك تأكيدات حسابك وآخر التحديثات فورًا."
+export const notification_promot = "يرجى تفعيل الإشعارات لتأكيد حسابك. عدم التفعيل قد يعيق عمل بعض الخصائص الأساسية"

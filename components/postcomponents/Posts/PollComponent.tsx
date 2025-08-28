@@ -149,7 +149,7 @@ const loadVotes = async () => {
 
   // حاول قراءة الكاش من localStorage
   try {
-    const cacheString = localStorage.getItem(CACHE_KEY_PREFIX + id);
+    const cacheString = sessionStorage.getItem(CACHE_KEY_PREFIX + id);
     if (cacheString) {
       const cache = JSON.parse(cacheString);
       const now = Date.now();

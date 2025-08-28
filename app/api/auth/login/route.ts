@@ -54,7 +54,8 @@ export async function POST(request: NextRequest) {
     const jwt = createJwt({
         user_name:username,
         ip: user_ip || "unknown", //
-        has_complited_info:has_complited_info
+        has_complited_info:has_complited_info,
+        confirmed_account : true 
         });
   
     
