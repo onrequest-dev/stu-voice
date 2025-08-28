@@ -19,15 +19,82 @@ const SignUpHero = () => {
   const [hasInvalidChar, setHasInvalidChar] = useState(false); // حالة جديدة لتتبع المحارف غير الصالحة
 
   // حساب قوة كلمة المرور
-  const calculatePasswordStrength = (password: string) => {
-    let strength = 0;
-    if (password.length > 5) strength += 1;
-    if (password.length > 8) strength += 1;
-    if (/[A-Z]/.test(password)) strength += 1;
-    if (/[0-9]/.test(password)) strength += 1;
-    if (/[^A-Za-z0-9]/.test(password)) strength += 1;
-    return strength; 
+const calculatePasswordStrength = (password: string) => {
+  if (!password) return 0;
+
+  const len = password.length;
+  let score = 0;
+
+  // 1) طول كلمة المرور
+  // عدّل العتبات حسب السياسة: 8/12/16
+  if (len >= 8) score += 2;
+  if (len >= 12) score += 2;
+  if (len >= 16) score += 1;
+
+  // 2) التنوع (مجموعات المحارف)
+  const hasLower = /[a-z]/.test(password);
+  const hasUpper = /[A-Z]/.test(password);
+  const hasDigit = /\d/.test(password);
+  const hasSymbol = /[^A-Za-z0-9]/.test(password);
+
+  const varietyCount = [hasLower, hasUpper, hasDigit, hasSymbol].filter(Boolean).length;
+  // نقطة لكل نوع حتى 3، ونقطة إضافية عند الأنواع الأربعة
+  score += Math.min(varietyCount, 3);
+  if (varietyCount === 4) score += 1;
+
+  // 3) مكافآت خفيفة لتكرار الأنواع (لا ترفع كثيرًا)
+  if (/[A-Z].*[A-Z]/.test(password)) score += 1; // أكثر من حرف كبير
+  if (/\d.*\d/.test(password)) score += 1;       // أكثر من رقم
+  if (/[^A-Za-z0-9].*[^A-Za-z0-9]/.test(password)) score += 1; // أكثر من رمز
+
+  // 4) خصومات للأنماط الضعيفة
+  // تسلسلات معروفة/سهلة
+  const hasSequential = (str: string) => {
+    for (let i = 0; i < str.length - 2; i++) {
+      const a = str.charCodeAt(i);
+      const b = str.charCodeAt(i + 1);
+      const c = str.charCodeAt(i + 2);
+      if (b === a + 1 && c === b + 1) return true; // تصاعدي
+      if (b === a - 1 && c === b - 1) return true; // تنازلي
+    }
+    return false;
   };
+
+  const weakPatterns =
+    hasSequential(password) ||
+    hasSequential(password.toLowerCase()) ||
+    /qwerty|asdf|zxcv|password|pass|admin|welcome|letmein/i.test(password);
+
+  if (weakPatterns) score -= 2;
+
+  // تكرار محارف متتابع
+  if (/(.)\1{2,}/.test(password)) score -= 1;
+
+  // كلمة + أرقام بسيطة في النهاية
+  if (/[A-Za-z]{4,}\d{1,3}$/.test(password)) score -= 1;
+
+  // مسافات طرفية
+  if (/^\s|\s$/.test(password)) score -= 1;
+
+  // 5) حواجز للطول القصير
+  // إذا الطول أقل من 6: لا تتجاوز 1/10 مهما كان التنوع
+  if (len < 6) {
+    score = Math.min(score, 1);
+  } else if (len < 8) {
+    // إذا الطول بين 6 و7: لا تتجاوز 3/10
+    score = Math.min(score, 3);
+  }
+
+  // 6) منع تصنيف "قوي جدًا" إذا الطول < 12
+  // ضع سقف 7/10 عندما len < 12
+  if (len < 12) {
+    score = Math.min(score, 7);
+  }
+
+  // 7) تأطير النتيجة النهائية 0..10
+  const strength = Math.max(0, Math.min(10, score));
+  return strength;
+};
 
   useEffect(() => {
     setPasswordStrength(calculatePasswordStrength(formData.password));
@@ -86,7 +153,38 @@ const SignUpHero = () => {
       setIsLoading(false);
     }
   };
+
+  const strengthLabels = [
+  'ضعيفة جدًا', // 0
+  'ضعيفة جدًا', // 1
+  'ضعيفة',      // 2
+  'ضعيفة',      // 3
+  'متوسطة',     // 4
+  'متوسطة',     // 5
+  'جيدة',       // 6
+  'قوية',       // 7
+  'قوية جدًا',  // 8
+  'قوية جدًا',  // 9
+  'رائعة القوة' // 10
+];
   
+  // لون الشريط حسب القوة (0..10)
+const strengthColor = (s: number) => {
+  if (s <= 3) return 'bg-red-500';
+  if (s <= 6) return 'bg-yellow-500';
+  if (s <= 8) return 'bg-green-500';
+  return 'bg-emerald-600';
+};
+
+// قاعدة قبول/رفض (يمكن تعديلها):
+// - الطول >= 8
+// - القوة >= 5 (متوسطة+) كحد أدنى
+const isWeakPassword = (pwd: string, s: number) => {
+  const len = pwd.length;
+  if (len < 8) return true;
+  return s < 5;
+};
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-white relative overflow-hidden p-1">
       {/* عرض رسالة التنبيه إذا كانت موجودة */}
@@ -163,38 +261,38 @@ const SignUpHero = () => {
 
             {/* حقل كلمة المرور */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                كلمة المرور
-              </label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                required
-                disabled={isLoading}
-              />
-              {/* شريط قوة كلمة المرور */}
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                  كلمة المرور
+                </label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                  required
+                  disabled={isLoading}
+                />
+
+                {/* شريط قوة كلمة المرور (0..10) */}
                 <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2 overflow-hidden">
-                  <div 
-                    className={`h-2.5 rounded-full transition-all duration-300 ease-out ${
-                      passwordStrength < 2 ? 'bg-red-500' :
-                      passwordStrength < 4 ? 'bg-yellow-500' : 'bg-green-500'
-                    }`}
-                    style={{ width: `${(passwordStrength / 5) * 100}%` }}
+                  <div
+                    className={`h-2.5 rounded-full transition-all duration-300 ease-out ${strengthColor(passwordStrength)}`}
+                    style={{ width: `${(passwordStrength / 10) * 100}%` }}
                   />
                 </div>
-              <p className="text-xs text-gray-500 mt-1">
-                قوة كلمة المرور: {['ضعيفة جداً', 'ضعيفة', 'متوسطة', 'قوية', 'قوية جداً','رائعة القوة'][passwordStrength]}
-              </p>
-              {showPasswordError && passwordStrength < 3 && (
-                <p className="text-sm text-red-600 mt-1">
-                  كلمة المرور ضعيفة. يجب أن تحتوي على الأقل 8 أحرف وتشمل حروفًا كبيرة وأرقامًا
+
+                <p className="text-xs text-gray-500 mt-1">
+                  قوة كلمة المرور: {strengthLabels[Math.max(0, Math.min(10, passwordStrength))]} ({passwordStrength}/10)
                 </p>
-              )}
-            </div>
+
+                {showPasswordError && isWeakPassword(formData.password, passwordStrength) && (
+                  <p className="text-sm text-red-600 mt-1">
+                    كلمة المرور ضعيفة. يجب أن تتكون من 8 أحرف على الأقل وتضم مزيجًا من الحروف الكبيرة والصغيرة والأرقام والرموز.
+                  </p>
+                )}
+              </div>
 
             {/* تأكيد كلمة المرور */}
             <div>

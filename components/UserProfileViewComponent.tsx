@@ -85,8 +85,11 @@ const UserProfileViewComponent: React.FC<{ userData?: UserInfo }> = ({ userData 
       <div className="px-4 py-6 sm:py-10">
         <div className="flex items-center gap-6">
           {/* صورة شخصية أو أيقونة */}
-          <div className="w-28 h-28 rounded-full border-4 border-white shadow-lg flex items-center justify-center overflow-hidden bg-white/70 backdrop-blur-sm">
-              <CustomIcon icon={iconName} iconColor={customColor} bgColor={customBg} size={38} />
+          <div 
+            className="w-28 h-28 rounded-full border-4 border-white shadow-lg flex items-center justify-center overflow-hidden backdrop-blur-sm"
+            style={{ backgroundColor: customBg }}
+          >
+            <CustomIcon icon={iconName} iconColor={customColor} bgColor={customBg} size={38} />
           </div>
 
           {/* الاسم + الجنس */}
