@@ -173,9 +173,9 @@ const InfoRow = ({ icon, label, value }: { icon: React.ReactNode; label: string;
 
 const MiddleSchoolView = ({ education }: { education: UserEducation; theme: any }) => {
   const gradeMap: Record<string, string> = {
-    first: 'الصف السابع',
-    second: 'الصف الثامن',
-    third: 'الصف التاسع'
+    first: 'السابع',
+    second: 'الثامن',
+    third: 'التاسع'
   };
   return (
     <>
@@ -196,9 +196,9 @@ const MiddleSchoolView = ({ education }: { education: UserEducation; theme: any 
 
 const HighSchoolView = ({ education }: { education: UserEducation; theme: any }) => {
   const gradeMap: Record<string, string> = {
-    first: 'الصف العاشر',
-    second: 'الصف الحادي عشر',
-    third: 'صف البكلوريا'
+    first: 'العاشر',
+    second: 'الحادي عشر',
+    third: 'البكلوريا'
   };
   const trackMap: Record<string, string> = {
     scientific: 'علمي',
