@@ -3,7 +3,7 @@ import React from 'react';
 import WelcomeHeader from '../components/WelcomeHeader';
 import FeaturesSection from '../components/FeaturesSection';
 import ContributionSection from '../components/ContributionSection';
-import Head from 'next/head';
+
 const page = () => {
    return (
 
