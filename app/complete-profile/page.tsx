@@ -35,7 +35,7 @@ const Page = () => {
   }, [message]);
 
   const handleSubmit = async (userData: UserInfo) => {
-
+    console.log(userData.education.icon)
     try {
       const response = await fetch('/api/auth/editinfo', {
         method: 'POST',

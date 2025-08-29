@@ -36,7 +36,7 @@ const SettingsPanel = () => {
   return (
     <div
       dir="rtl"
-      className="relative max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden p-4 md:p-6"
+      className="relative max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden p-4 md:p-6 "
     >
       {isNavigating && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70 backdrop-blur-sm">
@@ -192,45 +192,16 @@ const SettingsPanel = () => {
 
       {/* سياسة الخصوصية */}
       <div className="py-3 md:py-4">
-  <details className="group rounded-lg border border-gray-200 p-3 md:p-4 overflow-hidden">
-    <summary className="flex cursor-pointer select-none items-center justify-between focus:outline-none">
-      <span className="flex items-center gap-2 text-sm md:text-base font-medium text-gray-800">
-        <FaInfoCircle className="text-blue-500" size={18} />
-        سياسة الخصوصية
-      </span>
-      <span className="text-gray-500 text-xs md:text-sm group-open:rotate-180 transition-transform duration-300">
-        ▲
-      </span>
-    </summary>
 
-    <div className="mt-3 md:mt-4 animate-accordion">
-      <ul className="list-disc pr-5 space-y-2 text-xs md:text-sm text-gray-700 text-right">
-        <li className="animate-fadeIn">
-          ما نجمعه: آراء الطلاب، التقييمات، التعليقات، وبعض بيانات الحساب الأساسية.
-        </li>
-        <li className="animate-fadeIn">
-          بصمات تقنية محدودة لأمان المنصّة ومنع إساءة الاستخدام (مثل نوع الجهاز/المتصفّح، عنوان IP).
-        </li>
-        <li className="animate-fadeIn">
-          لماذا نستخدم البيانات: تحسين جودة العملية التعليمية والمقررات، بناء تقارير مجمّعة لصنّاع القرار،
-          وتطوير خصائص المنصّة.
-        </li>
-        <li className="animate-fadeIn">
-          لا نبيع بياناتك الشخصية، قد نعرض إعلانات موجهة بناءً على هويتك.
-        </li>
-        <li className="animate-fadeIn">
-          المشاركة: قد نشارك بيانات مُجمّعة ومجهولة فقط مع جهات تعليمية لتحسين الأداء التعليمي.
-        </li>
-        <li className="animate-fadeIn">
-          التحكم والحقوق: يمكنك تعديل بياناتك، تنزيل نسخة، أو طلب حذف حسابك. يمكنك أيضًا تعطيل الإشعارات متى شئت.
-        </li>
-        <li className="animate-fadeIn">
-          الأمان والاحتفظ: نحمي البيانات أثناء النقل ونقيد الوصول الداخلي؛ نحتفظ بالبيانات المجمّعة لأغراض التحسين،
-          وتُحذف البيانات الشخصية عند إغلاق الحساب أو بناءً على طلبك ما لم يتطلب القانون خلاف ذلك.
-        </li>
-      </ul>
-    </div>
-  </details>
+      <Link href={"/privacy-and-terms"}>
+      <span className="flex items-center gap-2 text-sm md:text-base font-medium text-blue-800 underline">
+        <FaInfoCircle className="text-blue-500" size={18} />
+        سياسة الخصوصية وشروط الاستخدام
+      </span>
+      </Link>
+
+
+
 </div>
     </div>
   );

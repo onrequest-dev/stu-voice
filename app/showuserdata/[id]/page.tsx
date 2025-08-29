@@ -21,7 +21,7 @@ const getUserPosts = async (username:string) => {
     const { data: postDataRaw, error: postError } = await supabase
       .rpc("get_posts_by_id_or_publisher", {
         target_id: null,
-        target_username: username,
+        target_username: username.toLocaleLowerCase(),
       });
       if(postError) {
         hasPosts = false;
@@ -33,26 +33,31 @@ const getUserPosts = async (username:string) => {
 }
 
 const getUserInfo = async (username:string) =>{
+
+  const isValid = /^[a-zA-Z0-9_]+$/.test(username);
+    if (!isValid) {
+      return new Response("Invalid username", { status: 400 });
+    }
   const {data:result,error} = await supabase
   .from("users")
   .select("icon,university,level,faculty,gender,info,last_time_updated,full_name")
-  .eq('user_name', username)
+  .eq('user_name', username.toLocaleLowerCase())
   .single()
   if(error) return <div>هذا المستخدم غير موجود </div>
   const userInfo:UserInfo = {
       id:username ,
       fullName: result.full_name,
-      gender:result.gender ,
+      gender:result.gender ||"male",
       education:{
         level: result.level,
-          grade:result.info.grade ,
+          grade:result.info?.grade ,
           track: "",
-          degreeSeeking: result.info.degreeSeeking,
+          degreeSeeking: result.info?.degreeSeeking,
           university: result.university, 
           faculty: result.faculty, 
-          specialization: result.info.specialization,
-          year:result.info.year ,
-          studentId: result.info.studentId ,
+          specialization: result.info?.specialization,
+          year:result.info?.year ,
+          studentId: result.info?.studentId ,
           icon: result.icon
       }
     };

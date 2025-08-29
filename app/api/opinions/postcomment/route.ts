@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
         { status: 400 }
         );
     }
-    const mentions = extractMentions(content);
+    const mentions = extractMentions(content,jwt_user.user_name);
     sendNotificationToUser(mentions,{
       "body":`${content.replace(/@\w+/g, '').slice(0, 10)}...`
       ,"title":`ذكرك ${jwt_user.user_name} في مناقشة!`,
