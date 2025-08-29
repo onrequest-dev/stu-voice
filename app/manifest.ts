@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "رأيك يصنع الفرق",
     start_url: '/',
     display: 'standalone',
-    background_color: '#ffffff',
-    theme_color: '#000000',
+    background_color: '#dbeafe',
+    theme_color: '#1d4ed8',
     icons: [
       {
         src: '/icon-192x192.png',
