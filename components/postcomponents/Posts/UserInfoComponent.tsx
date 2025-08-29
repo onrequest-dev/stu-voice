@@ -56,11 +56,11 @@ const UserInfoComponent: React.FC<UserInfoProps> = ({ userInfo }) => {
       </div>
 
       {/* الجزء الأيمن - معلومات المستخدم */}
-      <div className="flex items-start flex-1 min-w-0 mr-1">
+      <div className="flex items-start flex-1 min-w-0 mr-1 ">
         <div className="text-right mr-3 min-w-0 flex-1">
           <div className="flex flex-col items-end">
             {wrapWithLink(
-              <div className="font-medium text-gray-900 text-right break-words whitespace-normal flex flex-row-reverse items-center gap-1">
+              <div className="font-medium text-gray-900 text-right break-words whitespace-normal flex flex-row-reverse items-center gap-1 hover:bg-slate-50 hover:rounded-sm transition-all" >
                 {userInfo.fullName}
                 {isVerified && (
                   <BsPatchCheckFill className="text-green-500 mx-1" size={14} />
@@ -72,7 +72,7 @@ const UserInfoComponent: React.FC<UserInfoProps> = ({ userInfo }) => {
             <div className="flex items-center justify-end mt-1">
               <FaInfoCircle className="text-gray-400 ml-1 flex-shrink-0" size={10} />
               {wrapWithLink(
-                <span className="text-xs text-gray-500 break-all">
+                <span className="text-xs text-gray-500 break-all hover:bg-slate-100 hover:rounded-sm transition-all">
                   @{userInfo.id}
                 </span>,
                 `/showuserdata/${userInfo.id}`,
@@ -82,11 +82,12 @@ const UserInfoComponent: React.FC<UserInfoProps> = ({ userInfo }) => {
           </div>
         </div>
         {wrapWithLink(
-          <CustomIcon 
+          <div className='hover:bg-slate-50 hover:rounded-full hover:p-0.5 transition-all'><CustomIcon 
             icon={userInfo.iconName}
             iconColor={userInfo.iconColor}
             bgColor={userInfo.bgColor}
-          />,
+            
+          /></div>,
           `/showuserdata/${userInfo.id}`,
           'icon-link'
         )}

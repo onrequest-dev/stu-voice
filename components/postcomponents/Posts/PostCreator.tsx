@@ -146,11 +146,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ onSubmit, userInfo }) => {
       
       setSubmitProgress(100);
       clearInterval(interval);
-      
-      setAlertMessage('تم إنشاء المنشور بنجاح');
-      setAlertType('success');
-      setShowAlert(true);
-      
+      setShowAlert(true); 
       setTimeout(() => {
         setOpinionText('');
         setPollQuestion('');

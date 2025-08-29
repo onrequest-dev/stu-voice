@@ -12,6 +12,7 @@ const NewPostContent = () => {
   const [userData, setUserData] = useState<PostUserInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showAlert, setShowAlert] = useState(false);
+  const [success,setSuccess] = useState(false);
   useEffect(() => {
     // تأخير جلب البيانات قليلاً لمحاكاة عملية غير متزامنة
     const loadUserData = () => {
@@ -70,11 +71,7 @@ const NewPostContent = () => {
       const result = await response.json();
 
       if (!response.ok) {
-        <Alert
-          message={result}
-          type="success"
-          autoDismiss={5000}
-          onDismiss={() => setShowAlert(false)}/>
+        throw new Error
       }
 
       const newPost: PostProps = {
@@ -100,8 +97,10 @@ const NewPostContent = () => {
       };
 
       setPosts(prevPosts => [newPost, ...prevPosts]);
+      setSuccess(true);
     } catch (error) {
-      alert('فشل في إرسال المنشور. حاول مرة أخرى.');
+      throw new Error
+      // setShowAlert(true)
     }
   };
 
@@ -114,7 +113,10 @@ const NewPostContent = () => {
   }
 
   return (
+
     <div className="max-w-2xl mx-auto py-8 px-4">
+      {showAlert && <Alert type='error' message={'فشل في انشاء الرأي. حاول مرة أخرى.'} onDismiss={()=>setShowAlert(false)}/>}
+        {success && <Alert type={"success"} message={'تم انشاء الرأي بنجاح'} onDismiss={()=>setSuccess(false)}/>}
       <PostCreator 
         onSubmit={handleSubmitPost} 
         userInfo={userData} 
