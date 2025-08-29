@@ -12,7 +12,8 @@ import {
 import { UserEducation, UserInfo } from '../types/types';
 import CustomIcon from '../components/postcomponents/CustomIcon';
 import PureCSSLoader from './LoadingSpinner'
-
+import Link from 'next/link';
+import { BsPatchCheckFill } from 'react-icons/bs';
 const UserProfileViewComponent: React.FC<{ userData?: UserInfo }> = ({ userData }) => {
   const genderThemes = {
     male: {
@@ -45,6 +46,7 @@ const UserProfileViewComponent: React.FC<{ userData?: UserInfo }> = ({ userData 
     userData.education.icon?.component ||
     (userData.education.level === 'university' ? 'FaUniversity' : 'FaSchool');
 
+      const isVerified = userData.id === 'stuvoice';
   return (
     <div className="relative w-full max-w-3xl mx-auto rtl text-right ">
       {/* خلفية عليا مزودة برسومات SVG */}
@@ -100,17 +102,23 @@ const UserProfileViewComponent: React.FC<{ userData?: UserInfo }> = ({ userData 
             <div
               className={`inline-flex items-center mt-2 px-3 py-1 rounded-full ${theme.chipBg} ${theme.chipText} text-sm font-semibold`}
             >
-              {userData.gender === 'male' ? (
-                <>
-                  <FaMars className="ms-1 me-2" />
-                  <span>ذكر</span>
-                </>
-              ) : (
-                <>
-                  <FaVenus className="ms-1 me-2" />
-                  <span>أنثى</span>
-                </>
-              )}
+            {isVerified ? (
+              <>
+              <BsPatchCheckFill className="text-green-500 mx-1" size={18} />
+              <span>الحساب الرسمي</span>
+              </>
+            ) : userData.gender === 'male' ? (
+            <>
+            <FaMars className="ms-1 me-2" />
+            <span>ذكر</span>
+            </>
+            ) : (
+            <>
+            <FaVenus className="ms-1 me-2" />
+            <span>أنثى</span>
+            </>
+            )}
+
             </div>
           </div>
         </div>
@@ -118,20 +126,29 @@ const UserProfileViewComponent: React.FC<{ userData?: UserInfo }> = ({ userData 
 
 
         {/* قسم المعلومات التعليمية */}
-        <section className="mt-10">
-          <HeaderTitle education={userData.education} theme={theme} />
-          <div className="mt-4 grid grid-cols-1 gap-3">
-            {userData.education.level === 'middle' && (
-              <MiddleSchoolView education={userData.education} theme={theme} />
-            )}
-            {userData.education.level === 'high' && (
-              <HighSchoolView education={userData.education} theme={theme} />
-            )}
-            {userData.education.level === 'university' && (
-              <UniversityView education={userData.education} theme={theme} />
-            )}
-          </div>
-        </section>
+        {isVerified?(<Link 
+                    href="/STUvoice-profile" 
+                    className="inline-flex items-center justify-center px-2 py-3 rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-medium hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                  >
+                 قم بزيارة صفحة المنصة
+                  </Link>
+                ):(
+                <section className="mt-10">
+                  <HeaderTitle education={userData.education} theme={theme} />
+                  <div className="mt-4 grid grid-cols-1 gap-3">
+                    {userData.education.level === 'middle' && (
+                      <MiddleSchoolView education={userData.education} theme={theme} />
+                    )}
+                    {userData.education.level === 'high' && (
+                      <HighSchoolView education={userData.education} theme={theme} />
+                    )}
+                    {userData.education.level === 'university' && (
+                      <UniversityView education={userData.education} theme={theme} />
+                    )}
+                  </div>
+                </section>
+          )}
+
       </div>
     </div>
   );

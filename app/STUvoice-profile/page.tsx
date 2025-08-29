@@ -1,5 +1,6 @@
 import React from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 const STUvoiceHomePage = () => {
   return (
@@ -38,7 +39,7 @@ const STUvoiceHomePage = () => {
           {/* شعار */}
           <div className="bg-transparent rounded-full inline-block">
             <Image
-              src="/stu-voice.png"
+              src="/image.png"
               alt="STUvoice Logo"
               width={296}
               height={296}
@@ -52,10 +53,10 @@ const STUvoiceHomePage = () => {
       </header>
 
       {/* المحتوى */}
-      <main className="container mx-auto px-6 py-10">
+      <main className="container mx-auto px-2 py-2">
         {/* قسم عن المنصة */}
         <section className="mb-32">
-          <div className="text-center mb-16">
+          <div className="text-center my-6">
             <h2 className="text-4xl font-extrabold text-blue-900 mb-6">
               عن منصتنا
             </h2>
@@ -129,18 +130,21 @@ const STUvoiceHomePage = () => {
                 desc: "تعرف على كيفية حماية بياناتك وخصوصيتك.",
                 color: "from-blue-600 to-blue-800",
                 button: "اقرأ المزيد",
+                link:"/privacy-and-terms"
               },
               {
                 title: "فريق المطورين",
                 desc: "تعرف على الأشخاص خلف المنصة.",
                 color: "from-blue-500 to-blue-700",
                 button: "زيارة الموقع",
+                link:"https://hadiiik.github.io/onrequest/"
               },
               // {
-              //   title: "المسؤولون",
-              //   desc: "تواصل مع المسؤولين للإستفسارات والشكاوى.",
+              //   title: "المنصات المدعومة",
+              //   desc: "المنصات المساهمة معنا لمساعدة الطالب",
               //   color: "from-blue-700 to-blue-900",
-              //   button: "عرض التفاصيل",
+              //   button: "عرض المنصات",
+              //   link:"/SupportedSitesContent"
               // },
             ].map((card, i) => (
               <div
@@ -155,9 +159,12 @@ const STUvoiceHomePage = () => {
                     {card.title}
                   </h3>
                   <p className="text-gray-700 mb-6">{card.desc}</p>
-                  <button className="px-6 py-2 rounded-full bg-gradient-to-r from-blue-600 to-blue-900 text-white shadow-lg hover:opacity-90 transition">
+                  <Link className="px-6 py-2 rounded-full bg-gradient-to-r from-blue-600 to-blue-900 text-white shadow-lg hover:opacity-90 transition"
+                  href={card.link}
+                  target="_blank" 
+                  >
                     {card.button}
-                  </button>
+                  </Link>
                 </div>
               </div>
             ))}

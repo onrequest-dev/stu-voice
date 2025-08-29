@@ -154,9 +154,9 @@ const UserProfileComponent: React.FC<{ userData: UserInfo }> = ({ userData }) =>
 // مكونات العرض المعدلة
 const MiddleSchoolView = ({ education, theme }: any) => {
   const gradeMap: Record<string, string> = {
-    first: 'الصف السابع',
-    second: 'الصف الثامن',
-    third: 'الصف التاسع'
+    first: 'السابع',
+    second: 'الثامن',
+    third: 'التاسع'
   };
 
   return (
@@ -183,9 +183,9 @@ const MiddleSchoolView = ({ education, theme }: any) => {
 
 const HighSchoolView = ({ education, theme }: any) => {
   const gradeMap: Record<string, string> = {
-    first: 'الصف العاشر',
-    second: 'الصف الحادي عشر',
-    third: 'صف البكلوريا'
+    first: 'العاشر',
+    second: 'الحادي عشر',
+    third: 'البكلوريا'
   };
 
   const trackMap: Record<string, string> = {
