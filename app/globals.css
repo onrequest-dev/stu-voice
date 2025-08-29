@@ -26,6 +26,10 @@
     rgb(var(--background-start-rgb));
 } */
 
+
+body{
+  -webkit-tap-highlight-color: transparent;
+}
 @layer utilities {
   .text-balance {
     text-wrap: balance;
