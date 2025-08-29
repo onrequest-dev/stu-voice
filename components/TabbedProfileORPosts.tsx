@@ -6,7 +6,8 @@ import { UserInfo } from '../types/types';
 import { PostProps } from './postcomponents/types';
 import UserProfileComponent from './UserProfileComponent';
 import PostComponent from './postcomponents/Posts/PostComponent'; // استيراد مكون المنشور
-
+import Link from 'next/link';
+import NoComplet from './NoComplet';
 // تحديث الواجهة لتشمل خاصية posts
 interface TabbedContainerProps {
   userData?: UserInfo | null;
@@ -76,9 +77,11 @@ const TabbedContainer: React.FC<TabbedContainerProps> = ({
                 activeTab === 'data' ? 'opacity-100' : 'opacity-0 pointer-events-none'
             }`}
             >
-                <div className="flex items-center m-5 mt-20">
+              {userData.fullName===''? (<div className='mt-20' ><NoComplet/></div>):
+                (<div className="flex items-center m-5 mt-20">
                     <UserProfileComponent userData={userData} /> 
-                </div>
+                </div>)}
+
             </div>
             
             <div
@@ -102,9 +105,21 @@ const TabbedContainer: React.FC<TabbedContainerProps> = ({
                     ))}
                   </div>
                 ) : (
-                  <div className="flex items-center justify-center h-full text-gray-500">
-                    لا توجد منشورات لعرضها
-                  </div>
+                <div className="flex flex-col items-center justify-center h-full text-gray-500 space-y-6">
+                  {/* النص */}
+                  <p className="text-lg font-medium">لا توجد منشورات</p>
+
+                  {/* زر إنشاء منشور */}
+                  <Link 
+                    href="/taps/NewPostContent" 
+                    className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-medium hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                  >
+                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    قم بإنشاء أول منشور لك
+                  </Link>
+                </div>
                 )}
             </div>
             </div>
