@@ -78,7 +78,7 @@ const NewPostContent = () => {
       }
 
       const newPost: PostProps = {
-        id: `post-${Date.now()}`,
+        id: `${result.post[0].id}`,
         userInfo: userData,
         opinion: postData.content.opinion
           ? {

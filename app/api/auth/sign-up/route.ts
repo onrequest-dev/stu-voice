@@ -65,5 +65,6 @@ export async function POST(request: NextRequest) {
   
   const response = NextResponse.json({ status: 200, message:user_created_successfully});
   response.cookies.set("jwt", jwt || "", { path: "/", maxAge: 60 * 60 * 24 * 365 * 20, httpOnly: true });
+
   return response;
 }

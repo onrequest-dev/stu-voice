@@ -69,8 +69,8 @@ export async function POST(request: NextRequest) {
     }
     const mentions = extractMentions(content);
     sendNotificationToUser(mentions,{
-      "body":`ذكرك ${jwt_user.user_name} في مناقشة!`
-      ,"title":"لقد تم ذكرك",
+      "body":`${content.replace(/@\w+/g, '').slice(0, 10)}...`
+      ,"title":`ذكرك ${jwt_user.user_name} في مناقشة!`,
       "data":{"url":`/talk/${id}`},
     });
     return NextResponse.json(

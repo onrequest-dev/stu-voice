@@ -58,7 +58,7 @@ const InteractionButtons: React.FC<InteractionButtonsProps> = ({
       const stored = window.localStorage.getItem(LS_KEY);
       if (!stored) return null;
       const reactions: Array<{ id: string; type: ReactionType }> = JSON.parse(stored);
-      const existing = reactions.find(r => r.id === id);
+      const existing = reactions.find(r => r.id == id);
       return existing ? existing.type : null;
     } catch {
       return null;

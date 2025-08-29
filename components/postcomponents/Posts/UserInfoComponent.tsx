@@ -75,7 +75,7 @@ const UserInfoComponent: React.FC<UserInfoProps> = ({ userInfo }) => {
                 <span className="text-xs text-gray-500 break-all">
                   @{userInfo.id}
                 </span>,
-                `/showdatauser/${userInfo.id}`,
+                `/showuserdata/${userInfo.id}`,
                 'id-link'
               )}
             </div>

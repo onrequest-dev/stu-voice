@@ -75,13 +75,13 @@ const UserProfileComponent: React.FC<{ userData: UserInfo }> = ({ userData }) =>
             >
               <FaEdit className={`${theme.iconColor} text-sm md:text-base`} />
             </Link>
-            <button 
+            {/* <button 
               onClick={handleLogout}
               className={`p-1.5 md:p-2 rounded-full ${theme.accent} hover:opacity-80 transition-opacity`}
               title="تسجيل الخروج"
             >
               <FaSignOutAlt className={`${theme.iconColor} text-sm md:text-base`} />
-            </button>
+            </button> */}
           </div>
           
           {/* رأس البطاقة المعدل */}

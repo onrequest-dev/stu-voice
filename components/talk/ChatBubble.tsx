@@ -77,7 +77,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
       <div className={['flex items-end gap-1.5 min-w-[180px] max-w-[92%] sm:max-w-[80%]', rowOrder].join(' ')}>
         {/* الأيقونة */}
         <div className="shrink-0 self-start">
-          <Link href={`/showdatauser/${user.id}`} className="flex-shrink-0">
+          <Link href={`/showuserdata/${user.id}`} className="flex-shrink-0">
             <CustomIcon
               icon={user.iconName}
               iconColor={user.iconColor}

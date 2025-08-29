@@ -10,11 +10,11 @@ export async function GET(request: NextRequest) {
 //       status: 401,
 //     });
 //   }
-    await postOpinion();
+    const post = await postOpinion();
     sendNotificationToUser("*",
       {
-        "title":"الرأي اليومي 😊",
-        "body":"لقد وصل الرأي اليومي !!",
+        "title":"لقد وصل الرأي اليومي 😊😊",
+        "body":`${post?.slice(0,20)}...`,
         "data":{"url":"/DailyOpinion"}
       }
     )
@@ -37,7 +37,7 @@ const postOpinion = async () => {
     .select('*')
     .order('created_at', { ascending: true })
     .limit(1);
-
+  
   if (fetchError || !scheduledPosts || scheduledPosts.length === 0) {
     return;
   }
@@ -97,5 +97,6 @@ const postOpinion = async () => {
   }
 
 
-  revalidatePath('/daily-opinion');  
+  revalidatePath('/daily-opinion'); 
+  return  (scheduledPost as any).post as string
 };

@@ -165,7 +165,7 @@ const ChatPage = async ({ params }: PostPageProps) => {
       readersCount: 0,
       commentsCount: 0,
     },
-    poll: post.poll || null,
+    poll: {"options":post?.poll?.options||[],"question":post?.poll?.title||"", "durationInDays": post?.poll?.durationInDays || -1},
   };
   return<> 
   <ChatBoard board={board}  post_id={params.id}   postContent={

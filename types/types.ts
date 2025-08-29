@@ -36,3 +36,18 @@ export interface NotificationItem {
   timestamp: number;
   url?: string;
 }
+
+export type CommentWithUser = {
+  comment_id: number;
+  content: string;
+  created_at: string;
+  post_id: number;
+  comment_replied_to_id: number | null;
+  replies_count: number;
+  commenter_username: string;
+  full_name: string;
+  icon: { name?: string; color?: string; bgColor?: string } | null;
+  icon_color: string | null;
+  bg_color: string | null;
+  study: string | null;
+};

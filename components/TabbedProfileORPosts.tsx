@@ -37,7 +37,7 @@ const TabbedContainer: React.FC<TabbedContainerProps> = ({
     }
 
     return (
-        <div className="w-full h-full flex flex-col bg-white rounded-lg overflow-hidden">
+        <div className="w-full h-full flex flex-col bg-white rounded-lg overflow-hidden mb-11">
         {/* تبويبات التنقل مع المؤشر المتحرك */}
         <div 
             ref={tabsRef}
