@@ -80,8 +80,10 @@ export function processFingerprintData(input: unknown): {
   const f = result.data;
   const metadata = extractMetadata(f);
   const trustScore = calculateTrustScore(f);
+  const { battery, ...metadataWithoutBattery } = metadata;
+
   const hash = createFingerprintHash({
-    ...metadata,
+    ...metadataWithoutBattery,
     userAgent: f.userAgent,
     doNotTrack: f.doNotTrack,
   });

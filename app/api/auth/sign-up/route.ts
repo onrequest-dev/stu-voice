@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     
     const { data: user, error: dbError } = await supabase
         .from("users")
-        .insert([{ "user_name": username, "hashed_password": hashedPassword , "fingerprint_hash": hash, "fingerprint_metadata": metadata, "trust_score": trustScore }])
+        .insert([{ "user_name": username.toLocaleLowerCase(), "hashed_password": hashedPassword , "fingerprint_hash": hash, "fingerprint_metadata": metadata, "trust_score": trustScore }])
         .select()
         .single();
       if (dbError) {

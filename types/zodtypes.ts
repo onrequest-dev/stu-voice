@@ -1,4 +1,4 @@
-import { user_name_shouldbe_at_least_n_characters, user_name_shouldbe_at_most_n_characters, password_should_be_at_least_n_characters, password_shouldbe_at_most_n_characters } from '@/static/keywords';
+import { user_name_shouldbe_at_least_n_characters, user_name_shouldbe_at_most_n_characters, password_should_be_at_least_n_characters, password_shouldbe_at_most_n_characters, username_invalid_characters } from '@/static/keywords';
 import { z } from 'zod';
 
 // Gender schema
@@ -85,7 +85,7 @@ const IconSchema = z.object({
 // UserInfo schema
  export const UserInfoSchema = z.object({
   id: z.string(),
-  fullName: z.string(),
+  fullName: z.string().min(4).max(20),
   gender: GenderSchema,
   education: UserEducationSchema,
 });
@@ -95,14 +95,17 @@ const IconSchema = z.object({
 export const userSchema = z.object({
   username: z.string()
     .min(4, user_name_shouldbe_at_least_n_characters)
-    .max(20, user_name_shouldbe_at_most_n_characters),
+    .max(20, user_name_shouldbe_at_most_n_characters)
+    .regex(/^[a-zA-Z_]+$/, username_invalid_characters),
+    
   password: z.string()
     .min(6, password_should_be_at_least_n_characters)
     .max(64, password_shouldbe_at_most_n_characters),
+
   fingerprint: z
     .object({})
     .passthrough()
-    .optional(), // ← يمكن أن تكون موجودة أو لا
+    .optional(),
 });
 export type jwt_user = {
     user_name: string;
