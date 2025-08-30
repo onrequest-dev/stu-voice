@@ -197,6 +197,12 @@ const ChatBoard: React.FC<ChatBoardProps> = ({
 
   return (
     <div className={['h-screen w-full flex flex-col bg-white', className].join(' ')}>
+                          {/* زر العودة داخل الحاوية ولكن بموضع ثابت */}
+      {!showScrollTop && (
+        <div className="fixed top-1 left-2 z-50 transition-all duration-300 ease-in-out">
+          <BackButton/>
+        </div>
+      )}
       <div className="flex-1 flex flex-col">
         {/* منطقة الرسائل مع تمرير عمودي فقط */}
         <div
@@ -204,12 +210,9 @@ const ChatBoard: React.FC<ChatBoardProps> = ({
           className={`flex-1 overflow-y-auto ${styles.scrollContainer} p-2 scroll-smooth bg-white`}
           style={{ maxHeight: 'calc(100vh - 75px)' }}
         >
-            {/* زر العودة داخل الحاوية ولكن بموضع ثابت */}
-          <div className="fixed top-4 left-4 z-40"> {/* z-40 لتكون تحت أي عناصر أخرى قد تكون ذات z-index أعلى */}
-            <BackButton />
-          </div>
+
           {/* محتوى الرسائل داخل حاوية مركزة */}
-          <div className="max-w-2xl mx-auto w-full space-y-4">
+          <div className="max-w-2xl mx-auto w-full space-y-4 mt-6">
             {/* المنشور كأول عنصر داخل نفس قائمة الرسائل */}
             {postContent && (
               <div className="w-full mb-6">

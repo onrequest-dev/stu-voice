@@ -135,7 +135,7 @@ const SettingsPanel = () => {
           </a>
           
           <a
-            href="https://t.me/@Qawwrff1344" // استبدل برابط تلغرام الصحيح
+            href="https://t.me/+6283139607950" // استبدل برابط تلغرام الصحيح
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-center gap-2 bg-blue-50 hover:bg-blue-100 text-blue-700 py-2 px-3 rounded-lg transition-colors"

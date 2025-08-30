@@ -31,78 +31,84 @@ const NewPostContent = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleSubmitPost = async (postData: {
-    content: {
-      opinion?: string;
-      poll?: {
-        question: string;
-        options: string[];
-        durationInDays: number;
-      };
+const handleSubmitPost = async (postData: {
+  content: {
+    opinion?: string;
+    poll?: {
+      question: string;
+      options: string[];
+      durationInDays: number;
     };
-  }) => {
-    if (!userData) {
-      alert('بيانات المستخدم غير متوفرة');
+  };
+}) => {
+  if (!userData) {
+    setShowAlert(true);
+    return;
+  }
+
+  try {
+    const bodyPayload = {
+      post: postData.content.opinion ?? '',
+      topics: '',
+      poll: postData.content.poll
+        ? {
+            title: postData.content.poll.question,
+            options: postData.content.poll.options,
+            durationInDays: postData.content.poll.durationInDays,
+          }
+        : undefined,
+    };
+
+    const response = await fetch('/api/opinions/makeopinion', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(bodyPayload),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      // ❌ بدلاً من throw
+      setShowAlert(true);
+      setSuccess(false);
       return;
     }
 
-    try {
-      const bodyPayload = {
-        post: postData.content.opinion ?? '',
-        topics: '',
-        poll: postData.content.poll
-          ? {
-              title: postData.content.poll.question,
-              options: postData.content.poll.options,
-              durationInDays: postData.content.poll.durationInDays,
-            }
-          : undefined,
-      };
+    const newPost: PostProps = {
+      id: `${result.post[0].id}`,
+      userInfo: userData,
+      opinion: postData.content.opinion
+        ? {
+            text: postData.content.opinion,
+            agreeCount: 0,
+            disagreeCount: 0,
+            readersCount: 0,
+            commentsCount: 0,
+          }
+        : null,
+      poll: postData.content.poll
+        ? {
+            question: postData.content.poll.question,
+            options: postData.content.poll.options,
+            votes: Array(postData.content.poll.options.length).fill(0),
+            durationInDays: postData.content.poll.durationInDays,
+          }
+        : null,
+    };
 
-      const response = await fetch('/api/opinions/makeopinion', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(bodyPayload),
-      });
+    setPosts(prevPosts => [newPost, ...prevPosts]);
+    setSuccess(true);
+    setShowAlert(false); // ✅ تأكدنا إن الخطأ يختفي لما يكون نجاح
+  } catch (error) {
+    // ❌ ما ترمي خطأ جديد، فقط فعّل alert
+    setShowAlert(true);
+    setSuccess(false);
+  }
+};
 
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error
-      }
-
-      const newPost: PostProps = {
-        id: `${result.post[0].id}`,
-        userInfo: userData,
-        opinion: postData.content.opinion
-          ? {
-              text: postData.content.opinion,
-              agreeCount: 0,
-              disagreeCount: 0,
-              readersCount: 0,
-              commentsCount: 0,
-            }
-          : null,
-        poll: postData.content.poll
-          ? {
-              question: postData.content.poll.question,
-              options: postData.content.poll.options,
-              votes: Array(postData.content.poll.options.length).fill(0),
-              durationInDays: postData.content.poll.durationInDays,
-            }
-          : null,
-      };
-
-      setPosts(prevPosts => [newPost, ...prevPosts]);
-      setSuccess(true);
-    } catch (error) {
-      throw new Error
-      // setShowAlert(true)
-    }
-  };
 
   if (isLoading) {
     return <div className="text-center py-10">جارٍ تحميل البيانات...</div>;

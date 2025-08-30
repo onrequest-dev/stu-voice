@@ -100,15 +100,17 @@ const calculatePasswordStrength = (password: string) => {
     setPasswordStrength(calculatePasswordStrength(formData.password));
   }, [formData.password]);
 
-  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const originalValue = e.target.value;
-    const cleaned = originalValue.replace(/[^A-Za-z-]/g, '');
-    
-    // التحقق إذا كان هناك محارف غير صالحة تم إدخالها
-    setHasInvalidChar(originalValue !== cleaned);
-    
-    setFormData(prev => ({ ...prev, username: cleaned }));
-  };
+const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const originalValue = e.target.value;
+
+  // تحويل الأحرف الكبيرة إلى صغيرة واستبعاد المحارف غير المسموح بها
+  const cleaned = originalValue.toLowerCase().replace(/[^a-z_]/g, '');
+
+  // التحقق إذا كان هناك محارف غير صالحة تم إدخالها
+  setHasInvalidChar(originalValue !== cleaned);
+
+  setFormData(prev => ({ ...prev, username: cleaned }));
+};
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -255,22 +257,22 @@ const isWeakPassword = (pwd: string, s: number) => {
               <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
                 اسم المستخدم
               </label>
-              <input
-                type="text"
-                id="username"
-                name="username"
-                value={formData.username ?? ''}
-                onChange={handleUsernameChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                required
-                pattern="^[A-Za-z-]+$"
-                title="يرجى إدخال أحرف إنجليزية و- فقط"
-                disabled={isLoading}
-              />
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  value={formData.username ?? ''}
+                  onChange={handleUsernameChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                  required
+                  pattern="^[a-z_]+$"
+                  title="يرجى إدخال أحرف صغيرة و_ فقط"
+                  disabled={isLoading}
+                />
               {/* رسالة تنبيه للمحارف غير الصالحة */}
               {hasInvalidChar && (
                 <p className="text-sm text-red-600 mt-1">
-                  يُسمح فقط بالأحرف الإنجليزية والشرطة (-)
+                  يُسمح فقط بالأحرف الإنجليزية الصغيرة والشرطة (_)
                 </p>
               )}
             </div>

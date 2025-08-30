@@ -1,23 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { FaHeart, FaLightbulb, FaComments, FaUserFriends } from 'react-icons/fa';
+import { FaHeart, FaLightbulb, FaComments, FaUsers } from 'react-icons/fa';
 
 const ContributionSection = () => {
   const messages = [
     {
-      text: "رأيك يكون أملاً لغيرك",
+      text: "رأيك يزرع الأمل",
       icon: <FaHeart className="text-red-400" />
     },
     {
-      text: "رأيك قد لا يراه غيرك",
+      text: "فكرتك تضيء الطريق",
       icon: <FaLightbulb className="text-yellow-400" />
     },
     {
-      text: "كلمتك قد تغير مصير طالب",
+      text: "كلمتك تصنع الفرق",
       icon: <FaComments className="text-blue-400" />
     },
     {
-      text: "مشاركتك تبني مجتمعاً تعليمياً أفضل",
-      icon: <FaUserFriends className="text-green-400" />
+      text: "مساهمتك تبني مجتمعاً أفضل",
+      icon: <FaUsers className="text-green-400" />
     }
   ];
 

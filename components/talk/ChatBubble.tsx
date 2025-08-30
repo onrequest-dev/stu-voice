@@ -99,15 +99,15 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
           >
             {/* الرأس - اسم المستخدم فقط */}
           <div className="flex items-center justify-between gap-2 mb-0.5">
-            <div className="flex items-center gap-2 truncate">
+            <div className="flex items-center truncate">
               {isVerified && (
                 <BsPatchCheckFill className="text-green-500" size={14} />
               )}
-              <span className="font-semibold text-xs truncate">
+              <span className="font-semibold text-xs truncate ml-0.5">
                 {user.fullName}
               </span>
               <span
-                className={['text-[10px]', bubbleColors.usernameColor].join(' ')}
+                className={['text-[12px] ml-2', bubbleColors.usernameColor].join(' ')}
               >
                 @{user.id}
               </span>
@@ -128,11 +128,11 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
               <TextExpander
                 text={result1.remainingText}
                 charLimit={textCharLimit}
-                className="text-xs"
+                className="text-[10]"
                 buttonClassName={
                   isMine
-                  ? 'text-white/90 text-xs cursor-pointer hover:underline'
-                  : 'text-blue-600 text-xs cursor-pointer hover:underline'
+                  ? 'text-white/90 text-[10] cursor-pointer hover:underline'
+                  : 'text-blue-600 text-[10] cursor-pointer hover:underline'
                 }
               />
             </div>

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { RgbColorPicker, RgbColor } from 'react-colorful';
 import { FaUser, FaGraduationCap, FaSchool, FaUniversity, FaBook, FaBookOpen, 
   FaUserGraduate, FaChalkboardTeacher, FaAtom, FaFlask, FaCalculator, 
-  FaPencilAlt, FaLaptopCode, FaMicroscope, FaMusic, FaPaintBrush, FaGlobe, 
+  FaPencilAlt, FaMicroscope, FaMusic, FaPaintBrush, FaGlobe, 
   FaHistory, FaLanguage, FaBrain, FaRunning, FaChess, FaCamera, FaRobot, 
   FaSeedling, FaChartLine, FaPalette, FaCode, FaFootballBall, FaTimes,
   FaHeartbeat, FaPills, FaClinicMedical, FaDna, FaStethoscope, FaSyringe,
@@ -74,6 +75,21 @@ const icons = [
   { name: "chart", icon: <FaChartLine /> }
 ];
 
+// دالة لتحويل RGB إلى HEX
+const rgbToHex = (r: number, g: number, b: number): string => {
+  return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+};
+
+// دالة لتحويل HEX إلى RGB
+const hexToRgb = (hex: string): RgbColor => {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? {
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16)
+  } : { r: 0, g: 0, b: 0 };
+};
+
 const IconPicker: React.FC<IconPickerProps> = ({ 
   onIconChange, 
   initialIcon = 'graduation', 
@@ -84,12 +100,16 @@ const IconPicker: React.FC<IconPickerProps> = ({
   const [selectedIcon, setSelectedIcon] = useState(initialIcon);
   const [iconColor, setIconColor] = useState(initialColor);
   const [bgColor, setBgColor] = useState(initialBgColor);
+  const [currentPicker, setCurrentPicker] = useState<'icon' | 'background'>('icon');
+  const [iconRgb, setIconRgb] = useState<RgbColor>(hexToRgb(initialColor));
+  const [bgRgb, setBgRgb] = useState<RgbColor>(hexToRgb(initialBgColor));
 
-  // ✅ تحديث الحالة عندما تتغير القيم القادمة من الأب
   useEffect(() => {
     setSelectedIcon(initialIcon);
     setIconColor(initialColor);
     setBgColor(initialBgColor);
+    setIconRgb(hexToRgb(initialColor));
+    setBgRgb(hexToRgb(initialBgColor));
   }, [initialIcon, initialColor, initialBgColor]);
 
   const getCurrentIcon = () => {
@@ -99,19 +119,21 @@ const IconPicker: React.FC<IconPickerProps> = ({
 
   const handleIconSelect = (iconName: string) => {
     setSelectedIcon(iconName);
-    onIconChange(iconName, iconColor, bgColor);
   };
 
-  const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const color = e.target.value;
-    setIconColor(color);
-    onIconChange(selectedIcon, color, bgColor);
+  const handleIconColorChange = (color: RgbColor) => {
+    setIconRgb(color);
+    setIconColor(rgbToHex(color.r, color.g, color.b));
   };
 
-  const handleBgColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const color = e.target.value;
-    setBgColor(color);
-    onIconChange(selectedIcon, iconColor, color);
+  const handleBgColorChange = (color: RgbColor) => {
+    setBgRgb(color);
+    setBgColor(rgbToHex(color.r, color.g, color.b));
+  };
+
+  const handleSave = () => {
+    onIconChange(selectedIcon, iconColor, bgColor);
+    setShowPicker(false);
   };
 
   return (
@@ -131,14 +153,11 @@ const IconPicker: React.FC<IconPickerProps> = ({
       </div>
 
       {showPicker && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl p-5 w-full max-w-md max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold text-gray-800">اختر أيقونتك</h3>
-              <button 
-                onClick={() => setShowPicker(false)}
-                className="text-gray-500 hover:text-gray-700"
-              >
+              <button onClick={() => setShowPicker(false)} className="text-gray-500 hover:text-gray-700">
                 <FaTimes />
               </button>
             </div>
@@ -148,64 +167,64 @@ const IconPicker: React.FC<IconPickerProps> = ({
                 <div 
                   key={item.name}
                   className={`flex flex-col items-center p-2 rounded-lg cursor-pointer transition-all ${
-                    selectedIcon === item.name 
-                      ? 'bg-blue-100 border border-blue-200' 
-                      : 'hover:bg-gray-100'
+                    selectedIcon === item.name ? 'bg-blue-100 border border-blue-200' : 'hover:bg-gray-100'
                   }`}
                   onClick={() => handleIconSelect(item.name)}
                 >
                   {React.cloneElement(item.icon, { 
-                    className: `text-2xl ${
-                      selectedIcon === item.name 
-                        ? 'text-blue-600' 
-                        : 'text-gray-600'
-                    }`,
+                    className: `text-2xl ${selectedIcon === item.name ? 'text-blue-600' : 'text-gray-600'}`,
                     style: { color: selectedIcon === item.name ? iconColor : undefined }
                   })}
                 </div>
               ))}
             </div>
             
-            <div className="space-y-4">
+            <div className="space-y-6">
               <div className="flex flex-col items-center">
                 <div 
-                  className="w-12 h-12 rounded-full flex items-center justify-center mb-2 border border-gray-200"
+                  className="w-16 h-16 rounded-full flex items-center justify-center mb-2 border border-gray-200 shadow-md"
                   style={{ backgroundColor: bgColor }}
                 >
                   {React.cloneElement(getCurrentIcon() as React.ReactElement, { 
-                    className: 'text-xl',
+                    className: 'text-2xl',
                     style: { color: iconColor } 
                   })}
                 </div>
-                <span className="text-sm text-gray-600">معاينة</span>
+                <span className="text-sm text-gray-600">معاينة الأيقونة</span>
               </div>
 
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1 text-center">
+              <div className="space-y-4">
+                <div className="flex justify-center space-x-4">
+                  <button
+                    className={`px-4 py-2 rounded-lg transition-colors ${currentPicker === 'icon' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+                    onClick={() => setCurrentPicker('icon')}
+                  >
                     لون الأيقونة
-                  </label>
-                  <div className="flex justify-center">
-                    <input 
-                      type="color" 
-                      value={iconColor}
-                      onChange={handleColorChange}
-                      className="w-10 h-10 cursor-pointer rounded border border-gray-300"
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1 text-center">
+                  </button>
+                  <button
+                    className={`px-4 py-2 rounded-lg transition-colors ${currentPicker === 'background' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+                    onClick={() => setCurrentPicker('background')}
+                  >
                     لون الخلفية
-                  </label>
-                  <div className="flex justify-center">
-                    <input 
-                      type="color" 
-                      value={bgColor}
-                      onChange={handleBgColorChange}
-                      className="w-10 h-10 cursor-pointer rounded border border-gray-300"
-                    />
+                  </button>
+                </div>
+
+                <div className="flex justify-center">
+                  {currentPicker === 'icon' ? (
+                    <RgbColorPicker color={iconRgb} onChange={handleIconColorChange} className="max-w-full" />
+                  ) : (
+                    <RgbColorPicker color={bgRgb} onChange={handleBgColorChange} className="max-w-full" />
+                  )}
+                </div>
+
+                <div className="flex justify-center items-center space-x-4">
+                  <div className="flex items-center">
+                    <div className="w-6 h-6 rounded border border-gray-300 mr-2" style={{ backgroundColor: iconColor }}></div>
+                    <span className="text-sm text-gray-700">{iconColor}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="w-6 h-6 rounded border border-gray-300 mr-2" style={{ backgroundColor: bgColor }}></div>
+                    <span className="text-sm text-gray-700">{bgColor}</span>
                   </div>
                 </div>
               </div>
@@ -213,7 +232,7 @@ const IconPicker: React.FC<IconPickerProps> = ({
 
             <div className="mt-6 flex justify-center">
               <button
-                onClick={() => setShowPicker(false)}
+                onClick={handleSave}
                 className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
                 حفظ التغييرات

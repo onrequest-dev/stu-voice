@@ -143,10 +143,10 @@ const PostCreator: React.FC<PostCreatorProps> = ({ onSubmit, userInfo }) => {
           })
         }
       });
-      
+
       setSubmitProgress(100);
       clearInterval(interval);
-      setShowAlert(true); 
+
       setTimeout(() => {
         setOpinionText('');
         setPollQuestion('');
@@ -155,16 +155,14 @@ const PostCreator: React.FC<PostCreatorProps> = ({ onSubmit, userInfo }) => {
         setIsSubmitting(false);
         setSubmitProgress(0);
       }, 1500);
-      
+
     } catch (error) {
       clearInterval(interval);
-      setAlertMessage('حدث خطأ أثناء إنشاء المنشور');
-      setAlertType('error');
-      setShowAlert(true);
       setIsSubmitting(false);
       setSubmitProgress(0);
     }
   };
+
 
   const renderSubmitButton = () => (
     <button

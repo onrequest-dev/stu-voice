@@ -58,7 +58,7 @@ const MainInterface = ({ children }: { children?: React.ReactNode }) => {
       id: 'home', 
       icon: <FaHome size={20} />, 
       title: 'الرئيسية', 
-      href: '/taps/HomeContent',
+      href: '/main',
       component: HomeContent
     },
     { 
