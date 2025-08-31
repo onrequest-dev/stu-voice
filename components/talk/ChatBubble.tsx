@@ -128,11 +128,11 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
               <TextExpander
                 text={result1.remainingText}
                 charLimit={textCharLimit}
-                className="text-[10]"
+                className="text-[9]"
                 buttonClassName={
                   isMine
-                  ? 'text-white/90 text-[10] cursor-pointer hover:underline'
-                  : 'text-blue-600 text-[10] cursor-pointer hover:underline'
+                  ? 'text-white/90 text-[9] cursor-pointer hover:underline'
+                  : 'text-blue-600 text-[9] cursor-pointer hover:underline'
                 }
               />
             </div>

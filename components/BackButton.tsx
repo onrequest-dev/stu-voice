@@ -9,7 +9,11 @@ const BackButton = () => {
   const [lastScrollY, setLastScrollY] = useState(0);
 
   const handleBack = () => {
-    if (window.history.length > 1) {
+    const prevUrl = document.referrer; // الرابط السابق
+    
+    if (prevUrl.includes('/complete-profile')) {
+      router.push('/main');
+    } else if (window.history.length > 1) {
       router.back();
     } else {
       router.push('/main');

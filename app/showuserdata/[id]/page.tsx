@@ -5,6 +5,7 @@ import { PostProps } from '@/components/postcomponents/types';
 import { supabase } from '@/lib/supabase';
 import { transformPost } from '@/client_helpers/transformposttype';
 import BackButton from '@/components/BackButton';
+import ShareButton from '@/components/ShareButton';
 // بيانات افتراضية للمستخدم
 
 
@@ -72,12 +73,13 @@ export default async function UserProfilePage({ params }:{params:{id:string}}) {
     getUserPosts(params.id)
   ]);
   return (
-    <div className="container mx-auto my-2 px-1">
+    <div className="container mx-auto my-0.5 px-1">
       <div className="fixed top-4 left-4 z-40"> {/* z-40 لتكون تحت أي عناصر أخرى قد تكون ذات z-index أعلى */}
-        <BackButton />
+        <BackButton/> <ShareButton/>
       </div>
-      <UserProfileViewComponent userData={(userInfo as UserInfo)} />
-      
+      <div className=''>
+        <UserProfileViewComponent userData={(userInfo as UserInfo)} />
+      </div>
       {/* قسم المنشورات */}
       <div className="mt-8 border-t pt-6">
         <h2 className="text-xl font-bold text-right mb-4"></h2>

@@ -50,7 +50,7 @@ const UserProfileViewComponent: React.FC<{ userData?: UserInfo }> = ({ userData 
   return (
     <div className="relative w-full max-w-3xl mx-auto rtl text-right ">
       {/* خلفية عليا مزودة برسومات SVG */}
-      <div className="absolute inset-x-0 top-0 h-52 overflow-hidden -z-10">
+      <div className="absolute inset-x-0 top-0 h-60 overflow-hidden -z-10">
         <div className={`w-full h-full bg-gradient-to-r ${theme.gradient} rounded-[10px]`} />
 
         {/* موجة SVG شفافة */}
@@ -84,7 +84,7 @@ const UserProfileViewComponent: React.FC<{ userData?: UserInfo }> = ({ userData 
       </div>
 
       {/* محتوى الحساب */}
-      <div className="px-4 py-6 sm:py-10">
+      <div className="px-4 py-12 pb-6 sm:py-10">
         <div className="flex items-center gap-6">
           {/* صورة شخصية أو أيقونة */}
           <div 
@@ -133,7 +133,7 @@ const UserProfileViewComponent: React.FC<{ userData?: UserInfo }> = ({ userData 
                  قم بزيارة صفحة المنصة
                   </Link>
                 ):(
-                <section className="mt-10">
+                <section className="mt-12">
                   <HeaderTitle education={userData.education} theme={theme} />
                   <div className="mt-4 grid grid-cols-1 gap-3">
                     {userData.education.level === 'middle' && (
@@ -229,11 +229,11 @@ const HighSchoolView = ({ education }: { education: UserEducation; theme: any })
         label="الصف الدراسي"
         value={education.grade ? gradeMap[education.grade] || 'غير محدد' : 'غير محدد'}
       />
-      <InfoRow
+      {/* <InfoRow
         icon={<FaUserGraduate className="text-gray-500" />}
         label="التخصص"
         value={education.track ? trackMap[education.track] || 'غير محدد' : 'غير محدد'}
-      />
+      /> */}
       {education.degreeSeeking && (
         <div className="flex items-center gap-2 bg-emerald-50 text-emerald-900 rounded-lg px-3 py-2 shadow-sm ring-1 ring-emerald-200">
           <FaGraduationCap className="text-emerald-600" />
