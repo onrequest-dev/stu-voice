@@ -92,9 +92,9 @@ const hexToRgb = (hex: string): RgbColor => {
 
 const IconPicker: React.FC<IconPickerProps> = ({ 
   onIconChange, 
-  initialIcon = 'graduation', 
-  initialColor = '#4a5568', 
-  initialBgColor = '#ffffff' 
+  initialIcon = 'user', 
+  initialColor = '#2600ffff', 
+  initialBgColor = '#ffffffff' 
 }) => {
   const [showPicker, setShowPicker] = useState(false);
   const [selectedIcon, setSelectedIcon] = useState(initialIcon);

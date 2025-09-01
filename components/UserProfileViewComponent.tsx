@@ -42,9 +42,8 @@ const UserProfileViewComponent: React.FC<{ userData?: UserInfo }> = ({ userData 
 
   const customColor = userData.education.icon?.color || theme.iconHex;
   const customBg = userData.education.icon?.bgColor || theme.iconBg;
-  const iconName =
-    userData.education.icon?.component ||
-    (userData.education.level === 'university' ? 'FaUniversity' : 'FaSchool');
+  const iconName = userData.education.icon?.component ||'user'
+
 
       const isVerified = userData.id === 'stuvoice';
   return (

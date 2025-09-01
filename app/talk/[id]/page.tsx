@@ -57,9 +57,9 @@ const transformCommentsToMessages = (
     isMine: comment.commenter_username === currentUsername,
     user: {
       id: `${comment.commenter_username}`,
-      iconName: comment.icon_component,
-      iconColor: comment.icon_color,
-      bgColor: comment.bg_color,
+      iconName: comment.icon_component||'user',
+      iconColor: comment.icon_color||'#2600ffff',
+      bgColor: comment.bg_color||'#ffffffff',
       fullName: comment.full_name,
     } as UserInfo,
   }));
@@ -153,8 +153,8 @@ const ChatPage = async ({ params }: PostPageProps) => {
     userInfo: {
       id: post.publisher_username,
       iconName: post.icon?.component ,
-      iconColor: post.icon?.color || '#ffffff',
-      bgColor: post.icon?.bgColor || '#3b82f6',
+      iconColor: post.icon?.color ,
+      bgColor: post.icon?.bgColor ,
       fullName: post.publisher_full_name,
       study: post.faculty,
     },

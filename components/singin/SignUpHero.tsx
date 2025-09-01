@@ -244,7 +244,7 @@ const isWeakPassword = (pwd: string, s: number) => {
         </div>
 
         {/* محتوى النموذج */}
-        <div className="p-8 space-y-6 relative">
+        <div className="p-4 space-y-4 relative">
           {/* زخارف صغيرة داخل البطاقة */}
           <div className="absolute -top-6 right-6 w-14 h-14 bg-blue-100 rounded-full opacity-20"></div>
           <div className="absolute bottom-6 left-6 w-10 h-10 bg-blue-200 rounded-full opacity-15"></div>

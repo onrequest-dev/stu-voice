@@ -19,7 +19,7 @@ export default function Error({ error, reset }: { error: Error; reset: () => voi
           إعادة المحاولة
         </button>
         <a
-          href="/main"
+          href="/"
           className="px-4 py-2 bg-gray-200 text-gray-900 rounded-lg shadow hover:bg-gray-300 transition"
         >
           الصفحة الرئيسية

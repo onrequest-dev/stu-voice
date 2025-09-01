@@ -35,11 +35,14 @@ const LoginPage = () => {
           window.location.href = '/';
         }
       }
+      else{
       setMessage(result.message)
       setAlertVisible(true)
+      }
     } catch (error) {
       // console.error('Login error:', error);
       // يمكنك إضافة رسالة خطأ هنا إذا أردت
+      
     } finally {
       setIsLoading(false); // تعطيل حالة التحميل بغض النظر عن النتيجة
     }

@@ -26,9 +26,9 @@ const transformUserInfo = (userInfo: MainUserInfo): PostUserInfo => {
   return {
     id: userInfo.id ,
     fullName: userInfo.fullName,
-    iconName: education?.icon?.component || getInitialLetter(userInfo.fullName),
-    iconColor: education?.icon?.color || '#4CAF50',
-    bgColor: education?.icon?.bgColor || '#F5F5F5',
+    iconName: education?.icon?.component || 'user',
+    iconColor: education?.icon?.color || '#2600ffff',
+    bgColor: education?.icon?.bgColor || '#ffffffff',
     study: getStudyInfo(education)
   };
 };

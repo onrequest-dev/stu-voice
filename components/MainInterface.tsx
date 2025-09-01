@@ -34,7 +34,7 @@ interface Tab {
 }
 
 const HOME_SCROLL_KEY = 'HOME_SCROLL_Y';
-const HOME_PATH = '/main';// مستخدمة تحت بالرئيسية
+const HOME_PATH = '/';// مستخدمة تحت بالرئيسية
 
 const MainInterface = ({ children }: { children?: React.ReactNode }) => {
   const router = useRouter();

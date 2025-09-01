@@ -36,10 +36,10 @@ const UserProfileComponent: React.FC<{ userData: UserInfo }> = ({ userData }) =>
 
   // دالة لاستعادة أيقونة محسنة باستخدام CustomIcon
   const renderProfileIcon = () => {
-    const customColor = userData.education.icon?.color || (userData.gender === 'male' ? '#2563EB' : '#DB2777');
-    const customBg = userData.education.icon?.bgColor || (userData.gender === 'male' ? '#EFF6FF' : '#FCE7F3');
-    const iconName = userData.education.icon?.component || 
-                    (userData.education.level === 'university' ? 'FaUniversity' : 'FaSchool');
+    const customColor = userData.education.icon?.color || '#2600ffff'
+    const customBg = userData.education.icon?.bgColor || '#ffffff'
+    const iconName = userData.education.icon?.component || 'user'
+
 
     return (
       <div 

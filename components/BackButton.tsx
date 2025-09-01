@@ -12,11 +12,11 @@ const BackButton = () => {
     const prevUrl = document.referrer; // الرابط السابق
     
     if (prevUrl.includes('/complete-profile')) {
-      router.push('/main');
+      router.push('/');
     } else if (window.history.length > 1) {
       router.back();
     } else {
-      router.push('/main');
+      router.push('/');
     }
   };
 

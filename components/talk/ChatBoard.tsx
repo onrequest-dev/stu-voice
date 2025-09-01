@@ -73,9 +73,9 @@ const ChatBoard: React.FC<ChatBoardProps> = ({
     } else {
       setMe({
         id: 'u_me_1',
-        iconName: 'userCircle',
-        iconColor: '#1d4ed8',
-        bgColor: '#dbeafe',
+        iconName: 'user',
+        iconColor: '#2600ffff',
+        bgColor: '#ffffffff',
         fullName: 'أنا',
       });
     }

@@ -57,9 +57,9 @@ const HomeContent = () => {
           createdAt:post.created_at,
           userInfo: {
             id: post.publisher_username,
-            iconName: post?.icon?.component || "user",
-            iconColor: post?.icon?.color || "#ffffff",
-            bgColor: post?.icon?.bgColor || "#6366f1",
+            iconName: post?.icon?.component,
+            iconColor: post?.icon?.color ,
+            bgColor: post?.icon?.bgColor ,
             fullName: post.publisher_full_name,
             study: post?.faculty,
           },
