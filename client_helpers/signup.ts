@@ -36,6 +36,7 @@ export async function signupUser(
       localStorage.removeItem('votes');
       localStorage.removeItem('permanent_reactions')
       localStorage.removeItem("notification_status")
+      sessionStorage.removeItem("has_complete")
       // نجاح التسجيل
       return { success: true, message: data.message || 'User created successfully' };
     } else {

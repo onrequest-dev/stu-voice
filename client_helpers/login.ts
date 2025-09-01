@@ -43,6 +43,7 @@ export async function loginUser(username: string, password: string) {
       localStorage.setItem('votes', JSON.stringify(result.voteshistory));
       localStorage.setItem('permanent_reactions', JSON.stringify(result.reactionshistory));
       localStorage.removeItem("notification_status")
+      sessionStorage.removeItem("has_complete")
 
     }
     
