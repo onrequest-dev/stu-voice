@@ -371,7 +371,7 @@ const UserFormComponent: React.FC<{
 
           {/* رسالة عامة وأزرار */}
           {errors.general && <p className="text-red-600 text-sm mt-2">{errors.general}</p>}
-          {submitSuccess && <p className="text-green-600 text-sm mt-2">تم الحفظ بنجاح</p>}
+          {/* {submitSuccess && <p className="text-green-600 text-sm mt-2">تم الحفظ بنجاح</p>} */}
 
           <div className="mt-6 md:mt-8">
             <button
@@ -606,8 +606,6 @@ const UniversityForm: React.FC<EducationFormProps> = ({ education, onChange, cur
         <label className={`block mb-1 md:mb-2 text-sm md:text-base ${currentGender.text}`}>الرقم الجامعي</label>
         <input
           type="number"
-          max="99999999"
-          min="1000"
           dir="rtl"
           className={`w-full p-2 md:p-3 text-sm text-right md:text-base rounded border ${currentGender.border} focus:outline-none focus:ring-2 ${currentGender.focusRing}`}
           value={education.studentId || ''}

@@ -65,17 +65,12 @@ const STUvoiceHomePage = () => {
 
           <div className="grid md:grid-cols-2 gap-16 items-center">
             <div className="bg-white p-10 rounded-3xl shadow-xl relative">
-              <p className="text-lg text-gray-700 leading-relaxed mb-6">
-                منصة STUvoice هي مساحة تفاعلية مبتكرة تم إنشاؤها خصيصًا للطلاب
-                للتعبير عن آرائهم ومشاركة أفكارهم ومناقشة التحديات التي يواجهونها.
-              </p>
-              <p className="text-lg text-gray-700 leading-relaxed mb-6">
-                نؤمن بأن صوت كل طالب مهم ويستحق أن يُسمع، ونسعى لخلق بيئة آمنة
-                للحوار البنّاء بين الطلاب والمعلمين والإدارة.
-              </p>
-              <p className="text-lg text-gray-700 leading-relaxed">
-                انضم إلينا اليوم وساهم في صنع فرق حقيقي في تجربتك التعليمية.
-              </p>
+                <p className="text-base md:text-lg text-gray-700 leading-relaxed mt-6 max-w-xl mx-auto md:mx-0">
+                    منصة <span className="font-semibold text-blue-600">STUvoice</span> هي مبادرة طلابية انطلقت من وعي شباب سوريا وإصرارهم على أن يكونوا شركاء في صناعة مستقبل بلادهم. رؤيتنا أن يكون التعليم حجر الأساس في بناء سوريا الحديثة؛ سوريا التطور والحضارة والنهضة العلمية.
+                  </p>
+                  <p className="text-base md:text-lg text-gray-700 leading-relaxed mt-4 max-w-xl mx-auto md:mx-0">
+                    نعمل على ربط صوت الطالب بمسؤولي التعليم، وتحويل الأفكار والطموحات إلى خطوات عملية تُسهم في تحديث طرق التعلم والتقييم، وبناء منظومة تعليمية تواكب متطلبات العصر وتفتح آفاقًا أوسع لمستقبل أفضل.
+                </p>
             </div>
 
             {/* قيم */}

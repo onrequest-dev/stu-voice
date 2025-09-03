@@ -8,6 +8,7 @@ import { getUserDataFromStorage } from '@/client_helpers/userStorage';
 import { postComment } from '@/client_helpers/sendcomment';
 import styles from '@/ScrollableArea.module.css';
 import BackButton from '../BackButton';
+
 type Message = {
   id: string;
   text: string;
@@ -43,8 +44,7 @@ export interface ChatBoardProps {
   }) => void;
   placeholder?: string;
   maxRows?: number;
-
-  // جديد: محتوى المنشور ليتم عرضه كأول عنصر ضمن نفس قائمة الرسائل
+  userPostid?:string;
   postContent?: React.ReactNode;
 }
 
@@ -56,7 +56,8 @@ const ChatBoard: React.FC<ChatBoardProps> = ({
   placeholder = 'اكتب تعليقك…',
   maxRows = 6,
   post_id,
-  postContent
+  postContent,
+  userPostid
 }) => {
   const [input, setInput] = useState('');
   const [localBoard, setLocalBoard] = useState<Board>(board);
@@ -85,19 +86,16 @@ const ChatBoard: React.FC<ChatBoardProps> = ({
     setLocalBoard(board);
   }, [board]);
 
-  // تمرير إلى آخر الرسائل عند تحديث القائمة
   useEffect(() => {
     if (!listRef.current) return;
     const el = listRef.current;
     el.scrollTop = el.scrollHeight;
   }, [localBoard]);
 
-  // التحقق من موضع التمرير لإظهار أو إخفاء زر الصعود للأعلى
   useEffect(() => {
     const handleScroll = () => {
       if (!listRef.current) return;
-      const { scrollTop, scrollHeight, clientHeight } = listRef.current;
-      // إظهار الزر عندما يكون التمرير لأسفل بما يكفي
+      const { scrollTop, clientHeight } = listRef.current;
       setShowScrollTop(scrollTop > clientHeight * 0.5);
     };
 
@@ -121,13 +119,22 @@ const ChatBoard: React.FC<ChatBoardProps> = ({
   const handleSend = async () => {
     const trimmed = input.trim();
     if (!trimmed) return;
+    if (!me) return;
 
     let cleanText = trimmed;
 
+    // إذا كان رد محدد
     if (replyingTo && !cleanText.startsWith(`@${replyingTo.user.id}`)) {
-      cleanText = ` @${replyingTo.user.id}\n${cleanText}`;
+      cleanText = `@${replyingTo.user.id}\n${cleanText}`;
     }
-    if (!me) return;
+    
+    // إذا لم يكن رد ومشاركتي الأولى → منشنة صاحب المنشور
+    if (!replyingTo && userPostid) {
+      const alreadyMessaged = localBoard.messages.some(m => m.user.id === me.id);
+      if (!alreadyMessaged && !cleanText.startsWith(`@${userPostid}`)) {
+        cleanText = `@${userPostid}\n${cleanText}`;
+      }
+    }
 
     const newMsg: Message = {
       id: `m_${Date.now()}`,
@@ -151,7 +158,6 @@ const ChatBoard: React.FC<ChatBoardProps> = ({
       messages: [...prev.messages, newMsg],
     }));
 
-    // onSend?.({ boardId: localBoard.id, message: newMsg });
     setInput('');
     setReplyingTo(null);
     setTimeout(() => textRef.current?.focus(), 0);
@@ -159,16 +165,11 @@ const ChatBoard: React.FC<ChatBoardProps> = ({
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-      handleSend();
-      return;
-    }
-    if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSend();
     }
   };
 
-  // ضبط ارتفاع textarea تلقائيًا
   useEffect(() => {
     const ta = textRef.current;
     if (!ta) return;
@@ -178,14 +179,12 @@ const ChatBoard: React.FC<ChatBoardProps> = ({
     ta.style.height = Math.min(ta.scrollHeight, maxHeight) + 'px';
   }, [input, maxRows]);
 
-  // إضافة اسم المستخدم عند الرد
   useEffect(() => {
     if (replyingTo && !input.startsWith(`@${replyingTo.user.id}`)) {
       setInput(`@${replyingTo.user.id}\n`);
     }
   }, [replyingTo]);
 
-  // وظيفة للصعود إلى أعلى المحادثة
   const scrollToTop = () => {
     if (listRef.current) {
       listRef.current.scrollTo({
@@ -197,23 +196,18 @@ const ChatBoard: React.FC<ChatBoardProps> = ({
 
   return (
     <div className={['h-screen w-full flex flex-col bg-white', className].join(' ')}>
-                          {/* زر العودة داخل الحاوية ولكن بموضع ثابت */}
       {!showScrollTop && (
         <div className="fixed top-1 left-2 z-50 transition-all duration-300 ease-in-out">
           <BackButton/>
         </div>
       )}
       <div className="flex-1 flex flex-col">
-        {/* منطقة الرسائل مع تمرير عمودي فقط */}
         <div
           ref={listRef}
           className={`flex-1 overflow-y-auto ${styles.scrollContainer} p-2 scroll-smooth bg-white`}
           style={{ maxHeight: 'calc(100vh - 75px)' }}
         >
-
-          {/* محتوى الرسائل داخل حاوية مركزة */}
           <div className="max-w-2xl mx-auto w-full space-y-4 mt-6">
-            {/* المنشور كأول عنصر داخل نفس قائمة الرسائل */}
             {postContent && (
               <div className="w-full mb-6">
                 {postContent}
@@ -236,7 +230,6 @@ const ChatBoard: React.FC<ChatBoardProps> = ({
                 </div>
               ))
             ) : (
-              // إن لم توجد رسائل، نظهر الفراغ فقط. لا نعرض شاشة "لا توجد رسائل" لأن لدينا منشور بالأعلى
               !postContent ? (
                 <div className="flex items-center justify-center h-full">
                   <div className="text-center">
@@ -252,7 +245,6 @@ const ChatBoard: React.FC<ChatBoardProps> = ({
           </div>
         </div>
 
-        {/* زر الصعود للأعلى - يظهر فقط عند التمرير لأسفل */}
         {showScrollTop && (
           <button
             onClick={scrollToTop}
@@ -263,7 +255,6 @@ const ChatBoard: React.FC<ChatBoardProps> = ({
           </button>
         )}
 
-        {/* مدخل كتابة رسالة جديدة - ثابت في الأسفل */}
         <div className="border-t border-slate-200/70 p-4 bg-white fixed bottom-0 left-0 right-0">
           <div className="max-w-2xl mx-auto w-full">
             {replyingTo && (

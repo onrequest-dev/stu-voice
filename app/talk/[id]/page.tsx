@@ -176,7 +176,9 @@ const ChatPage = async ({ params }: PostPageProps) => {
       poll={postData.poll}
       createdAt={post.created_at}
       showDiscussIcon={false}
-    />}/>;
+    />}
+    userPostid={postData.userInfo.id}
+    />;
     </>
 };
 

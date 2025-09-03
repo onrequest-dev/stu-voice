@@ -1,25 +1,51 @@
 import React, { useState, useEffect } from 'react';
-import { FaHeart, FaLightbulb, FaComments, FaUsers } from 'react-icons/fa';
+import { 
+  FaBook, 
+  FaGlobe, 
+  FaUniversity, 
+  FaLightbulb, 
+  FaUsers, 
+  FaStar, 
+  FaBullseye, 
+  FaHandsHelping 
+} from 'react-icons/fa';
 
 const ContributionSection = () => {
-  const messages = [
-    {
-      text: "رأيك يزرع الأمل",
-      icon: <FaHeart className="text-red-400" />
-    },
-    {
-      text: "فكرتك تضيء الطريق",
-      icon: <FaLightbulb className="text-yellow-400" />
-    },
-    {
-      text: "كلمتك تصنع الفرق",
-      icon: <FaComments className="text-blue-400" />
-    },
-    {
-      text: "مساهمتك تبني مجتمعاً أفضل",
-      icon: <FaUsers className="text-green-400" />
-    }
-  ];
+
+const messages = [
+  {
+    text: "منصة STUvoice تنطلق من وعي شباب سوريا",
+    icon: <FaLightbulb className="text-yellow-400" />
+  },
+  {
+    text: "شركاء في صناعة مستقبل بلادهم",
+    icon: <FaHandsHelping className="text-green-400" />
+  },
+  {
+    text: "التعليم حجر الأساس لبناء سوريا الحديثة",
+    icon: <FaBook className="text-indigo-500" />
+  },
+  {
+    text: "نحو سوريا التطور والحضارة والنهضة العلمية",
+    icon: <FaGlobe className="text-teal-500" />
+  },
+  {
+    text: "ربط صوت الطالب بمسؤولي التعليم",
+    icon: <FaUniversity className="text-purple-500" />
+  },
+  {
+    text: "تحويل الأفكار والطموحات إلى خطوات عملية",
+    icon: <FaBullseye className="text-red-400" />
+  },
+  {
+    text: "تحديث طرق التعلم والتقييم",
+    icon: <FaStar className="text-yellow-500" />
+  },
+  {
+    text: "بناء منظومة تعليمية تواكب متطلبات العصر",
+    icon: <FaUsers className="text-blue-400" />
+  }
+];
 
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -47,7 +73,7 @@ const ContributionSection = () => {
                 <div className="text-4xl mb-4">
                   {message.icon}
                 </div>
-                <p className="text-2xl md:text-3xl text-center font-medium text-gray-700 px-4">
+                <p className="text-2xl md:text-3xl text-center font-medium text-gray-700 px-4" dir='rtl'>
                   {message.text}
                 </p>
               </div>
