@@ -1,4 +1,4 @@
-export const username_and_password_required = "اسم المستخدم وكلمة السر مطلوبة";
+export const username_and_password_required = "يوجد خلل في البيانات المدخلة";
 export const user_name_shouldbe_at_least_n_characters = "اسم المستخدم يجب أن يكون على الأقل 4 أحرف";
 export const user_name_shouldbe_at_most_n_characters = "اسم المستخدم يجب ألا يزيد عن 20 حرفاً";
 export const password_shouldbe_at_most_n_characters = "كلمة المرور يجب ألا تزيد عن 64 حرفاً";

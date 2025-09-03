@@ -8,6 +8,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import PostComponent from '@/components/postcomponents/Posts/PostComponent';
 import Link from 'next/link';
+import NoComplet from '@/components/NoComplet';
 type PostPageProps = {
   params: { id: string };
 };
@@ -28,7 +29,7 @@ type JwtPayload = {
   [key: string]: any;
 };
 
-const getUsernameFromJWT = (post_id:string|number): string => {
+const getUsernameFromJWT = (post_id:string|number) => {
   const jwt = cookies().get('jwt')?.value;
   if (!jwt) redirect(`/log-in?redirect=/talk/${post_id}`);
 
@@ -39,8 +40,7 @@ const getUsernameFromJWT = (post_id:string|number): string => {
   const hasComplitedInfo = jwt_user.has_complited_info;
   const message = "يرجى استكمال المعلومات قبل الوصول الى الصفحة ";
   const src = `/talk/${post_id}`
-  if(!hasComplitedInfo||hasComplitedInfo==false) redirect(`/complete-profile?message=${message}&src=${src}`)
-  return jwt_user.user_name;
+  return {username:jwt_user.user_name,jwt_user:jwt_user};
 };
 
 const transformCommentsToMessages = (
@@ -81,7 +81,8 @@ const fetch_chat = async (post_id: string): Promise<CommentRaw[]> => {
 };
 
 const ChatPage = async ({ params }: PostPageProps) => {
-  const username = getUsernameFromJWT(params.id);
+  const {username,jwt_user} = getUsernameFromJWT(params.id);
+  if(!jwt_user.has_complited_info||jwt_user.has_complited_info==false) return <div className='pt-11'><NoComplet src={`/talk/${params.id}`}/></div>
   const comments = await fetch_chat(params.id);
   const messages = transformCommentsToMessages(comments, username);
 

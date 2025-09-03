@@ -64,7 +64,6 @@ const Addnotification = ({
   const [showPrompt, setShowPrompt] = useState(false);
 
   useEffect(() => {
-    console.log("hi")
     // تحقق من حالة localStorage أولاً
     const notifStatus = localStorage.getItem("notification_status");
     if (notifStatus === "granted") {
@@ -82,11 +81,18 @@ const Addnotification = ({
       localStorage.setItem("notification_status", "granted");
       return;
     }
+
     // لا شيء إذا كان مرفوض
   }, []);
 
-  async function registerPush() {
+async function registerPush() {
   if ("serviceWorker" in navigator && "PushManager" in window) {
+    if (Notification.permission !== "granted") {
+      // إذا الإذن غير ممنوح، لا تتابع الاشتراك
+      console.log("Notification permission is not granted yet.");
+      return;
+    }
+
     try {
       const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
       if (!vapidKey) {
@@ -97,10 +103,8 @@ const Addnotification = ({
       const registration = await navigator.serviceWorker.register("/sw.js");
       const applicationServerKey = urlBase64ToUint8Array(vapidKey);
 
-      // ✅ تحقق أولًا إن كان هناك اشتراك سابق
       let subscription = await registration.pushManager.getSubscription();
 
-      // ❗️ إذا لم يوجد، نقوم بإنشاء اشتراك جديد
       if (!subscription) {
         subscription = await registration.pushManager.subscribe({
           userVisibleOnly: true,
@@ -108,7 +112,6 @@ const Addnotification = ({
         });
       }
 
-      // ✅ أرسل الاشتراك إلى السيرفر (حتى لو كان سابقًا لتأكيد وجوده في قاعدة البيانات)
       await fetch("/api/save-subscription", {
         method: "POST",
         headers: {
@@ -126,13 +129,12 @@ const Addnotification = ({
 
       localStorage.setItem("notification_status", "granted");
       console.log("Push subscription saved successfully!");
-
     } catch (error) {
-      localStorage.setItem("notification_status", "granted");
       console.error("Error during push registration:", error);
     }
   }
 }
+
 
 
   const handleAccept = async () => {

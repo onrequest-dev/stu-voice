@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import {  useRouter } from 'next/navigation';
 import UserFormComponent from "@/components/UserFormComponent";
 import Alert from "@/components/Alert";
 import { UserInfo } from "@/types/types";
@@ -35,7 +35,6 @@ const Page = () => {
   }, [message]);
 
   const handleSubmit = async (userData: UserInfo) => {
-    console.log(userData.education.icon)
     try {
       const response = await fetch('/api/auth/editinfo', {
         method: 'POST',
@@ -64,6 +63,7 @@ const Page = () => {
               }
             }
           }, 300);
+          sessionStorage.setItem("has_complete","true")
         } catch (error) {
           setAlertType('error');
           setShowAlert(true);

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { FaVenus, FaMars, FaSchool, FaUniversity } from 'react-icons/fa';
 import { UserEducation, UserInfo } from '../types/types';
 import IconPicker from './IconPicker';
-
+import { useRouter } from 'next/navigation';
 type Errors = {
   fullName?: string;
   educationLevel?: string;
@@ -41,6 +41,16 @@ const UserFormComponent: React.FC<{
   const [errors, setErrors] = useState<Errors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const router = useRouter();
+
+
+  useEffect(()=>{
+    const hasComplete = sessionStorage.getItem("has_complete");
+      if (hasComplete === "true") {
+        router.push('/');
+        sessionStorage.removeItem("has_complete");
+      }
+  },[])
 
   useEffect(() => {
     if (!initialData) {
