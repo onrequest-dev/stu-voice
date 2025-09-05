@@ -17,6 +17,7 @@ import {
 import LoadingSpinner from './LoadingSpinner';
 import InstallPWA from './InstallPwa';
 
+
 const SettingsPanel = () => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [isNavigating, setIsNavigating] = useState(false);
@@ -33,6 +34,12 @@ const SettingsPanel = () => {
   const handleEditClick = () => {
     setIsNavigating(true);
   };
+
+  
+const handleLogout = () => {
+    document.cookie = "jwt=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    window.location.href = "/log-in";
+};
 
   return (
     <div
@@ -124,10 +131,7 @@ const SettingsPanel = () => {
           </span>
         </div>
         <button
-          onClick={() => {
-            document.cookie = "jwt=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-            window.location.href = "/log-in";
-          }}
+          onClick={handleLogout }
           className="px-3 py-1.5 md:px-4 md:py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm md:text-base"
         >
           خروج
