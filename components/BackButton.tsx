@@ -9,12 +9,19 @@ const BackButton = () => {
   const [lastScrollY, setLastScrollY] = useState(0);
 
   const handleBack = () => {
-    const prevUrl = document.referrer; // الرابط السابق
+    const prevUrl = document.referrer || '';
     
+    // إذا ما في رابط سابق أو ما قدر يرجع → يرجع للصفحة الرئيسية
     if (prevUrl.includes('/complete-profile')) {
       router.push('/');
     } else if (window.history.length > 1) {
       router.back();
+      // fallback للـ "/" إذا فشل الرجوع
+      setTimeout(() => {
+        if (document.referrer === '' || window.history.length <= 1) {
+          router.push('/');
+        }
+      }, 300);
     } else {
       router.push('/');
     }
@@ -38,9 +45,13 @@ const BackButton = () => {
   }, [lastScrollY]);
 
   return (
-    <div className={`fixed top-1 left-2 z-50 transition-all duration-300 ease-in-out ${
-      isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'
-    }`}>
+    <div
+      className={`fixed top-1 left-2 z-50 transition-all duration-300 ease-in-out ${
+        isVisible
+          ? 'opacity-100 translate-y-0'
+          : 'opacity-0 -translate-y-4 pointer-events-none'
+      }`}
+    >
       <button
         onClick={handleBack}
         className="w-10 h-10 bg-blue-200 hover:bg-blue-100 text-blue-700 rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"

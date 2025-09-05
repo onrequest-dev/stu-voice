@@ -8,7 +8,6 @@ import UserProfileComponent from './UserProfileComponent';
 import PostComponent from './postcomponents/Posts/PostComponent'; // استيراد مكون المنشور
 import Link from 'next/link';
 import NoComplet from './NoComplet';
-import ShareButton from './ShareButton';
 // تحديث الواجهة لتشمل خاصية posts
 interface TabbedContainerProps {
   userData?: UserInfo | null;

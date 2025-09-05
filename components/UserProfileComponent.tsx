@@ -1,10 +1,11 @@
 'use client';
-import React from 'react';
-import { FaVenus, FaMars, FaSchool, FaUniversity, FaUserGraduate, FaIdCard, FaBook, FaGraduationCap, FaEdit, FaSignOutAlt } from 'react-icons/fa';
+import React ,{useState} from 'react';
+import { FaVenus, FaMars, FaSchool, FaUniversity, FaUserGraduate, FaIdCard, FaBook, FaGraduationCap, FaEdit, FaSignOutAlt,FaShareAlt } from 'react-icons/fa';
 import { UserInfo } from '../types/types';
 import CustomIcon from './postcomponents/CustomIcon';
 import Link from 'next/link';
-
+import { SharePanel } from './ShareButton';
+import Alert from './Alert';
 const UserProfileComponent: React.FC<{ userData: UserInfo }> = ({ userData }) => {
   // أنظمة الألوان المحسنة
   const genderThemes = {
@@ -23,6 +24,9 @@ const UserProfileComponent: React.FC<{ userData: UserInfo }> = ({ userData }) =>
       iconColor: 'text-pink-600'
     }
   };
+  const [isShareOpen, setIsShareOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertType, setAlertType] = useState<'success' | 'error' | 'info' | 'warning'>('success');
 
   const theme = genderThemes[userData.gender];
 
@@ -31,9 +35,17 @@ const UserProfileComponent: React.FC<{ userData: UserInfo }> = ({ userData }) =>
   const sectionStyle = 'rounded-lg bg-white border border-gray-100';
 
   // دالة لمعالجة تسجيل الخروج
-  const handleLogout = () => {
-  };
 
+const handleLogout = () => {
+      document.cookie = "jwt=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    
+    // إعادة توجيه المستخدم إلى صفحة تسجيل الدخول
+    window.location.href = "/log-in";
+};
+
+  const handleShare = () => {
+    setIsShareOpen(true);
+  };
   // دالة لاستعادة أيقونة محسنة باستخدام CustomIcon
   const renderProfileIcon = () => {
     const customColor = userData.education.icon?.color || '#2600ffff'
@@ -52,7 +64,7 @@ const UserProfileComponent: React.FC<{ userData: UserInfo }> = ({ userData }) =>
           icon={iconName} 
           iconColor={customColor} 
           bgColor={customBg}
-          size={20}
+          size={26}
         />
       </div>
     );
@@ -68,6 +80,16 @@ const UserProfileComponent: React.FC<{ userData: UserInfo }> = ({ userData }) =>
         <div className="p-3 md:p-4 relative">
           {/* أزرار التحكم في الزاوية العلوية اليمنى */}
           <div className="absolute top-1 right-1 md:top-2 md:right-2 flex space-x-1 md:space-x-2">
+
+            <button
+              onClick={handleShare}
+              className={`p-1.5 md:p-2 rounded-full ${theme.accent} hover:opacity-80 transition-opacity`}
+              title="مشاركة"
+            >
+              <FaShareAlt className={`${theme.iconColor} text-sm md:text-base`} />
+            </button>
+
+
             <Link 
               href='/complete-profile'
               className={`p-1.5 md:p-2 rounded-full ${theme.accent} hover:opacity-80 transition-opacity`}
@@ -75,13 +97,13 @@ const UserProfileComponent: React.FC<{ userData: UserInfo }> = ({ userData }) =>
             >
               <FaEdit className={`${theme.iconColor} text-sm md:text-base`} />
             </Link>
-            {/* <button 
+            <button 
               onClick={handleLogout}
               className={`p-1.5 md:p-2 rounded-full ${theme.accent} hover:opacity-80 transition-opacity`}
               title="تسجيل الخروج"
             >
               <FaSignOutAlt className={`${theme.iconColor} text-sm md:text-base`} />
-            </button> */}
+            </button>
           </div>
           
           {/* رأس البطاقة المعدل */}
@@ -106,6 +128,23 @@ const UserProfileComponent: React.FC<{ userData: UserInfo }> = ({ userData }) =>
               )}
             </div>
           </div>
+                    {/* مكون لوحة المشاركة */}
+      <SharePanel
+        isOpen={isShareOpen}
+        onClose={() => setIsShareOpen(false)}
+        link={`https://stu-voice.vercel.app/showuserdata/${userData.id}`} // يمكن تمرير رابط محدد أو تركه فارغ لاستخدام window.location.href
+        setAlertMessage={setAlertMessage}
+        setAlertType={setAlertType}
+      />
+
+      {alertMessage && (
+        <Alert
+          message={alertMessage}
+          type={alertType}
+          autoDismiss={3000}
+          onDismiss={() => setAlertMessage('')}
+        />
+      )}
 
           {/* قسم المعلومات التعليمية المعدل */}
           <div className={`${sectionStyle} p-2 md:p-3 mb-0 md:mb-4`}>

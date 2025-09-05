@@ -11,7 +11,8 @@ import {
   FaFlag,
   FaWhatsapp,
   FaTelegram,
-  FaHeadset
+  FaHeadset,
+  FaSignOutAlt
 } from 'react-icons/fa';
 import LoadingSpinner from './LoadingSpinner';
 import InstallPWA from './InstallPwa';
@@ -114,6 +115,25 @@ const SettingsPanel = () => {
         </Link>
       </div>
 
+                {/* تسجيل الخروج */}
+      <div className="flex justify-between items-center py-3 md:py-4 border-b border-gray-200">
+        <div className="flex items-center gap-2 md:gap-3">
+          <FaSignOutAlt className="text-red-500" size={18} /> 
+          <span className="text-sm md:text-base text-gray-700 font-medium">
+            تسجيل الخروج
+          </span>
+        </div>
+        <button
+          onClick={() => {
+            document.cookie = "jwt=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            window.location.href = "/log-in";
+          }}
+          className="px-3 py-1.5 md:px-4 md:py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm md:text-base"
+        >
+          خروج
+        </button>
+      </div>
+
       {/* اتصال بخدمة العملاء (الجديد) */}
       <div className="py-3 md:py-4 border-b border-gray-200">
         <div className="flex items-center mb-3 md:mb-4 gap-2">
@@ -194,15 +214,12 @@ const SettingsPanel = () => {
       <div className="py-3 md:py-4">
 
       <Link href={"/privacy-and-terms"}>
-      <span className="flex items-center gap-2 text-sm md:text-base font-medium text-blue-800 underline">
+      <span className="flex items-center gap-2 text-sm md:text-base font-medium text-blue-800">
         <FaInfoCircle className="text-blue-500" size={18} />
         سياسة الخصوصية وشروط الاستخدام
       </span>
       </Link>
-
-
-
-</div>
+      </div>
     </div>
   );
 };

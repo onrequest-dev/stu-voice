@@ -168,8 +168,8 @@ const UserFormComponent: React.FC<{
       const id = String(formData.education.studentId ?? '').trim();
       if (!id) {
         newErrors.studentId = 'الرقم الجامعي مطلوب';
-      } else if (!/^\d{4,}$/.test(id)) {
-        newErrors.studentId = 'الرقم الجامعي يجب أن يكون أرقاماً (4 خانات فأكثر)';
+      } else if (!/^\d{1,}$/.test(id)) {
+        newErrors.studentId = 'الرقم الجامعي يجب أن يكون أرقاماً (1 خانات فأكثر)';
       }
     }
 
@@ -214,9 +214,9 @@ const UserFormComponent: React.FC<{
         <div className="mx-auto -mt-16 w-16 h-16 md:w-20 md:h-20 rounded-full bg-white shadow-lg flex items-center justify-center border-4 border-white">
           <IconPicker
             onIconChange={handleIconChange}
-            initialIcon={formData.education.icon?.component || 'graduation'}
-            initialColor={formData.education.icon?.color || '#4a5568'}
-            initialBgColor={formData.education.icon?.bgColor || '#ffffff'}
+            initialIcon={formData.education.icon?.component}
+            initialColor={formData.education.icon?.color }
+            initialBgColor={formData.education.icon?.bgColor }
           />
         </div>
 
@@ -622,8 +622,7 @@ const UniversityForm: React.FC<EducationFormProps> = ({ education, onChange, cur
           onChange={(e) => onChange('studentId', e.target.value)}
           aria-invalid={!!errors.studentId}
           aria-describedby="studentId-error"
-          required
-        />
+          required/>
         {errors.studentId && <p id="studentId-error" className="text-red-500 text-xs mt-1">{errors.studentId}</p>}
       </div>
     </div>

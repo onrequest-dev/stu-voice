@@ -341,12 +341,11 @@ const isWeakPassword = (pwd: string, s: number) => {
                   checked={acceptedPrivacyPolicy}
                   onChange={handleChange}
                   className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300"
-                  required
                   disabled={isLoading}
                 />
               </div>
               <label htmlFor="privacyPolicy" className="ms-2 text-sm font-medium text-gray-900">
-                 اوافق على{' '}
+                اوافق على{' '}
                 <Link 
                   href="/privacy-and-terms" 
                   className="text-blue-600 hover:underline"

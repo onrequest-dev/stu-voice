@@ -310,10 +310,14 @@ const MainInterface = ({ children }: { children?: React.ReactNode }) => {
               isMenuOpen && !isLargeScreen.current ? 'rounded-r-2xl shadow-xl' : 'rounded-none'
             }`}
             style={{
-              width: isLargeScreen.current ? 'calc(100% - 6rem)' : '100%',
-              transformOrigin: 'left center',
-              backgroundColor: 'rgba(255,255,255,0.95)',
-              transform: isMenuOpen && !isLargeScreen.current ? 'perspective(1000px) rotateY(30deg) translateX(0)' : 'none',
+            width: isLargeScreen.current ? 'calc(100% - 6rem)' : '100%',
+            transformOrigin: 'left center',
+            backgroundColor: 'rgba(255,255,255,0.95)',
+            transform: isMenuOpen && !isLargeScreen.current 
+            ? 'perspective(700px) rotateY(27deg) translateZ(0)' 
+            : 'none',
+            transition: 'transform 0.35s ease-in-out',
+            willChange: 'transform',
             }}
           >
             <div className="h-full"> 

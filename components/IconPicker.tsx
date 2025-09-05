@@ -147,7 +147,7 @@ const IconPicker: React.FC<IconPickerProps> = ({
           className: 'text-3xl md:text-4xl',
           style: { color: iconColor } 
         })}
-        <div className="absolute bottom-0 right-0 bg-white rounded-full p-1 shadow-md">
+        <div className="absolute bottom-0 right-0 bg-green-400 rounded-full p-1 shadow-md">
           <FaPencilAlt className="text-gray-600 text-xs" />
         </div>
       </div>

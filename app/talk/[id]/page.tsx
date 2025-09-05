@@ -134,7 +134,7 @@ const ChatPage = async ({ params }: PostPageProps) => {
   
   {/* زر العودة للصفحة الرئيسية */}
   <Link 
-    href="/taps/HomeContent" 
+    href="/" 
     className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-medium hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
   >
     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

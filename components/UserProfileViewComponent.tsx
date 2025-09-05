@@ -11,7 +11,6 @@ import {
 } from 'react-icons/fa';
 import { UserEducation, UserInfo } from '../types/types';
 import CustomIcon from '../components/postcomponents/CustomIcon';
-import PureCSSLoader from './LoadingSpinner'
 import Link from 'next/link';
 import { BsPatchCheckFill } from 'react-icons/bs';
 const UserProfileViewComponent: React.FC<{ userData?: UserInfo }> = ({ userData }) => {
@@ -36,7 +35,7 @@ const UserProfileViewComponent: React.FC<{ userData?: UserInfo }> = ({ userData 
     }
   } as const;
 
-  if (!userData) return <PureCSSLoader/>;
+  if (!userData) return ;
 
   const theme = genderThemes[userData.gender] || genderThemes.male;
 
