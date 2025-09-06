@@ -1,5 +1,4 @@
 // components/OpinionsContent.tsx
-import PureCSSLoader from "../LoadingSpinner";
 const OpinionsContent = () => {
   
 
