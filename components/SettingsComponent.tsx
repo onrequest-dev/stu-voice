@@ -36,8 +36,10 @@ const SettingsPanel = () => {
   };
 
   
-const handleLogout = () => {
-    document.cookie = "jwt=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+const handleLogout = async () => {
+      await fetch('/api/auth/log-out', { method: 'GET', credentials: 'include' })
+    
+    // إعادة توجيه المستخدم إلى صفحة تسجيل الدخول
     window.location.href = "/log-in";
 };
 
