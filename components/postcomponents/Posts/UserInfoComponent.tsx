@@ -20,7 +20,7 @@ const UserInfoComponent: React.FC<UserInfoProps> = ({ userInfo }) => {
     }
   };
 
-  const isVerified = userInfo.id === 'stuvoice';
+  const isVerified = userInfo.id === 'stuvoice'||userInfo.id==='ecl_co';
 
   // دالة لتغليف المحتوى برابط أو بدون حسب القيمة
   const wrapWithLink = (content: React.ReactNode, href: string, key?: string) => {

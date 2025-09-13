@@ -71,7 +71,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
 
   const containerJustify = isMine ? 'justify-start' : 'justify-end';
   const rowOrder = isMine ? 'flex-row' : 'flex-row-reverse';
-  const isVerified = user.id === 'stuvoice';
+   const isVerified = user.id === 'stuvoice'||user.id==='ecl_co';
   return (
     <div className={['w-full flex', containerJustify, className].join(' ')}>
       <div className={['flex items-end gap-1.5 min-w-[180px] max-w-[92%] sm:max-w-[80%]', rowOrder].join(' ')}>

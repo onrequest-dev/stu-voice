@@ -2,7 +2,7 @@ import React from 'react';
 
 const PostSkeletonLoader: React.FC = () => {
   return (
-    <div className="w-full max-w-2xl mx-auto bg-white p-4 animate-pulse" dir="rtl">
+    <div className="w-full max-w-2xl mx-auto bg-white p-4 animate-pulse rounded-xl" dir="rtl">
       {/* رأس المنشور */}
       <div className="flex justify-between items-center mb-4">
         <div className="h-8 w-8 rounded-full bg-gray-200"></div>

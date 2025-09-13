@@ -44,7 +44,10 @@ const UserProfileViewComponent: React.FC<{ userData?: UserInfo }> = ({ userData 
   const iconName = userData.education.icon?.component ||'user'
 
 
-      const isVerified = userData.id === 'stuvoice';
+      const isVerified = userData.id === 'stuvoice'|| userData.id==='ecl_co';
+      const profileLink = userData.id === 'stuvoice'? "/STUvoice-profile":"https://ecl-onrequest.vercel.app/"
+
+
   return (
     <div className="relative w-full max-w-3xl mx-auto rtl text-right ">
       {/* خلفية عليا مزودة برسومات SVG */}
@@ -125,7 +128,8 @@ const UserProfileViewComponent: React.FC<{ userData?: UserInfo }> = ({ userData 
 
         {/* قسم المعلومات التعليمية */}
         {isVerified?(<Link 
-                    href="/STUvoice-profile" 
+                    href={profileLink}
+                    target='_blank'
                     className="inline-flex items-center justify-center px-2 py-3 rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-medium hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                   >
                  قم بزيارة صفحة المنصة

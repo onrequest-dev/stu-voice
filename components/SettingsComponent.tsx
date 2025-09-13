@@ -16,7 +16,7 @@ import {
 } from 'react-icons/fa';
 import LoadingSpinner from './LoadingSpinner';
 import InstallPWA from './InstallPwa';
-
+import ThemeToggleButton from './ThemeToggleButton';
 
 const SettingsPanel = () => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
@@ -224,6 +224,9 @@ const handleLogout = () => {
       </span>
       </Link>
       </div>
+        
+        {/* <ThemeToggleButton/> */}
+
     </div>
   );
 };
