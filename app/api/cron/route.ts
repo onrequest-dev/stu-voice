@@ -5,12 +5,13 @@ import { sendNotificationToUser } from '@/lib/pushnotifcation';
  
 export async function GET(request: NextRequest) {
 //   const authHeader = request.headers.get('authorization');
-//   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+//   if (authHeader !== Bearer ${process.env.CRON_SECRET}) {
 //     return new Response('Unauthorized', {
 //       status: 401,
 //     });
 //   }
     const post = await postOpinion();
+    if(post){
     sendNotificationToUser("*",
       {
         "title":"لقد وصل الرأي اليومي 😊😊",
@@ -18,6 +19,7 @@ export async function GET(request: NextRequest) {
         "data":{"url":"/DailyOpinion"}
       }
     )
+  }
  
   return Response.json({ success: true });
 }
