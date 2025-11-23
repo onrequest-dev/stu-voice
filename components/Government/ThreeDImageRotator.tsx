@@ -3,7 +3,7 @@ import Image from 'next/image';
 
 const ThreeDImageRotator = () => {
   return (
-    <div className="absolute top-10 left-1/2 transform -translate-x-1/2 z-20">
+    <div className="absolute top-0 left-4 z-20">
       <style jsx>{`
         @keyframes rotate3d {
           0% {
@@ -21,8 +21,8 @@ const ThreeDImageRotator = () => {
         
         .image-container {
           perspective: 1000px;
-          width: 192px;
-          height: 192px;
+          width: 84px;   /* حجم أصغر مناسب للهيدر */
+          height: 84px;
         }
       `}</style>
       
@@ -30,9 +30,9 @@ const ThreeDImageRotator = () => {
         <div className="rotating-image">
           <Image 
             src="/Naser.png"
-            alt="للوغو الرسمي" 
-            width={192}
-            height={192}
+            alt="اللوجو الرسمي" 
+            width={84}
+            height={84}
             className="rounded-full"
           />
         </div>

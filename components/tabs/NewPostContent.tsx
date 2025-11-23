@@ -120,7 +120,7 @@ const handleSubmitPost = async (postData: {
 
   return (
 
-    <div className="max-w-2xl mx-auto py-8 px-4">
+    <div className="max-w-2xl mx-auto py-3 px-1">
       {showAlert && <Alert type='error' message={'فشل في انشاء الرأي. حاول مرة أخرى.'} onDismiss={()=>setShowAlert(false)}/>}
         {success && <Alert type={"success"} message={'تم انشاء الرأي بنجاح'} onDismiss={()=>setSuccess(false)}/>}
       <PostCreator 

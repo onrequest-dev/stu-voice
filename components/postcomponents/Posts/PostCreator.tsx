@@ -201,7 +201,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ onSubmit, userInfo }) => {
       )}
       
       <div className='text-right'>
-        <div className="flex border-b border-gray-200 mb-6">
+        <div className="flex border-b border-gray-200 mb-6 rounded-xl">
           <button
             onClick={() => handleTabChange('opinion')}
             className={`flex-1 py-3 font-medium text-xs md:text-sm flex items-center justify-center gap-1 ${

@@ -122,7 +122,7 @@ const {
 
   return (
     
-    <div className="pb-12">
+    <div className="pb-12 ">
       <Addnotification afterDone={function (): void {
       } } />
       <div className="max-w-2xl mx-auto space-y-6 scroll-smooth">
