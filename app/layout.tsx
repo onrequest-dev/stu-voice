@@ -10,7 +10,7 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "STUvoice",
   description: "رأيك يصنع الفرق",
-  manifest: "/manifest.json",
+  // manifest: "/manifest.json",
   themeColor: "#1d4ed8", // اللون الأساسي (لون الشريط على Android)
   icons: {
     icon: [
