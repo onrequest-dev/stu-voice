@@ -1,4 +1,4 @@
-import { randomDelay } from "@/client_helpers/delay";
+// import { randomDelay } from "@/client_helpers/delay";
 import createJwt from "@/lib/create_jwt";
 import { decodeJWT } from "@/lib/decodejwt";
 import { sendNotificationToUser } from "@/lib/pushnotifcation";
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     if (!jwt_user || typeof jwt_user === "string" || !jwt_user.user_name) {
       return NextResponse.json({ error: you_need_account_to_post }, { status: 401 });
     }
-  await randomDelay(5);
+  // await randomDelay(2);
 
     const response =  NextResponse.json({status:200});
 

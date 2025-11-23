@@ -11,6 +11,7 @@ export async function GET(request: NextRequest) {
 //     });
 //   }
     const post = await postOpinion();
+    if(post){
     sendNotificationToUser("*",
       {
         "title":"لقد وصل الرأي اليومي 😊😊",
@@ -18,6 +19,7 @@ export async function GET(request: NextRequest) {
         "data":{"url":"/DailyOpinion"}
       }
     )
+  }
  
   return Response.json({ success: true });
 }
